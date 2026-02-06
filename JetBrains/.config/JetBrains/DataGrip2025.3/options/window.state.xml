@@ -1,0 +1,54 @@
+<application>
+  <component name="DimensionService">
+    <size key="GridCell.Tab.0.left.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.0.center.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.0.right.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.0.bottom.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.1.left.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.1.center.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.1.right.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.1.bottom.3072.0.3840.2160@216dpi" width="3076" height="1071" />
+    <size key="GridCell.Tab.0.left.0.0.3072.1728@216dpi" width="2416" height="534" />
+    <size key="GridCell.Tab.0.center.0.0.3072.1728@216dpi" width="2416" height="534" />
+    <size key="GridCell.Tab.0.right.0.0.3072.1728@216dpi" width="2416" height="534" />
+    <size key="GridCell.Tab.0.bottom.0.0.3072.1728@216dpi" width="2416" height="534" />
+    <size key="GridCell.Tab.0.left.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.0.center.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.0.right.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.0.bottom.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.1.left.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.1.center.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.1.right.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.1.bottom.0.0.3072.1728" width="1220" height="223" />
+    <size key="GridCell.Tab.0.left.0.0.1536.864" width="1220" height="296" />
+    <size key="GridCell.Tab.0.center.0.0.1536.864" width="1220" height="296" />
+    <size key="GridCell.Tab.0.right.0.0.1536.864" width="1220" height="296" />
+    <size key="GridCell.Tab.0.bottom.0.0.1536.864" width="1220" height="296" />
+    <size key="GridCell.Tab.1.left.0.0.1536.864" width="1220" height="317" />
+    <size key="GridCell.Tab.1.center.0.0.1536.864" width="1220" height="317" />
+    <size key="GridCell.Tab.1.right.0.0.1536.864" width="1220" height="317" />
+    <size key="GridCell.Tab.1.bottom.0.0.1536.864" width="1220" height="317" />
+    <size key="GridCell.Tab.0.left.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.0.center.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.0.right.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.0.bottom.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.1.left.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.1.center.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.1.right.1536.0.1920.1080" width="1552" height="383" />
+    <size key="GridCell.Tab.1.bottom.1536.0.1920.1080" width="1552" height="383" />
+  </component>
+  <component name="WindowManager">
+    <frame x="0" y="37" width="1536" height="827" extendedState="6" />
+  </component>
+  <component name="WindowStateApplicationService">
+    <state x="4992" y="1080" width="3840" height="2160" key="WELCOME_SCREEN" timestamp="1768324675438">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state x="4992" y="1080" width="3840" height="2160" key="WELCOME_SCREEN/0.0.1536.864/3072.0.3840.2160" timestamp="1768324675438" />
+    <state x="1794" y="1215" width="3072" height="1658" key="WELCOME_SCREEN/0.70.1536.794/3072.0.3840.2160" timestamp="1768324239495" />
+    <state x="24" y="70" width="1512" height="3266" key="search.everywhere.popup" timestamp="1768324175266">
+      <screen x="0" y="70" width="1536" height="794" />
+    </state>
+    <state x="24" y="70" width="1512" height="3266" key="search.everywhere.popup/0.70.1536.794/3072.0.3840.2160" timestamp="1768324175266" />
+  </component>
+</application>

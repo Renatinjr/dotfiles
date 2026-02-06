@@ -1,0 +1,208 @@
+<application>
+  <component name="ActionsLocalSummary">
+    <e n="$Cut">
+      <i c="1" l="1769624369220" />
+    </e>
+    <e n="$SelectAll">
+      <i c="17" l="1770389233897" />
+    </e>
+    <e n="$Undo">
+      <i c="26" l="1770391321375" />
+    </e>
+    <e n="ActivateNotificationsToolWindow">
+      <i c="1" l="1768330177347" />
+    </e>
+    <e n="ChangeLaf">
+      <i c="1" l="1768333494861" />
+    </e>
+    <e n="ChooseRuntime">
+      <i c="3" d="3" l="1768324175349" k="1768324175349" />
+    </e>
+    <e n="CodeCompletion">
+      <i c="5" l="1770326408769" />
+    </e>
+    <e n="ColoredHeaderAction">
+      <i c="2" l="1768325740304" />
+    </e>
+    <e n="Console.Jdbc.Execute">
+      <i c="101" l="1770389227347" />
+    </e>
+    <e n="Console.TableResult.ChangePageSize">
+      <i c="1" l="1768482473126" />
+    </e>
+    <e n="Console.TableResult.FirstPage">
+      <i c="1" l="1768414085506" />
+    </e>
+    <e n="Console.TableResult.LastPage">
+      <i c="9" l="1768499895286" />
+    </e>
+    <e n="Console.TableResult.MoveGridFloatingPaging.GridRight">
+      <i c="1" l="1768339028148" />
+    </e>
+    <e n="Console.TableResult.NextPage">
+      <i c="4" l="1769626240978" />
+    </e>
+    <e n="Console.TableResult.PreviousPage">
+      <i c="6" l="1769626244469" />
+    </e>
+    <e n="Console.TableResult.ShowDumpDialogAction">
+      <i c="1" l="1768416970705" />
+    </e>
+    <e n="DatabaseView.AddActionGroupPopup">
+      <i c="4" l="1770325455676" />
+    </e>
+    <e n="DatabaseView.AddDataSourceFromUrl">
+      <i c="2" l="1768325476465" />
+    </e>
+    <e n="DatabaseView.Ddl.AlterObject">
+      <i c="2" l="1768329814988" />
+    </e>
+    <e n="DatabaseView.DeactivateAction">
+      <i c="5" l="1768330144609" />
+    </e>
+    <e n="DatabaseView.ImportFromSql">
+      <i c="1" l="1768330491123" />
+    </e>
+    <e n="DatabaseView.ImportNew">
+      <i c="1" l="1768482189383" />
+    </e>
+    <e n="DatabaseView.PropertiesAction">
+      <i c="13" l="1770388944784" />
+    </e>
+    <e n="DatabaseView.Refresh">
+      <i c="3" l="1768330070753" />
+    </e>
+    <e n="DatabaseView.ScrollFromEditor">
+      <i c="2" l="1768325811919" />
+    </e>
+    <e n="EditorBackSpace">
+      <i c="133" l="1770391314346" />
+    </e>
+    <e n="EditorChooseLookupItem">
+      <i c="52" l="1770389226807" />
+    </e>
+    <e n="EditorCopy">
+      <i c="10" l="1770389234649" />
+    </e>
+    <e n="EditorDeleteToWordStart">
+      <i c="17" l="1770391301919" />
+    </e>
+    <e n="EditorDown">
+      <i c="17" l="1770387896747" />
+    </e>
+    <e n="EditorEnter">
+      <i c="5" l="1770387524399" />
+    </e>
+    <e n="EditorEscape">
+      <i c="6" l="1770391322185" />
+    </e>
+    <e n="EditorLeft">
+      <i c="14" l="1770387853146" />
+    </e>
+    <e n="EditorNextWord">
+      <i c="61" l="1770387854121" />
+    </e>
+    <e n="EditorPaste">
+      <i c="18" l="1770388985703" />
+    </e>
+    <e n="EditorPreviousWord">
+      <i c="53" l="1770387852176" />
+    </e>
+    <e n="EditorRight">
+      <i c="10" l="1769624477564" />
+    </e>
+    <e n="EditorTab">
+      <i c="1" l="1768417271272" />
+    </e>
+    <e n="EditorUp">
+      <i c="8" l="1770387895783" />
+    </e>
+    <e n="GotoAction">
+      <i c="5" l="1768324171386" />
+    </e>
+    <e n="Jdbc.OpenConsole.New.Generate">
+      <i c="5" l="1770388679448" />
+    </e>
+    <e n="Jdbc.OpenConsole.New.InPath">
+      <i c="1" l="1770388674015" />
+    </e>
+    <e n="MergeMenuWithWindowTitleAction">
+      <i c="1" l="1768333447324" />
+    </e>
+    <e n="NavBarLocationTop">
+      <i c="1" l="1768324729674" />
+    </e>
+    <e n="NewElement">
+      <i c="2" l="1768324753753" />
+    </e>
+    <e n="SaveAll">
+      <i c="1" l="1770391324751" />
+    </e>
+    <e n="SettingsEntryPoint">
+      <i c="3" l="1768333493723" />
+    </e>
+    <e n="ShowIntentionActions">
+      <i c="1" l="1768417261729" />
+    </e>
+    <e n="ShowSettings">
+      <i c="1" l="1768333452862" />
+    </e>
+    <e n="WelcomeScreen.CreateDirectoryProject">
+      <i c="1" l="1768324677737" />
+    </e>
+    <e n="com.intellij.database.dataSource.LocalDataSourceManager$3">
+      <i c="3" l="1770325460747" />
+    </e>
+    <e n="com.intellij.database.dataSource.url.ui.DynamicJdbcUrlEditor$7">
+      <i c="1" l="1768325105562" />
+    </e>
+    <e n="com.intellij.database.datagrid.GridUtil$GridRevealFileAction">
+      <i c="1" l="1768417032678" />
+    </e>
+    <e n="com.intellij.database.run.ScriptingClientDataConsumer$3">
+      <i c="1" l="1768338848865" />
+    </e>
+    <e n="com.intellij.execution.impl.ConsoleViewImpl$ClearThisConsoleAction">
+      <i c="1" l="1768425135893" />
+    </e>
+    <e n="com.intellij.ide.actions.ChangeMainMenuModeAction">
+      <i c="1" l="1768325701966" />
+    </e>
+    <e n="com.intellij.ide.actions.QuickChangeLookAndFeel$1">
+      <i c="1" l="1768333497851" />
+    </e>
+    <e n="com.intellij.ide.startup.importSettings.chooser.productChooser.JbChooserAction">
+      <i c="1" l="1768323432408" />
+    </e>
+    <e n="com.intellij.ide.ui.customization.CustomizationUtil$MyDumbAction">
+      <i c="1" l="1768325715275" />
+    </e>
+    <e n="com.intellij.openapi.actionSystem.impl.MoreActionGroup">
+      <i c="7" l="1768417248104" />
+    </e>
+    <e n="com.intellij.openapi.fileEditor.impl.tabActions.CloseTab">
+      <i c="8" l="1770388658219" />
+    </e>
+    <e n="com.intellij.openapi.wm.impl.customFrameDecorations.header.toolbar.MainMenuButton$ShowMenuAction">
+      <i c="2" l="1768324739117" />
+    </e>
+    <e n="com.intellij.openapi.wm.impl.welcomeScreen.projectActions.ChangeProjectColorAction">
+      <i c="5" l="1768333384975" />
+    </e>
+    <e n="com.intellij.toolWindow.ShowMoreToolWindowsAction">
+      <i c="1" l="1768330174607" />
+    </e>
+    <e n="com.intellij.toolWindow.ToolWindowHeader$HideAction">
+      <i c="1" l="1768330183273" />
+    </e>
+    <e n="com.intellij.toolWindow.ToolWindowHeader$ShowOptionsAction">
+      <i c="1" l="1768414342157" />
+    </e>
+    <e n="com.intellij.ui.ScrollingUtil$ListMoveDownAction">
+      <i c="8" l="1768500055842" />
+    </e>
+    <e n="com.intellij.ui.ScrollingUtil$ListMoveUpAction">
+      <i c="2" l="1768339099853" />
+    </e>
+  </component>
+</application>

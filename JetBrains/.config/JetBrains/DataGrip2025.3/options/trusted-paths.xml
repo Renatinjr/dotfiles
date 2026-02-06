@@ -1,0 +1,11 @@
+<application>
+  <component name="Trusted.Paths">
+    <option name="TRUSTED_PROJECT_PATHS">
+      <map>
+        <entry key="$USER_HOME$/DataGripProjects/Dev" value="true" />
+        <entry key="$USER_HOME$/DataGripProjects/Job" value="true" />
+        <entry key="$USER_HOME$/IdeaProjects/starter" value="true" />
+      </map>
+    </option>
+  </component>
+</application>

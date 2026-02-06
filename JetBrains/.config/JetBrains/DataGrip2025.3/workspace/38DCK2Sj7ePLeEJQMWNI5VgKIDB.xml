@@ -1,0 +1,300 @@
+<project version="4">
+  <component name="BookmarksManager">
+    <option name="groups">
+      <GroupState>
+        <option name="name" value="Dev" />
+      </GroupState>
+    </option>
+  </component>
+  <component name="DatabaseView">
+    <expand />
+    <select />
+  </component>
+  <component name="FileEditorManager">
+    <leaf ideFingerprint="4a4cn36msn68" SIDE_TABS_SIZE_LIMIT_KEY="-1">
+      <file>
+        <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console.sql" file-id="1544" managing-fs="1768323402114">
+          <provider editor-type-id="text-editor" selected="true">
+            <state relative-caret-position="21">
+              <caret line="1" selection-start-line="1" selection-end-line="1" />
+            </state>
+          </provider>
+        </entry>
+        <tab><![CDATA[{"tabTitle":"console [Inovação Sync]","foregroundColor":-3814971,"textAttributes":{"name":"a"},"icon":[10,57,99,111,109,46,105,110,116,101,108,108,105,106,46,117,105,46,105,99,111,110,115,46,82,97,115,116,101,114,105,122,101,100,73,109,97,103,101,68,97,116,97,76,111,97,100,101,114,68,101,115,99,114,105,112,116,111,114,18,48,10,24,112,114,111,118,105,100,101,114,115,47,112,111,115,116,103,114,101,115,113,108,46,115,118,103,26,12,99,111,109,46,105,110,116,101,108,108,105,106,40,-44,-127,-114,-32,7,48,2]}]]></tab>
+      </file>
+      <file current-in-tab="true">
+        <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console_1.sql" file-id="1561" managing-fs="1768323402114">
+          <provider editor-type-id="text-editor" selected="true">
+            <state>
+              <caret column="14" selection-start-column="14" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+        <tab><![CDATA[{"tabTitle":"console_1 [Inovação Sync]","foregroundColor":-3814971,"textAttributes":{"name":"a"},"icon":[10,57,99,111,109,46,105,110,116,101,108,108,105,106,46,117,105,46,105,99,111,110,115,46,82,97,115,116,101,114,105,122,101,100,73,109,97,103,101,68,97,116,97,76,111,97,100,101,114,68,101,115,99,114,105,112,116,111,114,18,48,10,24,112,114,111,118,105,100,101,114,115,47,112,111,115,116,103,114,101,115,113,108,46,115,118,103,26,12,99,111,109,46,105,110,116,101,108,108,105,106,40,-44,-127,-114,-32,7,48,2]}]]></tab>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTypeUsageLocalSummary"><![CDATA[{
+  "data": {
+    "SQL": {
+      "usageCount": 31,
+      "lastUsed": 1770401570841
+    },
+    "Database Element": {
+      "usageCount": 2,
+      "lastUsed": 1768502388635
+    }
+  }
+}]]></component>
+  <component name="IdeDocumentHistory">{
+  &quot;changedPaths&quot;: [
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/27defee5-ae19-45a9-9d00-c9f25f5ab89f/console.sql&quot;,
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console.sql&quot;,
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console_1.sql&quot;,
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console_2.sql&quot;,
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console.sql&quot;,
+    &quot;/home/renatojr/.config/JetBrains/DataGrip2025.3/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console_1.sql&quot;
+  ]
+}</component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="LanguageUsageStatistics">
+    <language id="SQL">
+      <summary usageCount="31" lastUsage="1770401570841" />
+    </language>
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1" />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Dev" type="e2ad676d:AttachableProjectViewPane$1$1" />
+              <item name="dir{file:///home/renatojr/DataGripProjects/Dev}" type="377199ff:AttachableProjectViewPane$1$1$1" />
+            </path>
+          </expand>
+          <select />
+          <presentation>
+            <attributes />
+            <data iconPath="expui/toolwindows/project.svg" iconPlugin="com.intellij" isLeaf="false" text="Dev" />
+            <item name="Dev" type="e2ad676d:AttachableProjectViewPane$1$1" />
+            <presentation>
+              <attributes>
+                <map>
+                  <entry key="filePath" value="$PROJECT_DIR$" />
+                </map>
+              </attributes>
+              <data iconPath="expui/nodes/folder.svg" iconPlugin="com.intellij" isLeaf="false" text="Dev" />
+              <item name="dir{file:///home/renatojr/DataGripProjects/Dev}" type="377199ff:AttachableProjectViewPane$1$1$1" />
+            </presentation>
+            <presentation>
+              <attributes />
+              <data iconPath="expui/fileTypes/scratches.svg" iconPlugin="com.intellij" isLeaf="false" text="Scratches and Consoles" />
+              <item name="Scratches and Consoles" type="b85a3e1f:ScratchTreeStructureProvider$MyProjectNode" />
+            </presentation>
+          </presentation>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="QueryFileSettings">
+    <option name="projectQueriesDirectory" value="$PROJECT_DIR$/queries" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <option name="contentProportion" value="0.13701317" />
+          <treeState>
+            <expand>
+              <path>
+                <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+                <item name="Database" type="b28e1758:ServiceModel$ServiceGroupNode" />
+              </path>
+              <path>
+                <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+                <item name="Database" type="b28e1758:ServiceModel$ServiceGroupNode" />
+                <item name="Inovação Sync: root" type="b28e1758:ServiceModel$ServiceGroupNode" />
+              </path>
+            </expand>
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="ToolWindowManager">
+    <layoutV2>
+      <window_info active="true" content_ui="combo" id="Database" order="0" visible="true" weight="0.26660156" />
+      <window_info anchor="bottom" id="Version Control" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Services" order="5" visible="true" weight="0.40931076" />
+      <window_info active="true" anchor="right" content_ui="combo" id="Project" order="0" visible="true" weight="0.11425781" />
+      <window_info anchor="right" id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Notifications" order="2" side_tool="true" weight="0.33007812" />
+      <unified_weights bottom="0.40931076" left="0.26660156" right="0.11425781" />
+    </layoutV2>
+    <recentWindows>
+      <value>Database</value>
+      <value>Services</value>
+      <value>Project</value>
+      <value>Notifications</value>
+    </recentWindows>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="0" y="37" width="1523" height="827" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1770389012941">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state x="0" y="37" width="1523" height="827" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770389012941" />
+    <state x="0" y="0" width="1522" height="864" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.864/3072.0.3840.2160@0.0.1536.864" timestamp="1768325676568" />
+    <state x="3072" y="0" width="3806" height="2160" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768330141915" />
+    <state x="4092" y="180" width="1800" height="1800" key="DbImportDialog" timestamp="1768482228406">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state x="4092" y="180" width="1800" height="1800" key="DbImportDialog/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768482228406" />
+    <state x="4092" y="180" width="1800" height="1800" key="DbModifyObjectDialog" timestamp="1768329817989">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state x="4092" y="180" width="1800" height="1800" key="DbModifyObjectDialog/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768329817989" />
+    <state x="4514" y="546" width="954" height="1106" key="FileChooserDialogImpl" timestamp="1768482203663">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state x="4514" y="546" width="954" height="1106" key="FileChooserDialogImpl/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768482203663" />
+    <state width="1220" height="296" key="GridCell.Tab.0.bottom" timestamp="1770401573986">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="296" key="GridCell.Tab.0.bottom/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770401573986" />
+    <state width="1552" height="383" key="GridCell.Tab.0.bottom/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.0.bottom/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.0.bottom/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="2416" height="534" key="GridCell.Tab.0.bottom/0.70.3072.1658@0.70.3072.1658" timestamp="1769678632908" />
+    <state width="1220" height="296" key="GridCell.Tab.0.center" timestamp="1770401573985">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="296" key="GridCell.Tab.0.center/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770401573985" />
+    <state width="1552" height="383" key="GridCell.Tab.0.center/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429672" />
+    <state width="3076" height="1071" key="GridCell.Tab.0.center/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.0.center/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="2416" height="534" key="GridCell.Tab.0.center/0.70.3072.1658@0.70.3072.1658" timestamp="1769678632908" />
+    <state width="1220" height="296" key="GridCell.Tab.0.left" timestamp="1770401573985">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="296" key="GridCell.Tab.0.left/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770401573985" />
+    <state width="1552" height="383" key="GridCell.Tab.0.left/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429672" />
+    <state width="3076" height="1071" key="GridCell.Tab.0.left/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.0.left/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="2416" height="534" key="GridCell.Tab.0.left/0.70.3072.1658@0.70.3072.1658" timestamp="1769678632908" />
+    <state width="1220" height="296" key="GridCell.Tab.0.right" timestamp="1770401573986">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="296" key="GridCell.Tab.0.right/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770401573986" />
+    <state width="1552" height="383" key="GridCell.Tab.0.right/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.0.right/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.0.right/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="2416" height="534" key="GridCell.Tab.0.right/0.70.3072.1658@0.70.3072.1658" timestamp="1769678632908" />
+    <state width="1220" height="317" key="GridCell.Tab.1.bottom" timestamp="1770389228391">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="317" key="GridCell.Tab.1.bottom/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770389228391" />
+    <state width="1552" height="383" key="GridCell.Tab.1.bottom/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.1.bottom/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.1.bottom/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="1220" height="317" key="GridCell.Tab.1.center" timestamp="1770389228391">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="317" key="GridCell.Tab.1.center/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770389228391" />
+    <state width="1552" height="383" key="GridCell.Tab.1.center/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.1.center/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.1.center/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="1220" height="317" key="GridCell.Tab.1.left" timestamp="1770389228391">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="317" key="GridCell.Tab.1.left/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770389228391" />
+    <state width="1552" height="383" key="GridCell.Tab.1.left/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.1.left/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.1.left/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="1220" height="317" key="GridCell.Tab.1.right" timestamp="1770389228391">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1220" height="317" key="GridCell.Tab.1.right/0.0.1536.864/1536.0.1920.1080@0.0.1536.864" timestamp="1770389228391" />
+    <state width="1552" height="383" key="GridCell.Tab.1.right/0.0.1536.864/1536.0.1920.1080@1536.0.1920.1080" timestamp="1770326429673" />
+    <state width="3076" height="1071" key="GridCell.Tab.1.right/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1769626250974" />
+    <state width="1220" height="223" key="GridCell.Tab.1.right/0.33.1536.831@0.33.1536.831" timestamp="1769728599503" />
+    <state width="608" height="1262" key="HiddenNamespacesPopup" timestamp="1768330157996">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state width="608" height="1262" key="HiddenNamespacesPopup/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768330157996" />
+    <state x="3886" y="274" width="2212" height="1650" key="SettingsEditor" timestamp="1768333528404">
+      <screen x="3072" y="0" width="3840" height="2160" />
+    </state>
+    <state x="3886" y="274" width="2212" height="1650" key="SettingsEditor/0.0.3072.1728/3072.0.3840.2160@3072.0.3840.2160" timestamp="1768333528404" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/3b6ff0fb-7cc9-4ebf-beb3-7c0a9cdecb4c/console.sql" />
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/dcfdf8c5-5ecd-4800-a293-6157c2d8e848/console.sql" />
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/27defee5-ae19-45a9-9d00-c9f25f5ab89f/console.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="47" lean-forward="true" selection-start-column="47" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/database/g3v_use/schema/public/table/accounts_payable">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.ExperimentalDatabaseCompositeTableEditorProvider">
+        <state lastOpenedTimestamp="1768502381559" presentationMode="TABLE" projectRestartId="c13b2db7-9d8a-45c1-baf1-9547cee6a730" pageSize="500">
+          <filtering>
+            <filter text="" />
+          </filtering>
+          <sorting>
+            <sort text="" />
+          </sorting>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console_1.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret lean-forward="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/2f7b6799-3a5f-437f-9b1a-4e6d4a26ea21/console_2.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="57" selection-start-column="57" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/b4a7f9ff-1d39-4a1f-8e1b-d60713367dea/console_1.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="14" selection-start-column="14" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
