@@ -27,6 +27,8 @@ source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 
 #Asdf
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
+autoload -Uz compinit && compinit
 #Alias
 alias lzd=lazydocker
 alias myip="curl -s https://ipinfo.io/ip"
@@ -43,3 +45,4 @@ alias "docker compose"="sudo podman compose"
 eval "$(zoxide init zsh --cmd cd)"
 ___MY_VMOPTIONS_SHELL_FILE="${HOME}/.jetbrains.vmoptions.sh"; if [ -f "${___MY_VMOPTIONS_SHELL_FILE}" ]; then . "${___MY_VMOPTIONS_SHELL_FILE}"; fi
 
+export PATH="$HOME/.cargo/bin:$PATH"
