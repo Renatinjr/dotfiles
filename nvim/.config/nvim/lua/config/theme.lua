@@ -665,14 +665,351 @@ local kanagawa = function()
 	}
 end
 
--- M.kanagawa = kanagawa()
--- M.rose_pine = rose_pine()
--- M.rose_pine_dark = rose_pine_dark()
--- M.kanagawa_dark = kanagawa_dark()
--- M.catppuccin_dark = catppuccin_dark()
--- M.kanagawa_paper = kanagawa_paper()
-M.kanso = kanso()
+local vague = function()
+	local colors = require("vague").get_palette()
+	local bg = colors.bg or "#111114"
+	local bg_dark = "#0e0e11"
+	local fg = colors.fg or "#cdcdcd"
+	local comment = colors.comment or "#606079"
+	local keyword = colors.keyword or "#6e94b2"
+	local func = colors.func or "#c48282"
+	local builtin = colors.builtin or "#b4d4cf"
+	local str = colors.string or "#e8b589"
+	local number = colors.number or "#e0a363"
+	local hint = colors.hint or "#7e98e8"
+	local error_c = colors.error or "#d8647e"
+	local warning = colors.warning or "#f3be7c"
+	local plus = colors.plus or "#7fa563"
+	local parameter = colors.parameter or "#bb9dbd"
+	local line = colors.line or "#252530"
+	local property = colors.property or "#c3c3d5"
+	local type_c = colors.type or "#9bb4bc"
 
-M.current_theme = kanagawa()
+	return {
+		bg = bg,
+		bg_sec = bg_dark,
+		bg_notify = bg,
+		text = fg,
+		text_sec = comment,
+		inlay_hint_bg = bg_dark,
+		inlay_hint_fg = "#818890",
+		fzf = {
+			setup_colors = function()
+				local fzf_colors = {
+					bg = bg,
+					fg = fg,
+					border = line,
+					cursor_line_bg = bg_dark,
+					blue = hint,
+					light_blue = type_c,
+					purple = parameter,
+					red = error_c,
+					green = plus,
+					orange = number,
+					comment = comment,
+				}
+
+				local highlights = {
+					FzfLuaNormal = { bg = fzf_colors.bg, fg = fzf_colors.fg },
+					FzfLuaBorder = { fg = "#a4a7a4" },
+					FzfLuaCursorLine = { bg = fzf_colors.cursor_line_bg, fg = fzf_colors.purple },
+					FzfLuaTitle = { fg = fzf_colors.blue, bold = true },
+					FzfLuaPrompt = { fg = fzf_colors.purple, bold = true },
+					FzfLuaPointer = { fg = fzf_colors.purple, bold = true },
+					FzfLuaMarker = { fg = fzf_colors.green },
+					FzfLuaSpinner = { fg = fzf_colors.purple, bold = true },
+					FzfLuaHeader = { fg = fzf_colors.comment },
+					FzfLuaPreviewTitle = { fg = fzf_colors.purple, bold = true },
+				}
+
+				for group, opts in pairs(highlights) do
+					vim.api.nvim_set_hl(0, group, opts)
+					vim.cmd([[highlight FzfLuaPointer guifg=#828a9e]])
+				end
+
+				return {
+					normal = "FzfLuaNormal",
+					border = "FzfLuaBorder",
+					cursor = "FzfLuaPointer",
+					cursorline = "FzfLuaCursorLine",
+					title = "FzfLuaTitle",
+					prompt = "FzfLuaPrompt",
+					pointer = "FzfLuaPointer",
+					marker = "FzfLuaMarker",
+					spinner = "FzfLuaSpinner",
+					header = "FzfLuaHeader",
+					preview_title = "FzfLuaPreviewTitle",
+					help_normal = "FzfLuaNormal",
+					help_border = "FzfLuaBorder",
+				}
+			end,
+		},
+		alpha = {
+			heading = number,
+			button = parameter,
+			shortcut = hint,
+		},
+		incline = {
+			normal = { bg = line, fg = fg },
+			border = { bg = bg, fg = bg },
+			normal_nc = { bg = line, fg = comment },
+			focused = { one = line, two = line },
+			file_name = { guifg = fg },
+			modified = { guifg = warning },
+		},
+		bufferline = {
+			fill = {
+				fg = bg,
+				bg = bg,
+			},
+			background = {
+				fg = comment,
+				bg = bg,
+			},
+			tab = {
+				fg = comment,
+				bg = bg_dark,
+			},
+			tab_selected = {
+				fg = fg,
+				bg = bg,
+				bold = true,
+			},
+			tab_close = {
+				fg = comment,
+				bg = bg_dark,
+			},
+			close_button = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			close_button_visible = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			close_button_selected = {
+				fg = error_c,
+				bg = bg,
+			},
+			buffer_visible = {
+				fg = comment,
+				bg = bg_dark,
+			},
+			buffer_selected = {
+				fg = fg,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			numbers = {
+				fg = plus,
+				bg = bg_dark,
+			},
+			numbers_visible = {
+				fg = plus,
+				bg = bg_dark,
+			},
+			numbers_selected = {
+				fg = plus,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			diagnostic = {
+				fg = comment,
+				bg = bg_dark,
+			},
+			diagnostic_visible = {
+				fg = comment,
+				bg = bg_dark,
+			},
+			diagnostic_selected = {
+				fg = fg,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			hint = {
+				fg = parameter,
+				bg = bg_dark,
+			},
+			hint_visible = {
+				fg = parameter,
+				bg = bg_dark,
+			},
+			hint_selected = {
+				fg = parameter,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			hint_diagnostic = {
+				fg = parameter,
+				bg = bg_dark,
+			},
+			hint_diagnostic_visible = {
+				fg = parameter,
+				bg = bg_dark,
+			},
+			hint_diagnostic_selected = {
+				fg = parameter,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			info = {
+				fg = hint,
+				bg = bg_dark,
+			},
+			info_visible = {
+				fg = hint,
+				bg = bg_dark,
+			},
+			info_selected = {
+				fg = hint,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			info_diagnostic = {
+				fg = hint,
+				bg = bg_dark,
+			},
+			info_diagnostic_visible = {
+				fg = hint,
+				bg = bg_dark,
+			},
+			info_diagnostic_selected = {
+				fg = hint,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			warning = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			warning_visible = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			warning_selected = {
+				fg = warning,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			warning_diagnostic = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			warning_diagnostic_visible = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			warning_diagnostic_selected = {
+				fg = warning,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			error = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			error_visible = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			error_selected = {
+				fg = error_c,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			error_diagnostic = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			error_diagnostic_visible = {
+				fg = error_c,
+				bg = bg_dark,
+			},
+			error_diagnostic_selected = {
+				fg = error_c,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			modified = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			modified_visible = {
+				fg = warning,
+				bg = bg_dark,
+			},
+			modified_selected = {
+				fg = warning,
+				bg = bg,
+			},
+			duplicate = {
+				fg = comment,
+				bg = bg_dark,
+				italic = true,
+			},
+			duplicate_visible = {
+				fg = comment,
+				bg = bg_dark,
+				italic = true,
+			},
+			duplicate_selected = {
+				fg = fg,
+				bg = bg,
+				italic = false,
+			},
+			separator = {
+				fg = line,
+				bg = bg,
+			},
+			separator_visible = {
+				fg = line,
+				bg = bg_dark,
+			},
+			separator_selected = {
+				fg = line,
+				bg = bg,
+			},
+			indicator_selected = {
+				fg = parameter,
+				bg = bg,
+			},
+			pick_selected = {
+				fg = error_c,
+				bg = bg,
+				bold = true,
+				italic = false,
+			},
+			pick_visible = {
+				fg = error_c,
+				bg = bg_dark,
+				bold = true,
+				italic = false,
+			},
+			pick = {
+				fg = error_c,
+				bg = bg_dark,
+				bold = true,
+				italic = false,
+			},
+		},
+	}
+end
+
+M.kanagawa = kanagawa()
+M.kanso = kanso()
+M.vague = vague()
+
+M.current_theme = vague()
 
 return M

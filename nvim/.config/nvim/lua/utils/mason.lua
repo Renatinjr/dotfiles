@@ -10,8 +10,10 @@ return {
 		"stylua",
 		"prettier",
 		"codelldb",
-		"typescript-language-server",
 		"tailwindcss-language-server",
 		"vtsls",
+		"basedpyright",
+		"black",
+		"isort",
 	},
 }

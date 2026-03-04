@@ -64,6 +64,20 @@ return {
 			},
 		})
 
+		lspconfig.basedpyright.setup({
+			capabilities = capabilities,
+			settings = {
+				basedpyright = {
+					analysis = {
+						autoSearchPaths = true,
+						diagnosticMode = "openFilesOnly",
+						useLibraryCodeForTypes = true,
+						typeCheckingMode = "standard",
+					},
+				},
+			},
+		})
+
 		lspconfig.elixirls.setup({
 			cmd = { "/home/renatojr/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
 			settings = {

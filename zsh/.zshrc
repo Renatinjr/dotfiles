@@ -46,3 +46,4 @@ eval "$(zoxide init zsh --cmd cd)"
 ___MY_VMOPTIONS_SHELL_FILE="${HOME}/.jetbrains.vmoptions.sh"; if [ -f "${___MY_VMOPTIONS_SHELL_FILE}" ]; then . "${___MY_VMOPTIONS_SHELL_FILE}"; fi
 
 export PATH="$HOME/.cargo/bin:$PATH"
+export QT_WAYLAND_DECORATION=whitesur-gtk

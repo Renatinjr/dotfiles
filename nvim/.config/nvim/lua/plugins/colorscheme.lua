@@ -317,6 +317,108 @@ return {
 		end,
 	},
 	{
+		"vague-theme/vague.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			local gutter_bg = "#090e13"
+			local custom_bg = "#0A0E14"
+
+			require("vague").setup({
+				transparent = false,
+				bold = true,
+				italic = true,
+
+				colors = {
+					bg = custom_bg,
+					inactiveBg = "#1c1c24",
+					fg = "#DCD7BA",
+					floatBorder = "#878787",
+					line = "#252530",
+					comment = "#606079",
+					builtin = "#b4d4cf",
+					func = "#c48282",
+					string = "#e8b589",
+					number = "#e0a363",
+					property = "#c3c3d5",
+					constant = "#aeaed1",
+					parameter = "#bb9dbd",
+					visual = "#333738",
+					error = "#d8647e",
+					warning = "#f3be7c",
+					hint = "#7e98e8",
+					operator = "#90a0b5",
+					keyword = "#6e94b2",
+					type = "#9bb4bc",
+					search = "#405065",
+					plus = "#7fa563",
+					delta = "#f3be7c",
+				},
+
+				on_highlights = function(hl, colors)
+					-- Gutter
+					hl.SignColumn = { bg = gutter_bg }
+					hl.LineNr = { bg = gutter_bg, fg = colors.comment }
+					hl.CursorLineNr = { bg = gutter_bg, fg = colors.fg, bold = true }
+					hl.FoldColumn = { bg = gutter_bg, fg = colors.comment }
+
+					-- Background overrides
+					hl.Normal = { bg = custom_bg, fg = colors.fg }
+					hl.NormalFloat = { bg = custom_bg }
+					hl.NormalNC = { bg = custom_bg }
+					hl.FloatBorder = { bg = custom_bg, fg = colors.floatBorder }
+
+					-- Blink CMP
+					hl.BlinkCmpMenu = { bg = custom_bg, fg = colors.fg }
+					hl.BlinkCmpMenuSelection = { bg = colors.visual, fg = colors.hint, bold = true }
+					hl.BlinkCmpMenuBorder = { fg = colors.floatBorder, bg = custom_bg }
+					hl.BlinkCmpDoc = { bg = custom_bg }
+					hl.BlinkCmpLabel = { fg = colors.fg }
+					hl.BlinkCmpLabelMatch = { fg = colors.hint, bold = true }
+					hl.BlinkCmpLabelDetails = { fg = colors.comment }
+					hl.BlinkCmpKind = { fg = colors.keyword }
+					hl.BlinkCmpKindText = { fg = colors.fg }
+					hl.BlinkCmpKindFunction = { fg = colors.func }
+					hl.BlinkCmpKindVariable = { fg = colors.error }
+					hl.BlinkCmpKindClass = { fg = colors.number }
+					hl.BlinkCmpKindInterface = { fg = colors.parameter }
+					hl.BlinkCmpKindModule = { fg = colors.builtin }
+					hl.BlinkCmpKindProperty = { fg = colors.plus }
+					hl.BlinkCmpKindKeyword = { fg = colors.keyword }
+					hl.BlinkCmpKindSnippet = { fg = colors.type }
+
+					-- NvimTree
+					hl.NvimTreeVertSplit = { bg = custom_bg, fg = custom_bg }
+					hl.NvimTreeWinSeparator = { bg = custom_bg, fg = custom_bg }
+					hl.NvimTreeNormal = { bg = custom_bg }
+					hl.NvimTreeNormalNC = { bg = custom_bg }
+
+					-- WinSeparator
+					hl.WinSeparator = { fg = colors.line, bg = custom_bg }
+
+					-- FzfLua
+					hl.FzfLuaPointer = { fg = colors.warning }
+
+					-- Diagnostics
+					hl.DiagnosticVirtualTextError = { bg = "NONE" }
+					hl.DiagnosticVirtualTextWarn = { bg = "NONE" }
+					hl.DiagnosticVirtualTextInfo = { bg = "NONE" }
+					hl.DiagnosticVirtualTextHint = { bg = "NONE" }
+				end,
+			})
+
+			vim.cmd("colorscheme vague")
+			-- vim.opt.background = "dark"
+
+			-- Folder icons
+			vim.api.nvim_set_hl(0, "NvimTreeOpenedFolderIcon", { fg = "#606079" })
+			vim.api.nvim_set_hl(0, "NvimTreeClosedFolderIcon", { fg = "#606079" })
+			vim.api.nvim_set_hl(0, "NvimTreeFolderArrowClosed", { fg = "#606079" })
+			vim.api.nvim_set_hl(0, "NvimTreeFolderArrowOpen", { fg = "#606079" })
+			vim.api.nvim_set_hl(0, "NvimTreeFolderIcon", { fg = "#606079" })
+		end,
+	},
+	{
 		"rebelot/kanagawa.nvim",
 		lazy = false,
 		priority = 1000,
@@ -399,11 +501,16 @@ return {
 							bg = custom_bg,
 							fg = custom_bg,
 						},
+						NvimTreeFloatBorder = {
+							bg = custom_bg,
+							fg = custom_bg,
+						},
 
 						-- Background overrides
 						Normal = { bg = custom_bg },
-						NormalFloat = { bg = custom_bg },
+						NormalFloat = { bg = custom_bg, fg = custom_bg },
 						NormalNC = { bg = custom_bg },
+						FloatBorder = { bg = custom_bg, fg = custom_bg },
 
 						-- Tree folder icons (already defined, but you can override)
 						NvimTreeFolderIcon = { fg = colors.fujiGray or "#64748b" },
@@ -438,7 +545,7 @@ return {
 
 				colors = {
 					-- You can override palette colors here if needed
-					palette = {},
+					palette = { fg = "#dcd7ba", bg = "#0a0e14" },
 					theme = {
 						-- Theme overrides - dragon is already dark, but you can customize further
 						dragon = {
@@ -510,7 +617,7 @@ return {
 			})
 
 			-- Apply the colorscheme
-			vim.cmd("colorscheme kanagawa-dragon")
+			-- vim.cmd("colorscheme kanagawa-wave")
 			vim.opt.background = "dark"
 
 			-- Additional custom highlights (using Kanagawa's color names)

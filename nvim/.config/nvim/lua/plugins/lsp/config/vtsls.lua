@@ -43,7 +43,7 @@ local handlers = {
 		if not result or vim.tbl_isempty(result) then
 			return vim.lsp.handlers["textDocument/definition"](err, result, method, ...)
 		end
-		if vim.tbl_islist(result) and #result > 1 then
+		if vim.islist(result) and #result > 1 then
 			local filtered_result = filter(result, filterReactDTS)
 			return vim.lsp.handlers["textDocument/definition"](err, filtered_result, method, ...)
 		end
@@ -136,7 +136,7 @@ local settings = {
 -- Enhanced on_attach function
 local on_attach = function(client, bufnr)
 	-- Enable omnifunc
-	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+	vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
 
 	-- Enhanced move to file refactoring command
 	client.commands["_typescript.moveToFileRefactoring"] = function(command, ctx)
@@ -215,19 +215,6 @@ local on_attach = function(client, bufnr)
 		{ "<leader>cf", "<cmd>VtsExec file_references<CR>", desc = "file references" },
 	})
 
-	-- Additional useful keymaps
-	local bufopts = { noremap = true, silent = true, buffer = bufnr }
-	map("n", "gD", vim.lsp.buf.declaration, bufopts)
-	map("n", "gd", vim.lsp.buf.definition, bufopts)
-	map("n", "K", vim.lsp.buf.hover, bufopts)
-	map("n", "gi", vim.lsp.buf.implementation, bufopts)
-	map("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
-	map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-	map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-	map("n", "<leader>wl", function()
-		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-	end, bufopts)
-
 	-- Prettier formatting keymap
 	local curr_path = vim.fn.getcwd()
 	map("n", "<leader>pw", "<cmd>term ~/.local/share/nvim/mason/bin/prettier --write " .. curr_path .. "<CR>", {
@@ -256,7 +243,6 @@ local M = {
 			root = util.find_package_json_ancestor(fname)
 		end
 
-		print(util.path.dirname(fname))
 		return root
 	end,
 	single_file_support = true,
@@ -304,23 +290,23 @@ return {
 		end
 
 		-- Optional: Add type information on cursor hold
-		vim.api.nvim_create_autocmd("CursorHold", {
-			pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
-			callback = function()
-				if vim.b.lsp_current_servers and vim.b.lsp_current_servers.vtsls then
-					vim.diagnostic.open_float(nil, {
-						focusable = false,
-						close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-						border = "rounded",
-						source = "always",
-						prefix = " ",
-						scope = "cursor",
-					})
-				end
-			end,
-		})
+		-- vim.api.nvim_create_autocmd("CursorHold", {
+		-- 	pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+		-- 	callback = function()
+		-- 		if vim.b.lsp_current_servers and vim.b.lsp_current_servers.vtsls then
+		-- 			vim.diagnostic.open_float(nil, {
+		-- 				focusable = false,
+		-- 				close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+		-- 				border = "rounded",
+		-- 				source = "always",
+		-- 				prefix = " ",
+		-- 				scope = "cursor",
+		-- 			})
+		-- 		end
+		-- 	end,
+		-- })
 		vim.api.nvim_create_user_command("TypeScriptReloadProjects", function()
-			local clients = vim.lsp.get_active_clients({ name = "vtsls" })
+			local clients = vim.lsp.get_clients({ name = "vtsls" })
 			for _, client in ipairs(clients) do
 				if client.supports_method("workspace/executeCommand") then
 					client.request("workspace/executeCommand", {

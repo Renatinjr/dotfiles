@@ -12,6 +12,12 @@ return {
 		map("n", "<leader>nf", "<cmd>NvimTreeFindFile<CR>", { desc = "Find current file in NvimTree" })
 		map("n", "<leader>nr", "<cmd>NvimTreeRefresh<CR>", { desc = "Refresh NvimTree" })
 
+		-- Clear statuscolumn in NvimTree windows
+		local api = require("nvim-tree.api")
+		api.events.subscribe(api.events.Event.TreeOpen, function()
+			vim.opt_local.statuscolumn = ""
+		end)
+
 		require("nvim-tree").setup({
 			sync_root_with_cwd = true,
 			respect_buf_cwd = true,
