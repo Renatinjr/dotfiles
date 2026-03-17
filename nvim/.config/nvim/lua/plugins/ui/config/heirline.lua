@@ -79,7 +79,7 @@ local function get_colors()
 		normal_bg1 = hex_color(type_hl.foreground) or hex_color(function_hl.foreground) or "#89b4fa",
 		normal_bg2 = hex_color(cursorline.background) or hex_color(signcolumn.background) or "#2d2d3e",
 		normal_bg3 = hex_color(folded.background) or "#3a3a4e",
-		normal_bg4 = hex_color(signcolumn.background) or "#090e13",
+		normal_bg4 = hex_color(signcolumn.background) or "#1F1F28",
 
 		-- Insert mode
 		insert_fg = hex_color(normal.foreground) or "#cdd6f4",
@@ -111,7 +111,7 @@ local function get_colors()
 		diagnostic_info = hex_color(info.foreground) or "#89dceb",
 
 		-- Background color constant
-		dark_bg = "#090e13",
+		dark_bg = "#1F1F28",
 	}
 end
 

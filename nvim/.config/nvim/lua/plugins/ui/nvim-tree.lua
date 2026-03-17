@@ -18,6 +18,30 @@ return {
 			vim.opt_local.statuscolumn = ""
 		end)
 
+		-- VSCode-style git colors
+		local hl = vim.api.nvim_set_hl
+		-- Modified / dirty (yellow)
+		hl(0, "NvimTreeGitDirtyIcon", { fg = "#E2C08D" })
+		hl(0, "NvimTreeGitDirty", { fg = "#E2C08D" })
+		-- Staged (green)
+		hl(0, "NvimTreeGitStagedIcon", { fg = "#73C991" })
+		hl(0, "NvimTreeGitStaged", { fg = "#73C991" })
+		-- Untracked / new (green)
+		hl(0, "NvimTreeGitNewIcon", { fg = "#73C991" })
+		hl(0, "NvimTreeGitNew", { fg = "#73C991" })
+		-- Renamed (green)
+		hl(0, "NvimTreeGitRenamedIcon", { fg = "#73C991" })
+		hl(0, "NvimTreeGitRenamed", { fg = "#73C991" })
+		-- Deleted (red)
+		hl(0, "NvimTreeGitDeletedIcon", { fg = "#C74E39" })
+		hl(0, "NvimTreeGitDeleted", { fg = "#C74E39" })
+		-- Merge conflict (red)
+		hl(0, "NvimTreeGitMergeIcon", { fg = "#E4676B" })
+		hl(0, "NvimTreeGitMerge", { fg = "#E4676B" })
+		-- Ignored (dimmed)
+		hl(0, "NvimTreeGitIgnoredIcon", { fg = "#8C8C8C" })
+		hl(0, "NvimTreeGitIgnored", { fg = "#8C8C8C" })
+
 		require("nvim-tree").setup({
 			sync_root_with_cwd = true,
 			respect_buf_cwd = true,
@@ -59,7 +83,7 @@ return {
 			renderer = {
 				add_trailing = true,
 				group_empty = true,
-				highlight_git = "name",
+				highlight_git = "all",
 				highlight_opened_files = "icon",
 				highlight_modified = "all",
 				special_files = { "Cargo.toml", "Makefile", "README.md", "readme.md", "package.json" },
@@ -98,6 +122,7 @@ return {
 					glyphs = {
 						default = "󰈮",
 						symlink = "",
+						modified = "●",
 						folder = {
 							arrow_closed = "ᐅ",
 							arrow_open = "▼",
@@ -115,7 +140,7 @@ return {
 							renamed = "R",
 							untracked = "?",
 							deleted = "D",
-							ignored = "",
+							ignored = "󰺕",
 						},
 					},
 				},
@@ -129,8 +154,8 @@ return {
 			git = {
 				enable = true,
 				show_on_dirs = true,
-				show_on_open_dirs = false,
-				timeout = 300,
+				show_on_open_dirs = true,
+				timeout = 400,
 			},
 			diagnostics = {
 				enable = true,

@@ -1,355 +1,38 @@
 local M = {}
 
 local kanso = function()
-	local colors = require("kanso.colors").setup({ theme = "ink" })
-	return {
-		bg = colors.background,
-		bg_sec = colors.background_dark,
-		bg_notify = colors.background,
-		text = colors.foreground,
-		text_sec = colors.comment,
-		inlay_hint_bg = colors.background_dark,
-		inlay_hint_fg = "#818890",
-		fzf = {
-			setup_colors = function()
-				local fzf_colors = {
-					bg = colors.background,
-					fg = colors.foreground,
-					border = colors.background_light,
-					cursor_line_bg = colors.background_dark,
-					blue = colors.blue,
-					light_blue = colors.cyan,
-					purple = colors.purple,
-					red = colors.red,
-					green = colors.green,
-					orange = colors.orange,
-					comment = colors.comment,
-				}
+	local ok, kanso_colors = pcall(require, "kanso.colors")
+	if not ok then
+		return {}
+	end
 
-				local highlights = {
-					FzfLuaNormal = { bg = fzf_colors.bg, fg = fzf_colors.fg },
-					FzfLuaBorder = { fg = "#a4a7a4" },
-					FzfLuaCursorLine = { bg = fzf_colors.cursor_line_bg, fg = fzf_colors.purple },
-					FzfLuaTitle = { fg = fzf_colors.blue, bold = true },
-					FzfLuaPrompt = { fg = fzf_colors.purple, bold = true },
-					FzfLuaPointer = { fg = fzf_colors.purple, bold = true }, -- Pointer color set to purple
-					FzfLuaMarker = { fg = fzf_colors.green },
-					FzfLuaSpinner = { fg = fzf_colors.purple, bold = true },
-					FzfLuaHeader = { fg = fzf_colors.comment },
-					FzfLuaPreviewTitle = { fg = fzf_colors.purple, bold = true },
-				}
-
-				for group, opts in pairs(highlights) do
-					vim.api.nvim_set_hl(0, group, opts)
-					vim.cmd([[highlight FzfLuaPointer guifg=#828a9e]]) -- Pink color example
-				end
-
-				return {
-					normal = "FzfLuaNormal",
-					border = "FzfLuaBorder",
-					cursor = "FzfLuaPointer", -- This controls the pointer color
-					cursorline = "FzfLuaCursorLine",
-					title = "FzfLuaTitle",
-					prompt = "FzfLuaPrompt",
-					pointer = "FzfLuaPointer", -- Pointer color reference
-					marker = "FzfLuaMarker",
-					spinner = "FzfLuaSpinner",
-					header = "FzfLuaHeader",
-					preview_title = "FzfLuaPreviewTitle",
-					help_normal = "FzfLuaNormal",
-					help_border = "FzfLuaBorder",
-				}
-			end,
-		},
-		alpha = {
-			heading = colors.yellow,
-			button = colors.purple,
-			shortcut = colors.blue,
-		},
-		incline = {
-			normal = { bg = colors.background_light, fg = colors.foreground },
-			border = { bg = colors.background, fg = colors.background },
-			normal_nc = { bg = colors.background_light, fg = colors.comment },
-			focused = { one = colors.background_light, two = colors.background_light },
-			file_name = { guifg = colors.foreground },
-			modified = { guifg = colors.orange },
-		},
-		bufferline = {
-			fill = {
-				fg = colors.background,
-				bg = colors.background,
-			},
-			background = {
-				fg = colors.comment,
-				bg = colors.background,
-			},
-			tab = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-			},
-			tab_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
-				bold = true,
-			},
-			tab_close = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-			},
-			close_button = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			close_button_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			close_button_selected = {
-				fg = colors.red,
-				bg = colors.background,
-			},
-			buffer_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-			},
-			buffer_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			numbers = {
-				fg = colors.green,
-				bg = colors.background_dark,
-			},
-			numbers_visible = {
-				fg = colors.green,
-				bg = colors.background_dark,
-			},
-			numbers_selected = {
-				fg = colors.green,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			diagnostic = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-			},
-			diagnostic_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-			},
-			diagnostic_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			hint = {
-				fg = colors.purple,
-				bg = colors.background_dark,
-			},
-			hint_visible = {
-				fg = colors.purple,
-				bg = colors.background_dark,
-			},
-			hint_selected = {
-				fg = colors.purple,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			hint_diagnostic = {
-				fg = colors.purple,
-				bg = colors.background_dark,
-			},
-			hint_diagnostic_visible = {
-				fg = colors.purple,
-				bg = colors.background_dark,
-			},
-			hint_diagnostic_selected = {
-				fg = colors.purple,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			info = {
-				fg = colors.blue,
-				bg = colors.background_dark,
-			},
-			info_visible = {
-				fg = colors.blue,
-				bg = colors.background_dark,
-			},
-			info_selected = {
-				fg = colors.blue,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			info_diagnostic = {
-				fg = colors.blue,
-				bg = colors.background_dark,
-			},
-			info_diagnostic_visible = {
-				fg = colors.blue,
-				bg = colors.background_dark,
-			},
-			info_diagnostic_selected = {
-				fg = colors.blue,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			warning = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			warning_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			warning_selected = {
-				fg = colors.orange,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			warning_diagnostic = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			warning_diagnostic_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			warning_diagnostic_selected = {
-				fg = colors.orange,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			error = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			error_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			error_selected = {
-				fg = colors.red,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			error_diagnostic = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			error_diagnostic_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
-			},
-			error_diagnostic_selected = {
-				fg = colors.red,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			modified = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			modified_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
-			},
-			modified_selected = {
-				fg = colors.orange,
-				bg = colors.background,
-			},
-			duplicate = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-				italic = true,
-			},
-			duplicate_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
-				italic = true,
-			},
-			duplicate_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
-				italic = false,
-			},
-			separator = {
-				fg = colors.background_light,
-				bg = colors.background,
-			},
-			separator_visible = {
-				fg = colors.background_light,
-				bg = colors.background_dark,
-			},
-			separator_selected = {
-				fg = colors.background_light,
-				bg = colors.background,
-			},
-			indicator_selected = {
-				fg = colors.purple,
-				bg = colors.background,
-			},
-			pick_selected = {
-				fg = colors.pink,
-				bg = colors.background,
-				bold = true,
-				italic = false,
-			},
-			pick_visible = {
-				fg = colors.pink,
-				bg = colors.background_dark,
-				bold = true,
-				italic = false,
-			},
-			pick = {
-				fg = colors.pink,
-				bg = colors.background_dark,
-				bold = true,
-				italic = false,
-			},
-		},
-	}
-end
-
-local kanagawa = function()
-	local colors = require("kanagawa.colors").setup({ theme = "dragon" })
+	local colors = kanso_colors.setup({ theme = "zen" })
 	local palette = colors.palette
+	local theme = colors.theme
 
 	return {
-		bg = colors.bg or palette.bg_dark or "#0A0E14",
-		bg_sec = colors.bg_dark or palette.bg_darker or "#090e13",
-		bg_notify = colors.bg or palette.bg_dark or "#0A0E14",
-		text = colors.fujiWhite or palette.fujiWhite or "#DCD7BA",
-		text_sec = colors.fujiGray or palette.fujiGray or "#727169",
-		inlay_hint_bg = colors.bg_dark or palette.bg_darker or "#090e13",
+		bg = theme.ui.bg,
+		bg_sec = theme.ui.bg_gutter,
+		bg_notify = theme.ui.bg_p1,
+		text = theme.ui.fg,
+		text_sec = theme.ui.nontext,
+		inlay_hint_bg = theme.ui.bg_gutter,
 		inlay_hint_fg = "#818890",
 
 		fzf = {
 			setup_colors = function()
 				local fzf_colors = {
-					bg = colors.bg or palette.bg_dark or "#0A0E14",
-					fg = colors.fujiWhite or palette.fujiWhite or "#DCD7BA",
-					border = colors.bg_highlight or palette.bg_highlight or "#1F1F28",
-					cursor_line_bg = colors.bg_dark or palette.bg_darker or "#090e13",
-					blue = colors.crystalBlue or palette.crystalBlue or "#7E9CD8",
-					light_blue = colors.waveAqua2 or palette.waveAqua2 or "#7FB4CA",
-					purple = colors.lotusPurple2 or palette.lotusPurple2 or "#957FB8",
-					red = colors.peachRed or palette.peachRed or "#E46876",
-					green = colors.springGreen or palette.springGreen or "#98BB6C",
-					orange = colors.autumnYellow or palette.autumnYellow or "#FFA066",
-					comment = colors.fujiGray or palette.fujiGray or "#727169",
+					bg = theme.ui.bg,
+					fg = theme.ui.fg,
+					border = theme.ui.bg_p2,
+					cursor_line_bg = theme.ui.bg_gutter,
+					blue = theme.syn.fun,
+					light_blue = theme.syn.special1,
+					purple = theme.syn.keyword,
+					red = theme.diag.error,
+					green = theme.syn.string,
+					orange = theme.syn.constant,
+					comment = theme.syn.comment,
 				}
 
 				local highlights = {
@@ -367,7 +50,6 @@ local kanagawa = function()
 
 				for group, opts in pairs(highlights) do
 					vim.api.nvim_set_hl(0, group, opts)
-					vim.cmd([[highlight FzfLuaPointer guifg=#828a9e]])
 				end
 
 				return {
@@ -389,275 +71,274 @@ local kanagawa = function()
 		},
 
 		alpha = {
-			heading = colors.carpYellow or palette.carpYellow or "#E6C384",
-			button = colors.lotusPurple2 or palette.lotusPurple2 or "#957FB8",
-			shortcut = colors.crystalBlue or palette.crystalBlue or "#7E9CD8",
+			heading = theme.syn.constant,
+			button = theme.syn.keyword,
+			shortcut = theme.syn.fun,
 		},
 
 		incline = {
 			normal = {
-				bg = colors.bg_highlight or palette.bg_highlight or "#1F1F28",
-				fg = colors.fujiWhite or palette.fujiWhite or "#DCD7BA",
+				bg = theme.ui.bg_p2,
+				fg = theme.ui.fg,
 			},
 			border = {
-				bg = colors.bg or palette.bg_dark or "#0A0E14",
-				fg = colors.bg or palette.bg_dark or "#0A0E14",
+				bg = theme.ui.bg,
+				fg = theme.ui.bg,
 			},
 			normal_nc = {
-				bg = colors.bg_highlight or palette.bg_highlight or "#1F1F28",
-				fg = colors.fujiGray or palette.fujiGray or "#727169",
+				bg = theme.ui.bg_p2,
+				fg = theme.ui.nontext,
 			},
 			focused = {
-				one = colors.bg_highlight or palette.bg_highlight or "#1F1F28",
-				two = colors.bg_highlight or palette.bg_highlight or "#1F1F28",
+				one = theme.ui.bg_p2,
+				two = theme.ui.bg_p2,
 			},
-			file_name = { guifg = colors.fujiWhite or palette.fujiWhite or "#DCD7BA" },
-			modified = { guifg = colors.autumnYellow or palette.autumnYellow or "#FFA066" },
+			file_name = { guifg = theme.ui.fg },
+			modified = { guifg = theme.syn.constant },
 		},
 
 		bufferline = {
-
 			fill = {
-				fg = colors.background,
-				bg = colors.background,
+				fg = theme.ui.bg,
+				bg = theme.ui.bg,
 			},
 			background = {
-				fg = colors.comment,
-				bg = colors.background,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg,
 			},
 			tab = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 			},
 			tab_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
+				fg = theme.ui.fg,
+				bg = theme.ui.bg,
 				bold = true,
 			},
 			tab_close = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 			},
 			close_button = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			close_button_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			close_button_selected = {
-				fg = colors.red,
-				bg = colors.background,
+				fg = theme.diag.error,
+				bg = theme.ui.bg,
 			},
 			buffer_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 			},
 			buffer_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
+				fg = theme.ui.fg,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			numbers = {
-				fg = colors.green,
-				bg = colors.background_dark,
+				fg = theme.syn.string,
+				bg = theme.ui.bg_gutter,
 			},
 			numbers_visible = {
-				fg = colors.green,
-				bg = colors.background_dark,
+				fg = theme.syn.string,
+				bg = theme.ui.bg_gutter,
 			},
 			numbers_selected = {
-				fg = colors.green,
-				bg = colors.background,
+				fg = theme.syn.string,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			diagnostic = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 			},
 			diagnostic_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 			},
 			diagnostic_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
+				fg = theme.ui.fg,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			hint = {
-				fg = colors.purple,
-				bg = colors.background_dark,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg_gutter,
 			},
 			hint_visible = {
-				fg = colors.purple,
-				bg = colors.background_dark,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg_gutter,
 			},
 			hint_selected = {
-				fg = colors.purple,
-				bg = colors.background,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			hint_diagnostic = {
-				fg = colors.purple,
-				bg = colors.background_dark,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg_gutter,
 			},
 			hint_diagnostic_visible = {
-				fg = colors.purple,
-				bg = colors.background_dark,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg_gutter,
 			},
 			hint_diagnostic_selected = {
-				fg = colors.purple,
-				bg = colors.background,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			info = {
-				fg = colors.blue,
-				bg = colors.background_dark,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg_gutter,
 			},
 			info_visible = {
-				fg = colors.blue,
-				bg = colors.background_dark,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg_gutter,
 			},
 			info_selected = {
-				fg = colors.blue,
-				bg = colors.background,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			info_diagnostic = {
-				fg = colors.blue,
-				bg = colors.background_dark,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg_gutter,
 			},
 			info_diagnostic_visible = {
-				fg = colors.blue,
-				bg = colors.background_dark,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg_gutter,
 			},
 			info_diagnostic_selected = {
-				fg = colors.blue,
-				bg = colors.background,
+				fg = theme.syn.fun,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			warning = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			warning_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			warning_selected = {
-				fg = colors.orange,
-				bg = colors.background,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			warning_diagnostic = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			warning_diagnostic_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			warning_diagnostic_selected = {
-				fg = colors.orange,
-				bg = colors.background,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			error = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			error_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			error_selected = {
-				fg = colors.red,
-				bg = colors.background,
+				fg = theme.diag.error,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			error_diagnostic = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			error_diagnostic_visible = {
-				fg = colors.red,
-				bg = colors.background_dark,
+				fg = theme.diag.error,
+				bg = theme.ui.bg_gutter,
 			},
 			error_diagnostic_selected = {
-				fg = colors.red,
-				bg = colors.background,
+				fg = theme.diag.error,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			modified = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			modified_visible = {
-				fg = colors.orange,
-				bg = colors.background_dark,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg_gutter,
 			},
 			modified_selected = {
-				fg = colors.orange,
-				bg = colors.background,
+				fg = theme.diag.warning,
+				bg = theme.ui.bg,
 			},
 			duplicate = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 				italic = true,
 			},
 			duplicate_visible = {
-				fg = colors.comment,
-				bg = colors.background_dark,
+				fg = theme.syn.comment,
+				bg = theme.ui.bg_gutter,
 				italic = true,
 			},
 			duplicate_selected = {
-				fg = colors.foreground,
-				bg = colors.background,
+				fg = theme.ui.fg,
+				bg = theme.ui.bg,
 				italic = false,
 			},
 			separator = {
-				fg = colors.background_light,
-				bg = colors.background,
+				fg = theme.ui.bg_p2,
+				bg = theme.ui.bg,
 			},
 			separator_visible = {
-				fg = colors.background_light,
-				bg = colors.background_dark,
+				fg = theme.ui.bg_p2,
+				bg = theme.ui.bg_gutter,
 			},
 			separator_selected = {
-				fg = colors.background_light,
-				bg = colors.background,
+				fg = theme.ui.bg_p2,
+				bg = theme.ui.bg,
 			},
 			indicator_selected = {
-				fg = colors.purple,
-				bg = colors.background,
+				fg = theme.syn.keyword,
+				bg = theme.ui.bg,
 			},
 			pick_selected = {
-				fg = colors.pink,
-				bg = colors.background,
+				fg = theme.syn.special1,
+				bg = theme.ui.bg,
 				bold = true,
 				italic = false,
 			},
 			pick_visible = {
-				fg = colors.pink,
-				bg = colors.background_dark,
+				fg = theme.syn.special1,
+				bg = theme.ui.bg_gutter,
 				bold = true,
 				italic = false,
 			},
 			pick = {
-				fg = colors.pink,
-				bg = colors.background_dark,
+				fg = theme.syn.special1,
+				bg = theme.ui.bg_gutter,
 				bold = true,
 				italic = false,
 			},
@@ -665,351 +346,8 @@ local kanagawa = function()
 	}
 end
 
-local vague = function()
-	local colors = require("vague").get_palette()
-	local bg = colors.bg or "#111114"
-	local bg_dark = "#0e0e11"
-	local fg = colors.fg or "#cdcdcd"
-	local comment = colors.comment or "#606079"
-	local keyword = colors.keyword or "#6e94b2"
-	local func = colors.func or "#c48282"
-	local builtin = colors.builtin or "#b4d4cf"
-	local str = colors.string or "#e8b589"
-	local number = colors.number or "#e0a363"
-	local hint = colors.hint or "#7e98e8"
-	local error_c = colors.error or "#d8647e"
-	local warning = colors.warning or "#f3be7c"
-	local plus = colors.plus or "#7fa563"
-	local parameter = colors.parameter or "#bb9dbd"
-	local line = colors.line or "#252530"
-	local property = colors.property or "#c3c3d5"
-	local type_c = colors.type or "#9bb4bc"
-
-	return {
-		bg = bg,
-		bg_sec = bg_dark,
-		bg_notify = bg,
-		text = fg,
-		text_sec = comment,
-		inlay_hint_bg = bg_dark,
-		inlay_hint_fg = "#818890",
-		fzf = {
-			setup_colors = function()
-				local fzf_colors = {
-					bg = bg,
-					fg = fg,
-					border = line,
-					cursor_line_bg = bg_dark,
-					blue = hint,
-					light_blue = type_c,
-					purple = parameter,
-					red = error_c,
-					green = plus,
-					orange = number,
-					comment = comment,
-				}
-
-				local highlights = {
-					FzfLuaNormal = { bg = fzf_colors.bg, fg = fzf_colors.fg },
-					FzfLuaBorder = { fg = "#a4a7a4" },
-					FzfLuaCursorLine = { bg = fzf_colors.cursor_line_bg, fg = fzf_colors.purple },
-					FzfLuaTitle = { fg = fzf_colors.blue, bold = true },
-					FzfLuaPrompt = { fg = fzf_colors.purple, bold = true },
-					FzfLuaPointer = { fg = fzf_colors.purple, bold = true },
-					FzfLuaMarker = { fg = fzf_colors.green },
-					FzfLuaSpinner = { fg = fzf_colors.purple, bold = true },
-					FzfLuaHeader = { fg = fzf_colors.comment },
-					FzfLuaPreviewTitle = { fg = fzf_colors.purple, bold = true },
-				}
-
-				for group, opts in pairs(highlights) do
-					vim.api.nvim_set_hl(0, group, opts)
-					vim.cmd([[highlight FzfLuaPointer guifg=#828a9e]])
-				end
-
-				return {
-					normal = "FzfLuaNormal",
-					border = "FzfLuaBorder",
-					cursor = "FzfLuaPointer",
-					cursorline = "FzfLuaCursorLine",
-					title = "FzfLuaTitle",
-					prompt = "FzfLuaPrompt",
-					pointer = "FzfLuaPointer",
-					marker = "FzfLuaMarker",
-					spinner = "FzfLuaSpinner",
-					header = "FzfLuaHeader",
-					preview_title = "FzfLuaPreviewTitle",
-					help_normal = "FzfLuaNormal",
-					help_border = "FzfLuaBorder",
-				}
-			end,
-		},
-		alpha = {
-			heading = number,
-			button = parameter,
-			shortcut = hint,
-		},
-		incline = {
-			normal = { bg = line, fg = fg },
-			border = { bg = bg, fg = bg },
-			normal_nc = { bg = line, fg = comment },
-			focused = { one = line, two = line },
-			file_name = { guifg = fg },
-			modified = { guifg = warning },
-		},
-		bufferline = {
-			fill = {
-				fg = bg,
-				bg = bg,
-			},
-			background = {
-				fg = comment,
-				bg = bg,
-			},
-			tab = {
-				fg = comment,
-				bg = bg_dark,
-			},
-			tab_selected = {
-				fg = fg,
-				bg = bg,
-				bold = true,
-			},
-			tab_close = {
-				fg = comment,
-				bg = bg_dark,
-			},
-			close_button = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			close_button_visible = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			close_button_selected = {
-				fg = error_c,
-				bg = bg,
-			},
-			buffer_visible = {
-				fg = comment,
-				bg = bg_dark,
-			},
-			buffer_selected = {
-				fg = fg,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			numbers = {
-				fg = plus,
-				bg = bg_dark,
-			},
-			numbers_visible = {
-				fg = plus,
-				bg = bg_dark,
-			},
-			numbers_selected = {
-				fg = plus,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			diagnostic = {
-				fg = comment,
-				bg = bg_dark,
-			},
-			diagnostic_visible = {
-				fg = comment,
-				bg = bg_dark,
-			},
-			diagnostic_selected = {
-				fg = fg,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			hint = {
-				fg = parameter,
-				bg = bg_dark,
-			},
-			hint_visible = {
-				fg = parameter,
-				bg = bg_dark,
-			},
-			hint_selected = {
-				fg = parameter,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			hint_diagnostic = {
-				fg = parameter,
-				bg = bg_dark,
-			},
-			hint_diagnostic_visible = {
-				fg = parameter,
-				bg = bg_dark,
-			},
-			hint_diagnostic_selected = {
-				fg = parameter,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			info = {
-				fg = hint,
-				bg = bg_dark,
-			},
-			info_visible = {
-				fg = hint,
-				bg = bg_dark,
-			},
-			info_selected = {
-				fg = hint,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			info_diagnostic = {
-				fg = hint,
-				bg = bg_dark,
-			},
-			info_diagnostic_visible = {
-				fg = hint,
-				bg = bg_dark,
-			},
-			info_diagnostic_selected = {
-				fg = hint,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			warning = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			warning_visible = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			warning_selected = {
-				fg = warning,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			warning_diagnostic = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			warning_diagnostic_visible = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			warning_diagnostic_selected = {
-				fg = warning,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			error = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			error_visible = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			error_selected = {
-				fg = error_c,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			error_diagnostic = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			error_diagnostic_visible = {
-				fg = error_c,
-				bg = bg_dark,
-			},
-			error_diagnostic_selected = {
-				fg = error_c,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			modified = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			modified_visible = {
-				fg = warning,
-				bg = bg_dark,
-			},
-			modified_selected = {
-				fg = warning,
-				bg = bg,
-			},
-			duplicate = {
-				fg = comment,
-				bg = bg_dark,
-				italic = true,
-			},
-			duplicate_visible = {
-				fg = comment,
-				bg = bg_dark,
-				italic = true,
-			},
-			duplicate_selected = {
-				fg = fg,
-				bg = bg,
-				italic = false,
-			},
-			separator = {
-				fg = line,
-				bg = bg,
-			},
-			separator_visible = {
-				fg = line,
-				bg = bg_dark,
-			},
-			separator_selected = {
-				fg = line,
-				bg = bg,
-			},
-			indicator_selected = {
-				fg = parameter,
-				bg = bg,
-			},
-			pick_selected = {
-				fg = error_c,
-				bg = bg,
-				bold = true,
-				italic = false,
-			},
-			pick_visible = {
-				fg = error_c,
-				bg = bg_dark,
-				bold = true,
-				italic = false,
-			},
-			pick = {
-				fg = error_c,
-				bg = bg_dark,
-				bold = true,
-				italic = false,
-			},
-		},
-	}
-end
-
-M.kanagawa = kanagawa()
 M.kanso = kanso()
-M.vague = vague()
 
-M.current_theme = vague()
+M.current_theme = kanso()
 
 return M
