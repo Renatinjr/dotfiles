@@ -13,6 +13,7 @@ export PATH=$PATH:/home/renatojr/.asdf/installs/rust/1.81.0/bin/
 export EDITOR="neovim"
 export TERM=xterm-256color
 export RUST_WITHOUT=rust-docs
+export GH_TOKEN="gh"
 
 #Starship
 export STARSHIP_CONFIG=~/.config/starship.toml
