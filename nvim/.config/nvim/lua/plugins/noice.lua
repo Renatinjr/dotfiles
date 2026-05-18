@@ -1,6 +1,7 @@
 return {
 	{
 		"folke/noice.nvim",
+		event = "VeryLazy",
 		opts = function(_, opts)
 			-- Initialize opts.routes if it doesn't exist
 			opts.routes = opts.routes or {}
@@ -60,6 +61,7 @@ return {
 	},
 	{
 		"rcarriga/nvim-notify",
+		event = "VeryLazy",
 		opts = {
 			timeout = 5000,
 		},

@@ -35,7 +35,7 @@ M.perf = {
 
 M = vim.tbl_deep_extend("force", M, vim.g.lin_nvim_builtin_constants or {}) --[[@as table]]
 
-local os_name = vim.loop.os_uname().sysname
+local os_name = vim.uv.os_uname().sysname
 
 M.os = {
 	name = os_name,

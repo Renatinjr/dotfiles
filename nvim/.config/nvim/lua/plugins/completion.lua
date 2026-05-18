@@ -40,11 +40,27 @@ return {
 					},
 					components = {
 						kind_icon = {
-							text = function(item)
-								local kind = require("lspkind").symbol_map[item.kind] or ""
+							text = function(ctx)
+								-- Tailwind color preview: show colored block
+								if ctx.item and ctx.item.kind_hl then
+									local hl = vim.api.nvim_get_hl(0, { name = ctx.item.kind_hl })
+									if hl and hl.fg then
+										return "██ "
+									end
+								end
+								local kind = require("lspkind").symbol_map[ctx.kind] or ""
 								return kind .. " "
 							end,
-							highlight = "CmpItemKind",
+							highlight = function(ctx)
+								-- Use tailwind's dynamic highlight group for the color
+								if ctx.item and ctx.item.kind_hl then
+									local hl = vim.api.nvim_get_hl(0, { name = ctx.item.kind_hl })
+									if hl and hl.fg then
+										return ctx.item.kind_hl
+									end
+								end
+								return "CmpItemKind"
+							end,
 						},
 						label = {
 							text = function(item)
@@ -102,8 +118,9 @@ return {
 			default = { "lsp", "path", "snippets", "buffer" },
 			providers = {
 				lsp = {
-					min_keyword_length = 1, -- Número de caracteres para acionar o provedor
-					score_offset = 1, -- Aumentar/penalizar a pontuação dos itens
+					min_keyword_length = 0,
+					score_offset = 1,
+					opts = { tailwind_color_icon = "██" },
 				},
 				path = {
 					min_keyword_length = 0,

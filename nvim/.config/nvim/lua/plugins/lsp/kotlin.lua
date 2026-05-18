@@ -1,3 +1,4 @@
+-- Kotlin development: kotlin.nvim
 return {
 	"AlexandrosAlexiou/kotlin.nvim",
 	ft = { "kotlin" },

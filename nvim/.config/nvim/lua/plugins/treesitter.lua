@@ -14,7 +14,6 @@ local parsers = {
 	"javascript",
 	"jsdoc",
 	"json",
-	"jsonc",
 	"kotlin",
 	"lua",
 	"luadoc",
@@ -47,9 +46,6 @@ return {
 			},
 		},
 		config = function()
-			vim.treesitter.language.register("tsx", "javascriptreact")
-			vim.treesitter.language.register("tsx", "typescriptreact")
-
 			-- Install missing parsers on startup
 			local installed = require("nvim-treesitter").get_installed()
 			local installed_set = {}
@@ -65,17 +61,6 @@ return {
 			if #to_install > 0 then
 				require("nvim-treesitter").install(to_install)
 			end
-
-			-- Enable treesitter highlighting and indentation for all buffers
-			vim.api.nvim_create_autocmd("FileType", {
-				group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),
-				callback = function(args)
-					local ok = pcall(vim.treesitter.start, args.buf)
-					if ok then
-						vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-					end
-				end,
-			})
 
 			-- Textobjects setup
 			local select = require("nvim-treesitter-textobjects.select")
@@ -187,7 +172,6 @@ return {
 				require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects")
 			end, { desc = "Init selection" })
 
-			-- Register JSX filetypes to their treesitter parsers
 			-- Folding with treesitter
 			vim.opt.foldmethod = "expr"
 			vim.opt.foldexpr = "nvim_treesitter#foldexpr()"

@@ -1,9 +1,32 @@
+-- TypeScript/JavaScript development: vtsls
 local map = vim.keymap.set
-local filter = require("utils.filter").filter
-local filterReactDTS = require("utils.filterReactDTS").filterReactDTS
-local errorTranslator = require("ts-error-translator")
 
--- Enhanced handlers with better error handling
+-- Inlined from utils/filter.lua
+local function filter(arr, fn)
+	if type(arr) ~= "table" then
+		return arr
+	end
+
+	local filtered = {}
+	for k, v in pairs(arr) do
+		if fn(v, k, arr) then
+			table.insert(filtered, v)
+		end
+	end
+
+	return filtered
+end
+
+-- Inlined from utils/filterReactDTS.lua
+local function filterReactDTS(value)
+	-- Depending on typescript version either uri or targetUri is returned
+	if value.uri then
+		return string.match(value.uri, "%.d.ts") == nil
+	elseif value.targetUri then
+		return string.match(value.targetUri, "%.d.ts") == nil
+	end
+end
+
 local handlers = {
 	["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 		silent = true,
@@ -25,7 +48,7 @@ local handlers = {
 			if diagnostic.code ~= 80001 and diagnostic.code ~= 2691 then
 				-- Translate TypeScript error message
 				local success, translated = pcall(function()
-					return errorTranslator.translate(diagnostic.message, diagnostic.code)
+					return require("ts-error-translator").translate(diagnostic.message, diagnostic.code)
 				end)
 
 				if success and translated then
@@ -235,16 +258,7 @@ local M = {
 		"typescriptreact",
 		"typescript.tsx",
 	},
-	root_dir = function(fname)
-		local util = require("lspconfig.util")
-		local root = util.root_pattern("tsconfig.json", "jsconfig.json", "package.json", ".git", "node_modules")(fname)
-
-		if not root then
-			root = util.find_package_json_ancestor(fname)
-		end
-
-		return root
-	end,
+	root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
 	single_file_support = true,
 	capabilities = vim.tbl_deep_extend(
 		"force",
@@ -273,38 +287,13 @@ return {
 	dependencies = {
 		"neovim/nvim-lspconfig",
 		"nvim-lua/plenary.nvim",
-		"dmmulroy/ts-error-translator.nvim", -- Add this explicitly
+		"dmmulroy/ts-error-translator.nvim",
 	},
 	opts = M,
 	config = function(_, opts)
-		local lspconfig = require("lspconfig")
+		vim.lsp.config("vtsls", opts)
+		vim.lsp.enable("vtsls")
 
-		-- Enhanced setup with better error handling
-		local ok, setup_err = pcall(function()
-			lspconfig.vtsls.setup(opts)
-		end)
-
-		if not ok then
-			vim.notify("Failed to setup vtsls: " .. tostring(setup_err), vim.log.levels.ERROR)
-			return
-		end
-
-		-- Optional: Add type information on cursor hold
-		-- vim.api.nvim_create_autocmd("CursorHold", {
-		-- 	pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
-		-- 	callback = function()
-		-- 		if vim.b.lsp_current_servers and vim.b.lsp_current_servers.vtsls then
-		-- 			vim.diagnostic.open_float(nil, {
-		-- 				focusable = false,
-		-- 				close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-		-- 				border = "rounded",
-		-- 				source = "always",
-		-- 				prefix = " ",
-		-- 				scope = "cursor",
-		-- 			})
-		-- 		end
-		-- 	end,
-		-- })
 		vim.api.nvim_create_user_command("TypeScriptReloadProjects", function()
 			local clients = vim.lsp.get_clients({ name = "vtsls" })
 			for _, client in ipairs(clients) do
@@ -325,7 +314,7 @@ return {
 
 		-- Auto-initialize project when opening TypeScript/JavaScript files
 		vim.api.nvim_create_autocmd("FileType", {
-			pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+			pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact", "tsx", "jsx" },
 			callback = function(args)
 				local bufnr = args.buf
 				vim.defer_fn(function()
@@ -333,9 +322,9 @@ return {
 					vim.lsp.buf_request(bufnr, "textDocument/completion", {
 						textDocument = { uri = vim.uri_from_bufnr(bufnr) },
 						position = { line = 0, character = 0 },
-						context = { triggerKind = 1 }, -- Invoked
+						context = { triggerKind = 1 },
 					}, function() end)
-				end, 2000) -- Wait 2 seconds for project to load
+				end, 2000)
 			end,
 		})
 	end,

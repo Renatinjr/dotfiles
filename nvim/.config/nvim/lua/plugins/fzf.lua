@@ -163,6 +163,17 @@ return {
 				bat = {
 					theme = "kanagawa-tmTheme",
 				},
+				builtin = {
+					extensions = {
+						["png"] = { "chafa", "{file}" },
+						["jpg"] = { "chafa", "{file}" },
+						["jpeg"] = { "chafa", "{file}" },
+						["gif"] = { "chafa", "{file}" },
+						["webp"] = { "chafa", "{file}" },
+						["svg"] = { "chafa", "{file}" },
+						["avif"] = { "chafa", "{file}" },
+					},
+				},
 			},
 			hl = hl,
 		})

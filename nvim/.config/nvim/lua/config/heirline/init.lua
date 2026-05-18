@@ -1,5 +1,5 @@
 local conditions = require("heirline.conditions")
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 local tbl = {}
 local statusline_bg = "#393836"
 
@@ -29,33 +29,29 @@ local constants = {
 	},
 }
 
-local function get_colors()
-	local normal = vim.api.nvim_get_hl_by_name("Normal", true)
-	local comment = vim.api.nvim_get_hl_by_name("Comment", true)
-	local string_hl = vim.api.nvim_get_hl_by_name("String", true)
-	local function_hl = vim.api.nvim_get_hl_by_name("Function", true)
-	local type_hl = vim.api.nvim_get_hl_by_name("Type", true)
-	local constant = vim.api.nvim_get_hl_by_name("Constant", true)
-	local keyword = vim.api.nvim_get_hl_by_name("Keyword", true)
-	local error_hl = vim.api.nvim_get_hl_by_name("Error", true)
-	local warning = vim.api.nvim_get_hl_by_name("WarningMsg", true)
-	local info = vim.api.nvim_get_hl_by_name("MoreMsg", true)
-		or vim.api.nvim_get_hl_by_name("Question", true)
-		or vim.api.nvim_get_hl_by_name("Directory", true)
-	local identifier = vim.api.nvim_get_hl_by_name("Identifier", true)
-	local statement = vim.api.nvim_get_hl_by_name("Statement", true)
-	local visual = vim.api.nvim_get_hl_by_name("Visual", true)
-	local cursorline = vim.api.nvim_get_hl_by_name("CursorLine", true)
-	local cursorlinenr = vim.api.nvim_get_hl_by_name("CursorLineNr", true)
-	local special = vim.api.nvim_get_hl_by_name("Special", true)
-	local preproc = vim.api.nvim_get_hl_by_name("PreProc", true)
-	local signcolumn = vim.api.nvim_get_hl_by_name("SignColumn", true)
-	local folded = vim.api.nvim_get_hl_by_name("Folded", true)
-	local diffadd = vim.api.nvim_get_hl_by_name("DiffAdd", true)
-	local diffchange = vim.api.nvim_get_hl_by_name("DiffChange", true)
-	local diffdelete = vim.api.nvim_get_hl_by_name("DiffDelete", true)
+local function get_hl(name)
+	return vim.api.nvim_get_hl(0, { name = name, link = false })
+end
 
-	-- Helper function to convert color
+local function get_colors()
+	local normal = get_hl("Normal")
+	local comment = get_hl("Comment")
+	local string_hl = get_hl("String")
+	local function_hl = get_hl("Function")
+	local type_hl = get_hl("Type")
+	local constant = get_hl("Constant")
+	local keyword = get_hl("Keyword")
+	local error_hl = get_hl("Error")
+	local warning = get_hl("WarningMsg")
+	local info = get_hl("MoreMsg")
+	local identifier = get_hl("Identifier")
+	local cursorline = get_hl("CursorLine")
+	local signcolumn = get_hl("SignColumn")
+	local folded = get_hl("Folded")
+	local diffadd = get_hl("DiffAdd")
+	local diffchange = get_hl("DiffChange")
+	local diffdelete = get_hl("DiffDelete")
+
 	local function hex_color(color_num)
 		if not color_num then
 			return nil
@@ -63,54 +59,43 @@ local function get_colors()
 		return string.format("#%06x", color_num)
 	end
 
-	-- Return colors based on highlight groups
 	return {
-		-- Basic colors
-		bg = hex_color(normal.background) or "#1e1e2e",
-		fg = hex_color(normal.foreground) or "#cdd6f4",
+		bg = hex_color(normal.bg) or "#1e1e2e",
+		fg = hex_color(normal.fg) or "#cdd6f4",
 
-		-- Mode colors (for text)
-		normal_fg1 = hex_color(normal.foreground) or "#cdd6f4",
-		normal_fg2 = hex_color(comment.foreground) or "#6c7086",
-		normal_fg3 = hex_color(constant.foreground) or "#f9e2af",
-		normal_fg4 = hex_color(identifier.foreground) or "#89dceb",
+		normal_fg1 = hex_color(normal.fg) or "#cdd6f4",
+		normal_fg2 = hex_color(comment.fg) or "#6c7086",
+		normal_fg3 = hex_color(constant.fg) or "#f9e2af",
+		normal_fg4 = hex_color(identifier.fg) or "#89dceb",
 
-		-- Mode background colors
-		normal_bg1 = hex_color(type_hl.foreground) or hex_color(function_hl.foreground) or "#89b4fa",
-		normal_bg2 = hex_color(cursorline.background) or hex_color(signcolumn.background) or "#2d2d3e",
-		normal_bg3 = hex_color(folded.background) or "#3a3a4e",
-		normal_bg4 = hex_color(signcolumn.background) or "#1F1F28",
+		normal_bg1 = hex_color(type_hl.fg) or hex_color(function_hl.fg) or "#89b4fa",
+		normal_bg2 = hex_color(cursorline.bg) or hex_color(signcolumn.bg) or "#2d2d3e",
+		normal_bg3 = hex_color(folded.bg) or "#3a3a4e",
+		normal_bg4 = hex_color(signcolumn.bg) or "#1F1F28",
 
-		-- Insert mode
-		insert_fg = hex_color(normal.foreground) or "#cdd6f4",
-		insert_bg = hex_color(string_hl.foreground) or "#a6e3a1",
+		insert_fg = hex_color(normal.fg) or "#cdd6f4",
+		insert_bg = hex_color(string_hl.fg) or "#a6e3a1",
 
-		-- Visual mode
-		visual_fg = hex_color(normal.foreground) or "#cdd6f4",
-		visual_bg = hex_color(keyword.foreground) or "#cba6f7",
+		visual_fg = hex_color(normal.fg) or "#cdd6f4",
+		visual_bg = hex_color(keyword.fg) or "#cba6f7",
 
-		-- Replace mode
-		replace_fg = hex_color(normal.foreground) or "#cdd6f4",
-		replace_bg = hex_color(error_hl.foreground) or "#f38ba8",
+		replace_fg = hex_color(normal.fg) or "#cdd6f4",
+		replace_bg = hex_color(error_hl.fg) or "#f38ba8",
 
-		-- Command mode
-		command_fg = hex_color(normal.foreground) or "#cdd6f4",
-		command_bg = hex_color(constant.foreground) or "#f9e2af",
+		command_fg = hex_color(normal.fg) or "#cdd6f4",
+		command_bg = hex_color(constant.fg) or "#f9e2af",
 
-		-- Git colors
-		git_dirty = hex_color(warning.foreground) or "#f9e2af",
-		git_ahead = hex_color(diffadd.foreground) or "#a6e3a1",
-		git_behind = hex_color(diffdelete.foreground) or "#f38ba8",
-		git_add = hex_color(diffadd.foreground) or "#a6e3a1",
-		git_change = hex_color(diffchange.foreground) or "#f9e2af",
-		git_delete = hex_color(diffdelete.foreground) or "#f38ba8",
+		git_dirty = hex_color(warning.fg) or "#f9e2af",
+		git_ahead = hex_color(diffadd.fg) or "#a6e3a1",
+		git_behind = hex_color(diffdelete.fg) or "#f38ba8",
+		git_add = hex_color(diffadd.fg) or "#a6e3a1",
+		git_change = hex_color(diffchange.fg) or "#f9e2af",
+		git_delete = hex_color(diffdelete.fg) or "#f38ba8",
 
-		-- Diagnostic colors
-		diagnostic_error = hex_color(error_hl.foreground) or "#f38ba8",
-		diagnostic_warn = hex_color(warning.foreground) or "#f9e2af",
-		diagnostic_info = hex_color(info.foreground) or "#89dceb",
+		diagnostic_error = hex_color(error_hl.fg) or "#f38ba8",
+		diagnostic_warn = hex_color(warning.fg) or "#f9e2af",
+		diagnostic_info = hex_color(info.fg) or "#89dceb",
 
-		-- Background color constant
 		dark_bg = "#1F1F28",
 	}
 end
@@ -819,54 +804,3 @@ end)
 
 -- Manual refresh function for git status
 
--- Optional: Debug functions
-_G.print_heirline_colors = function()
-	print("Current heirline colors:")
-	print(vim.inspect(colors))
-end
-
-_G.check_git_status = function()
-	print("Git status cache:")
-	print(vim.inspect(git_status_cache))
-end
-
-_G.check_highlight_groups = function()
-	local groups = {
-		"Normal",
-		"Comment",
-		"String",
-		"Function",
-		"Type",
-		"Constant",
-		"Keyword",
-		"Error",
-		"WarningMsg",
-		"MoreMsg",
-		"Identifier",
-		"Statement",
-		"Visual",
-		"CursorLineNr",
-		"Special",
-		"PreProc",
-		"Directory",
-		"Question",
-		"SignColumn",
-		"CursorLine",
-		"Folded",
-		"DiffAdd",
-		"DiffChange",
-		"DiffDelete",
-	}
-
-	print("Checking highlight groups:")
-	for _, group in ipairs(groups) do
-		local success, hl = pcall(vim.api.nvim_get_hl_by_name, group, true)
-		if success then
-			local fg = hl.foreground and string.format("#%06x", hl.foreground) or "None"
-			local bg = hl.background and string.format("#%06x", hl.background) or "None"
-			print(string.format("%-15s: fg=%s, bg=%s", group, fg, bg))
-		else
-			print(string.format("%-15s: Not found", group))
-		end
-	end
-end

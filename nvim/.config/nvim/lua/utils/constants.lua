@@ -1,7 +1,8 @@
+-- Shared constants for the Neovim configuration
 local M = {}
 
 M.diagnostic = {
-	signs = { error = "󰅚 ", warn = " ", hint = "󰌶", info = " ", ok = "" },
+	signs = { error = "󰅚 ", warn = " ", hint = "󰌶", info = " ", ok = " " },
 }
 
 M.window = {
@@ -28,7 +29,7 @@ M.perf = {
 
 M = vim.tbl_deep_extend("force", M, vim.g.lin_nvim_builtin_constants or {})
 
-local os_name = vim.loop.os_uname().sysname
+local os_name = vim.uv.os_uname().sysname
 
 M.os = {
 	name = os_name,

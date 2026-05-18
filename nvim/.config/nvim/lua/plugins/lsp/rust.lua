@@ -1,11 +1,12 @@
+-- Rust development: rustaceanvim
 local map = vim.keymap.set
 
 return {
 	"mrcjkb/rustaceanvim",
 	version = "^4",
-	lazy = false,
 	ft = { "rust" },
-	config = function(_, opts)
+	-- vim.g.rustaceanvim must be set BEFORE the plugin loads
+	init = function()
 		vim.g.rustaceanvim = {
 			tools = {
 				hover_actions = {
@@ -88,7 +89,6 @@ return {
 						-- Diagnostics
 						diagnostics = {
 							enable = true,
-							-- Show warnings for unused variables
 							disabled = {},
 							enableExperimental = true,
 						},
@@ -115,7 +115,7 @@ return {
 							},
 						},
 
-						-- Inlay hints (great for learning!)
+						-- Inlay hints
 						inlayHints = {
 							enable = true,
 							bindingModeHints = {
@@ -150,7 +150,7 @@ return {
 							},
 						},
 
-						-- Lens settings (clickable hints in code)
+						-- Lens settings
 						lens = {
 							enable = true,
 							debug = {
@@ -193,7 +193,7 @@ return {
 							},
 						},
 
-						-- Semantic tokens (syntax highlighting)
+						-- Semantic tokens
 						semanticTokens = {
 							enable = true,
 						},
@@ -241,12 +241,11 @@ return {
 				},
 			},
 		}
-
-		-- Additional Rust-specific settings
+	end,
+	config = function()
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "rust",
 			callback = function()
-				-- Set some buffer-local options for Rust files
 				vim.opt_local.tabstop = 4
 				vim.opt_local.shiftwidth = 4
 				vim.opt_local.expandtab = true
