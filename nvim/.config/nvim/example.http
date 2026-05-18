@@ -1,0 +1,53 @@
+### Simple GET — JSON response
+# Place the cursor anywhere inside this block and run :Rest run
+GET https://api.lais.app/api/v2/chats/6865d1dd4cab732015dff6d3/6865d24f0f48329de28f2439/lista-by-status?status=Pendente&limit=100&setor_id=6865d1f922d17c67273fa91a
+Accept: application/json
+
+### GET with query params + custom header
+GET https://jsonplaceholder.typicode.com/posts/1
+Accept: application/json
+X-Demo-Header: rest.nvim
+
+### POST with JSON body
+POST https://httpbin.org/post
+Content-Type: application/json
+
+{
+  "name": "rest.nvim",
+  "version": "v2.0.1",
+  "lang": "lua"
+}
+
+### POST form-encoded
+POST https://httpbin.org/post
+Content-Type: application/x-www-form-urlencoded
+
+name=renato&editor=neovim
+
+### PUT request
+PUT https://jsonplaceholder.typicode.com/posts/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "updated",
+  "body": "patched via rest.nvim",
+  "userId": 1
+}
+
+### DELETE request
+DELETE https://jsonplaceholder.typicode.com/posts/1
+
+### Variables — set once, reuse across requests
+@base = https://httpbin.org
+@token = secret-test-token
+
+### Use the variables above
+GET {{base}}/headers
+Authorization: Bearer {{token}}
+
+### Inspect status codes
+GET https://httpbin.org/status/404
+
+### Slow response — useful to see rest.nvim's timing
+GET https://httpbin.org/delay/2

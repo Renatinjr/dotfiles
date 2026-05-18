@@ -2,7 +2,7 @@ return {
 	"nvim-tree/nvim-tree.lua",
 	event = "VeryLazy",
 	dependencies = {
-		"nvim-tree/nvim-web-devicons", -- for file icons
+		"ryanoasis/vim-devicons", -- for file icons
 	},
 	config = function()
 		local HEIGHT_RATIO = 0.8
@@ -116,7 +116,7 @@ return {
 							renamed = "R",
 							untracked = "?",
 							deleted = "D",
-							ignored = " ",
+							ignored = " ",
 						},
 					},
 				},

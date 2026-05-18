@@ -1,5 +1,417 @@
--- Colorschemes: rose-pine (active), kanagawa, jellybeans & kanso (available)
+-- Colorschemes: kanso-zen (active), serenity, rose-pine, kanagawa, jellybeans & koda (available)
 return {
+	-- Serenity
+	{
+		"oskarnurm/koda.nvim",
+		lazy = false, -- make sure we load this during startup if it is your main colorscheme
+		priority = 1000, -- make sure to load this before all the other start plugins
+		config = function()
+			require("koda").setup({
+				transparent = false, -- enable for transparent backgrounds
+
+				-- Set the variants to use when auto-switching based on vim.o.background
+				-- Valid values: 'dark', 'light', 'moss', 'glade'
+				theme = {
+					dark = "dark",
+					light = "light",
+				},
+
+				-- Automatically enable highlights only for plugins installed by your plugin manager
+				-- Currently only supports `lazy.nvim`, `mini.deps` and `vim.pack`
+				auto = true, -- disable to load ALL available plugin highlights
+
+				cache = true, -- caches the theme for better performance
+
+				-- Style to be applied to different syntax groups
+				-- Common use case would be to set either `italic = true` or `bold = true` for a desired group
+				-- See `:help nvim_set_hl` for more valid values
+				styles = {
+					functions = { bold = true },
+					keywords = {},
+					comments = {},
+					strings = {},
+					constants = {}, -- includes numbers, booleans
+				},
+
+				-- Override colors for the active variant
+				-- Available keys (e.g., 'func') can be found in lua/koda/palette/
+				colors = {
+					-- func = "#4078F2",
+					-- keyword = "#A627A4",
+				},
+
+				-- Comprehensive override block — mirrors the depth of the kanso
+				-- block below, but mapped to koda's flat palette (palette/dark.lua).
+				-- Both fg and bg are set everywhere kanso sets them; we keep
+				-- koda's near-monochrome aesthetic (most syntax = gray/white).
+				on_highlights = function(hl, c)
+					local fg = "#DCD7BA" -- #C5C9C7
+
+					-- ── EDITOR UI ─────────────────────────────────────────
+					hl.Normal = { bg = c.bg, fg = fg }
+					hl.NormalFloat = { bg = c.bg, fg = fg }
+					hl.NormalNC = { bg = c.bg, fg = fg }
+					hl.SignColumn = { bg = c.bg, fg = c.dim }
+					hl.LineNr = { bg = c.bg, fg = c.dim }
+					hl.LineNrAbove = { bg = c.bg, fg = c.dim }
+					hl.LineNrBelow = { bg = c.bg, fg = c.dim }
+					hl.CursorLineNr = { bg = c.bg, fg = c.fg, bold = true }
+					hl.CursorLine = { bg = c.line }
+					hl.FoldColumn = { bg = c.bg, fg = c.dim }
+					hl.Folded = { bg = c.line, fg = c.comment }
+					hl.WinSeparator = { bg = c.bg, fg = c.line }
+					hl.StatusLine = { bg = c.line, fg = c.fg }
+					hl.StatusLineNC = { bg = c.bg, fg = c.dim }
+					hl.Visual = { bg = c.dim, fg = c.fg }
+					hl.VisualNOS = { bg = c.dim, fg = c.fg }
+					hl.NonText = { bg = c.bg, fg = c.dim }
+					hl.Whitespace = { bg = c.bg, fg = c.dim }
+					hl.VertSplit = { bg = c.bg, fg = c.line }
+					hl.ColorColumn = { bg = c.line }
+					hl.Conceal = { bg = c.bg, fg = c.comment }
+					hl.Directory = { bg = c.bg, fg = c.info }
+					hl.EndOfBuffer = { bg = c.bg, fg = c.bg }
+					hl.ErrorMsg = { bg = c.bg, fg = c.danger }
+					hl.WarningMsg = { bg = c.bg, fg = c.warning }
+					hl.ModeMsg = { bg = c.bg, fg = c.fg, bold = true }
+					hl.MoreMsg = { bg = c.bg, fg = c.info }
+					hl.Question = { bg = c.bg, fg = c.info }
+					hl.Title = { bg = c.bg, fg = c.info, bold = true }
+					hl.WildMenu = { bg = c.line, fg = c.fg }
+
+					-- ── Cursor ────────────────────────────────────────────
+					hl.Cursor = { bg = c.fg, fg = c.bg }
+					hl.lCursor = { bg = c.fg, fg = c.bg }
+					hl.CursorIM = { bg = c.fg, fg = c.bg }
+					hl.TermCursor = { bg = c.fg, fg = c.bg }
+
+					-- ── Tabs ──────────────────────────────────────────────
+					hl.TabLine = { bg = c.bg, fg = c.dim }
+					hl.TabLineSel = { bg = c.line, fg = c.fg }
+					hl.TabLineFill = { bg = c.bg, fg = c.dim }
+
+					-- ── Floating windows / Hover ──────────────────────────
+					hl.FloatBorder = { bg = c.bg, fg = c.dim }
+					hl.FloatTitle = { bg = c.bg, fg = c.info, bold = true }
+
+					-- ── Pmenu / Completion ────────────────────────────────
+					hl.Pmenu = { bg = c.line, fg = c.fg }
+					hl.PmenuSel = { bg = c.dim, fg = c.fg, bold = true }
+					hl.PmenuSbar = { bg = c.line }
+					hl.PmenuThumb = { bg = c.dim }
+					hl.CmpItemAbbr = { bg = c.line, fg = c.fg }
+					hl.CmpItemAbbrMatch = { bg = c.line, fg = c.info, bold = true }
+					hl.CmpItemAbbrMatchFuzzy = { bg = c.line, fg = c.info, bold = true }
+					hl.CmpItemAbbrDeprecated = { bg = c.line, fg = c.comment, strikethrough = true }
+					hl.CmpItemMenu = { bg = c.line, fg = c.comment }
+					hl.CmpItemKindFunction = { bg = c.line, fg = fg }
+					hl.CmpItemKindMethod = { bg = c.line, fg = fg }
+					hl.CmpItemKindVariable = { bg = c.line, fg = c.fg }
+					hl.CmpItemKindClass = { bg = c.line, fg = c.type }
+					hl.CmpItemKindInterface = { bg = c.line, fg = c.type }
+					hl.CmpItemKindModule = { bg = c.line, fg = c.const }
+					hl.CmpItemKindKeyword = { bg = c.line, fg = c.keyword }
+					hl.CmpItemKindSnippet = { bg = c.line, fg = fg }
+					hl.CmpItemKindText = { bg = c.line, fg = c.fg }
+					hl.CmpItemKindProperty = { bg = c.line, fg = c.const }
+					hl.CmpItemKindConstant = { bg = c.line, fg = c.const }
+					hl.CmpItemKindEnum = { bg = c.line, fg = c.type }
+					hl.CmpItemKindEnumMember = { bg = c.line, fg = c.const }
+					hl.CmpItemKindStruct = { bg = c.line, fg = c.type }
+					hl.CmpItemKindField = { bg = c.line, fg = c.const }
+					hl.CmpItemKindOperator = { bg = c.line, fg = c.operator }
+					hl.CmpItemKindTypeParameter = { bg = c.line, fg = c.type }
+					hl.CmpBorder = { bg = c.bg, fg = c.dim }
+					hl.CmpDocBorder = { bg = c.bg, fg = c.dim }
+
+					-- ── SYNTAX (minimal aesthetic) ────────────────────────
+					hl.Comment = { fg = c.comment, italic = true }
+					hl.String = { fg = fg }
+					hl.Character = { fg = fg }
+					hl.Number = { fg = c.const }
+					hl.Float = { fg = c.const }
+					hl.Boolean = { fg = c.const }
+					hl.Constant = { fg = c.const }
+					hl.Function = { fg = fg, bold = true }
+					hl.Keyword = { fg = c.keyword }
+					hl.Statement = { fg = c.keyword, bold = true }
+					hl.Conditional = { fg = c.keyword, bold = true }
+					hl.Repeat = { fg = c.keyword, bold = true }
+					hl.Exception = { fg = c.danger, bold = true }
+					hl.StorageClass = { fg = c.keyword }
+					hl.Structure = { fg = c.keyword }
+					hl.Typedef = { fg = c.keyword }
+					hl.Type = { fg = c.type }
+					hl.Operator = { fg = c.operator }
+					hl.Identifier = { fg = c.fg }
+					hl.PreProc = { fg = fg }
+					hl.Include = { fg = c.keyword }
+					hl.Define = { fg = c.keyword }
+					hl.Macro = { fg = fg }
+					hl.PreCondit = { fg = c.keyword }
+					hl.Special = { fg = fg }
+					hl.SpecialChar = { fg = fg }
+					hl.SpecialComment = { fg = c.comment, italic = true }
+					hl.Tag = { fg = c.const }
+					hl.Delimiter = { fg = c.dim }
+					hl.Debug = { fg = c.danger }
+					hl.Label = { fg = c.const }
+					hl.Underlined = { fg = c.info, underline = true }
+
+					-- ── TREESITTER ────────────────────────────────────────
+					hl["@keyword"] = { fg = c.keyword }
+					hl["@keyword.function"] = { fg = c.keyword }
+					hl["@keyword.operator"] = { fg = c.operator }
+					hl["@keyword.import"] = { fg = c.keyword }
+					hl["@keyword.export"] = { fg = c.keyword }
+					hl["@keyword.return"] = { fg = c.keyword, bold = true }
+					hl["@keyword.exception"] = { fg = c.danger, bold = true }
+					hl["@keyword.conditional"] = { fg = c.keyword, bold = true }
+					hl["@keyword.repeat"] = { fg = c.keyword, bold = true }
+					hl["@keyword.storage"] = { fg = c.keyword }
+					hl["@keyword.directive"] = { fg = c.keyword }
+					hl["@keyword.modifier"] = { fg = c.keyword }
+
+					hl["@function"] = { fg = fg, bold = true }
+					hl["@function.call"] = { fg = fg }
+					hl["@function.builtin"] = { fg = fg }
+					hl["@function.method"] = { fg = fg }
+					hl["@function.method.call"] = { fg = fg }
+					hl["@function.macro"] = { fg = fg }
+					hl["@constructor"] = { fg = c.type }
+
+					hl["@variable"] = { fg = c.fg }
+					hl["@variable.builtin"] = { fg = c.danger }
+					hl["@variable.parameter"] = { fg = c.fg }
+					hl["@variable.member"] = { fg = c.const }
+
+					hl["@type"] = { fg = c.type }
+					hl["@type.builtin"] = { fg = c.type }
+					hl["@type.definition"] = { fg = c.type }
+					hl["@type.qualifier"] = { fg = c.keyword }
+
+					hl["@constant"] = { fg = c.const }
+					hl["@constant.builtin"] = { fg = c.const }
+					hl["@constant.macro"] = { fg = c.const }
+
+					hl["@string"] = { fg = fg }
+					hl["@string.escape"] = { fg = fg }
+					hl["@string.regex"] = { fg = fg }
+					hl["@string.special"] = { fg = fg }
+					hl["@string.special.url"] = { fg = c.info, underline = true }
+					hl["@string.special.symbol"] = { fg = fg }
+
+					hl["@number"] = { fg = c.const }
+					hl["@number.float"] = { fg = c.const }
+					hl["@boolean"] = { fg = c.const }
+
+					hl["@operator"] = { fg = c.operator }
+					hl["@punctuation.bracket"] = { fg = c.dim }
+					hl["@punctuation.delimiter"] = { fg = c.dim }
+					hl["@punctuation.special"] = { fg = fg }
+
+					hl["@tag"] = { fg = c.const }
+					hl["@tag.builtin"] = { fg = c.const }
+					hl["@tag.attribute"] = { fg = c.keyword }
+					hl["@tag.delimiter"] = { fg = c.dim }
+
+					hl["@property"] = { fg = c.const }
+					hl["@field"] = { fg = c.const }
+
+					hl["@label"] = { fg = c.const }
+					hl["@attribute"] = { fg = c.keyword }
+					hl["@attribute.builtin"] = { fg = c.keyword }
+
+					hl["@module"] = { fg = c.const }
+					hl["@module.builtin"] = { fg = c.const }
+
+					hl["@comment"] = { fg = c.comment, italic = true }
+					hl["@comment.documentation"] = { fg = c.comment, italic = true }
+					hl["@comment.todo"] = { fg = c.info, bold = true }
+					hl["@comment.note"] = { fg = c.info, bold = true }
+					hl["@comment.warning"] = { fg = c.warning, bold = true }
+					hl["@comment.error"] = { fg = c.danger, bold = true }
+
+					-- Markdown / Markup
+					hl["@markup.heading"] = { fg = c.info, bold = true }
+					hl["@markup.heading.1"] = { fg = c.info, bold = true }
+					hl["@markup.heading.2"] = { fg = c.info, bold = true }
+					hl["@markup.heading.3"] = { fg = c.info, bold = true }
+					hl["@markup.italic"] = { fg = c.fg, italic = true }
+					hl["@markup.strong"] = { bold = true }
+					hl["@markup.strikethrough"] = { strikethrough = true }
+					hl["@markup.underline"] = { fg = c.info, underline = true }
+					hl["@markup.quote"] = { italic = true }
+					hl["@markup.link"] = { fg = c.info }
+					hl["@markup.link.url"] = { fg = c.info, underline = true }
+					hl["@markup.link.label"] = { fg = c.highlight }
+					hl["@markup.raw"] = { fg = fg }
+					hl["@markup.raw.block"] = { fg = fg }
+					hl["@markup.list"] = { fg = c.fg }
+					hl["@markup.list.checked"] = { fg = c.success }
+					hl["@markup.list.unchecked"] = { fg = c.comment }
+
+					-- Diff
+					hl["@diff.plus"] = { fg = c.success }
+					hl["@diff.minus"] = { fg = c.danger }
+					hl["@diff.delta"] = { fg = c.warning }
+
+					-- ── LSP SEMANTIC TOKENS ──────────────────────────────
+					hl["@lsp.type.parameter"] = { fg = c.fg }
+					hl["@lsp.type.variable"] = { fg = c.fg }
+					hl["@lsp.type.property"] = { fg = c.const }
+					hl["@lsp.type.function"] = { fg = fg }
+					hl["@lsp.type.method"] = { fg = fg }
+					hl["@lsp.type.macro"] = { fg = fg }
+					hl["@lsp.type.enum"] = { fg = c.type }
+					hl["@lsp.type.enumMember"] = { fg = c.const }
+					hl["@lsp.type.struct"] = { fg = c.type }
+					hl["@lsp.type.class"] = { fg = c.type }
+					hl["@lsp.type.interface"] = { fg = c.type }
+					hl["@lsp.type.namespace"] = { fg = c.const }
+					hl["@lsp.type.type"] = { fg = c.type }
+					hl["@lsp.type.typeParameter"] = { fg = c.type }
+					hl["@lsp.type.keyword"] = { fg = c.keyword }
+					hl["@lsp.type.operator"] = { fg = c.operator }
+					hl["@lsp.mod.readonly"] = {}
+					hl["@lsp.mod.defaultLibrary"] = {}
+					hl["@lsp.typemod.function.declaration"] = { fg = fg, bold = true }
+					hl["@lsp.typemod.function.defaultLibrary"] = { fg = fg }
+					hl["@lsp.typemod.variable.readonly"] = { fg = c.fg }
+					hl["@lsp.typemod.variable.defaultLibrary"] = { fg = c.fg }
+					hl["@lsp.typemod.keyword.controlFlow"] = { fg = c.keyword, bold = true }
+
+					-- ── BRACKET PAIR COLORIZATION ────────────────────────
+					hl.RainbowDelimiterRed = { fg = c.danger }
+					hl.RainbowDelimiterYellow = { fg = c.warning }
+					hl.RainbowDelimiterBlue = { fg = c.info }
+					hl.RainbowDelimiterOrange = { fg = c.orange }
+					hl.RainbowDelimiterGreen = { fg = c.success }
+					hl.RainbowDelimiterViolet = { fg = c.highlight }
+
+					-- ── LANGUAGE-SPECIFIC ────────────────────────────────
+					hl["@property.json"] = { fg = c.info }
+					hl.jsonKeyword = { fg = c.info }
+					hl["@property.css"] = { fg = c.type }
+					hl["@property.scss"] = { fg = c.type }
+					hl["@field.yaml"] = { fg = c.const }
+					hl["@property.toml"] = { fg = c.const }
+
+					-- ══════════════════════════════════════════════════════
+					-- PLUGIN HIGHLIGHTS
+					-- ══════════════════════════════════════════════════════
+
+					-- FzfLua
+					hl.FzfLuaNormal = { bg = c.bg, fg = c.fg }
+					hl.FzfLuaBorder = { bg = c.bg, fg = c.dim }
+					hl.FzfLuaCursorLine = { bg = c.line, fg = c.highlight }
+					hl.FzfLuaTitle = { bg = c.bg, fg = c.info, bold = true }
+					hl.FzfLuaPrompt = { bg = c.bg, fg = c.highlight, bold = true }
+					hl.FzfLuaPointer = { bg = c.bg, fg = c.highlight, bold = true }
+					hl.FzfLuaMarker = { bg = c.bg, fg = c.success }
+					hl.FzfLuaSpinner = { bg = c.bg, fg = c.highlight, bold = true }
+					hl.FzfLuaHeader = { bg = c.bg, fg = c.comment }
+					hl.FzfLuaPreviewTitle = { bg = c.bg, fg = c.highlight, bold = true }
+
+					-- NvimTree / ChadTree (chadtree uses Pmenu+Normal, NeoTree group covers nvim-tree)
+					hl.NeoTreeNormal = { bg = c.bg, fg = c.fg }
+					hl.NeoTreeNormalNC = { bg = c.bg, fg = c.fg }
+					hl.NeoTreeWinSeparator = { bg = c.bg, fg = c.bg }
+					hl.NeoTreeCursorLine = { bg = c.line }
+					hl.NeoTreeIndentMarker = { bg = c.bg, fg = c.dim }
+					hl.NeoTreeGitAdded = { bg = c.bg, fg = c.success }
+					hl.NeoTreeGitModified = { bg = c.bg, fg = c.warning }
+					hl.NeoTreeGitDeleted = { bg = c.bg, fg = c.danger }
+					hl.NeoTreeGitUntracked = { bg = c.bg, fg = c.highlight }
+					hl.NeoTreeGitIgnored = { bg = c.bg, fg = c.comment }
+					hl.NeoTreeFileName = { bg = c.bg, fg = c.fg }
+					hl.NeoTreeDirectoryName = { bg = c.bg, fg = c.info }
+					hl.NeoTreeDirectoryIcon = { bg = c.bg, fg = c.info }
+					hl.NeoTreeRootName = { bg = c.bg, fg = c.highlight, bold = true }
+					hl.NeoTreeDotfile = { bg = c.bg, fg = c.comment }
+
+					-- Diagnostics
+					hl.DiagnosticError = { fg = c.danger }
+					hl.DiagnosticWarn = { fg = c.warning }
+					hl.DiagnosticInfo = { fg = c.info }
+					hl.DiagnosticHint = { fg = c.highlight }
+					hl.DiagnosticSignError = { bg = c.bg, fg = c.danger }
+					hl.DiagnosticSignWarn = { bg = c.bg, fg = c.warning }
+					hl.DiagnosticSignInfo = { bg = c.bg, fg = c.info }
+					hl.DiagnosticSignHint = { bg = c.bg, fg = c.highlight }
+					hl.DiagnosticVirtualTextError = { fg = c.danger, bg = "#1A0B0B" }
+					hl.DiagnosticVirtualTextWarn = { fg = c.warning, bg = "#1A1408" }
+					hl.DiagnosticVirtualTextInfo = { fg = c.info, bg = "#0B141A" }
+					hl.DiagnosticVirtualTextHint = { fg = c.highlight, bg = "#0B1018" }
+					hl.DiagnosticUnderlineError = { undercurl = true, sp = c.danger }
+					hl.DiagnosticUnderlineWarn = { undercurl = true, sp = c.warning }
+					hl.DiagnosticUnderlineInfo = { undercurl = true, sp = c.info }
+					hl.DiagnosticUnderlineHint = { undercurl = true, sp = c.highlight }
+
+					-- Git signs
+					hl.GitSignsAdd = { bg = c.bg, fg = c.success }
+					hl.GitSignsChange = { bg = c.bg, fg = c.warning }
+					hl.GitSignsDelete = { bg = c.bg, fg = c.danger }
+					hl.GitSignsCurrentLineBlame = { bg = c.bg, fg = c.comment }
+
+					-- Diff
+					hl.DiffAdd = { bg = "#0F1A0F", fg = c.success }
+					hl.DiffChange = { bg = "#1A1408", fg = c.warning }
+					hl.DiffDelete = { bg = "#1A0B0B", fg = c.danger }
+					hl.DiffText = { bg = c.line, fg = c.info }
+
+					-- Indent blankline
+					hl.IblIndent = { fg = c.line }
+					hl.IblScope = { fg = c.dim }
+
+					-- Inlay hints
+					hl.LspInlayHint = { bg = c.bg, fg = c.dim, italic = true }
+
+					-- Bracket match
+					hl.MatchParen = { bg = c.dim, fg = c.fg, bold = true }
+
+					-- Search
+					hl.Search = { bg = c.dim, fg = c.fg }
+					hl.IncSearch = { bg = c.warning, fg = c.bg }
+					hl.CurSearch = { bg = c.warning, fg = c.bg }
+					hl.Substitute = { bg = c.danger, fg = c.bg }
+
+					-- Word highlight (LSP references / illuminate)
+					hl.LspReferenceText = { bg = c.line, fg = c.fg }
+					hl.LspReferenceRead = { bg = c.line, fg = c.fg }
+					hl.LspReferenceWrite = { bg = c.line, fg = c.fg, underline = true }
+					hl.IlluminatedWordText = { bg = c.line, fg = c.fg }
+					hl.IlluminatedWordRead = { bg = c.line, fg = c.fg }
+					hl.IlluminatedWordWrite = { bg = c.line, fg = c.fg, underline = true }
+
+					-- Which-key
+					hl.WhichKey = { bg = c.bg, fg = c.highlight }
+					hl.WhichKeyDesc = { bg = c.bg, fg = c.fg }
+					hl.WhichKeyGroup = { bg = c.bg, fg = c.info }
+					hl.WhichKeySeparator = { bg = c.bg, fg = c.comment }
+
+					-- Noice / Notify
+					hl.NotifyERRORBorder = { fg = c.danger }
+					hl.NotifyWARNBorder = { fg = c.warning }
+					hl.NotifyINFOBorder = { fg = c.info }
+					hl.NotifyDEBUGBorder = { fg = c.comment }
+					hl.NotifyTRACEBorder = { fg = c.highlight }
+					hl.NotifyERRORIcon = { fg = c.danger }
+					hl.NotifyWARNIcon = { fg = c.warning }
+					hl.NotifyINFOIcon = { fg = c.info }
+					hl.NotifyDEBUGIcon = { fg = c.comment }
+					hl.NotifyTRACEIcon = { fg = c.highlight }
+					hl.NotifyERRORTitle = { fg = c.danger }
+					hl.NotifyWARNTitle = { fg = c.warning }
+					hl.NotifyINFOTitle = { fg = c.info }
+					hl.NotifyDEBUGTitle = { fg = c.comment }
+					hl.NotifyTRACETitle = { fg = c.highlight }
+				end,
+			})
+
+			vim.cmd("colorscheme koda")
+		end,
+	},
 	-- Rose Pine
 	{
 		"rose-pine/neovim",
@@ -592,7 +1004,7 @@ return {
 	-- Kanso Zen — minimal, muted palette for deep focus
 	{
 		"webhooked/kanso.nvim",
-		lazy = false,
+		lazy = true,
 		priority = 1000,
 		config = function()
 			require("kanso").setup({
@@ -1008,7 +1420,7 @@ return {
 					theme = { zen = {}, all = {} },
 				},
 			})
-			vim.cmd("colorscheme kanso-zen")
+			-- vim.cmd("colorscheme kanso-zen")
 			vim.opt.background = "dark"
 		end,
 	},

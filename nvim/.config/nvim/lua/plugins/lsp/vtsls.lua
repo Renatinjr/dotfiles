@@ -287,7 +287,18 @@ return {
 	dependencies = {
 		"neovim/nvim-lspconfig",
 		"nvim-lua/plenary.nvim",
-		"dmmulroy/ts-error-translator.nvim",
+		{
+			"dmmulroy/ts-error-translator.nvim",
+			-- setup() loads the BetterTypeScriptErrors translation table that
+			-- powers require("ts-error-translator").translate() — without it the
+			-- call in our publishDiagnostics handler above returns the raw msg.
+			-- auto_override_publish_diagnostics stays false because vtsls already
+			-- installs its own publishDiagnostics handler (filters noise codes
+			-- 80001/2691, then translates); the two handlers would conflict.
+			opts = {
+				auto_override_publish_diagnostics = false,
+			},
+		},
 	},
 	opts = M,
 	config = function(_, opts)

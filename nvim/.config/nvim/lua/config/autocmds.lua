@@ -10,13 +10,13 @@ autocmd("TextYankPost", {
 	end,
 })
 
--- Show diagnostics float on CursorHold
-autocmd("CursorHold", {
-	group = augroup("DiagnosticFloat", { clear = true }),
-	callback = function()
-		vim.diagnostic.open_float(nil, { focus = false })
-	end,
-})
+-- -- Show diagnostics float on CursorHold
+-- autocmd("CursorHold", {
+-- 	group = augroup("DiagnosticFloat", { clear = true }),
+-- 	callback = function()
+-- 		vim.diagnostic.open_float(nil, { focus = false })
+-- 	end,
+-- })
 
 -- Resize splits on window resize
 autocmd("VimResized", {

@@ -21,10 +21,10 @@ end
 local constants = {
 	diagnostic = {
 		signs = {
-			error = " ",
-			warn = " ",
-			info = " ",
-			hint = " ",
+			error = "",
+			warn = "",
+			info = "",
+			hint = "",
 		},
 	},
 }
@@ -74,7 +74,7 @@ local function get_colors()
 		normal_bg4 = hex_color(signcolumn.bg) or "#1F1F28",
 
 		insert_fg = hex_color(normal.fg) or "#cdd6f4",
-		insert_bg = hex_color(string_hl.fg) or "#a6e3a1",
+		insert_bg = "#FF8AFF",
 
 		visual_fg = hex_color(normal.fg) or "#cdd6f4",
 		visual_bg = hex_color(keyword.fg) or "#cba6f7",
@@ -149,7 +149,7 @@ local ModeNames = {
 local ModeHighlights = {
 	NORMAL = { fg = colors.normal_fg1, bg = "#3e404a", bold = true },
 	["O-PENDING"] = { fg = colors.normal_fg1, bg = colors.normal_bg1, bold = true },
-	INSERT = { fg = colors.insert_fg, bg = colors.insert_bg, bold = true },
+	INSERT = { fg = colors.normal_fg1, bg = colors.insert_bg, bold = true },
 	VISUAL = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
 	["V-LINE"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
 	["V-BLOCK"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
@@ -803,4 +803,3 @@ vim.schedule(function()
 end)
 
 -- Manual refresh function for git status
-

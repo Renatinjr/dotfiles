@@ -35,7 +35,7 @@ _G.StatusCol = function()
 	local diag_sign = "  "
 	local diagnostics = vim.diagnostic.get(buf, { lnum = lnum - 1 })
 	if #diagnostics > 0 then
-		local icons = { "󰅙 ", " ", " ", "󰌵 " }
+		local icons = { " ", " ", " ", " " }
 		local hls = { "DiagnosticSignError", "DiagnosticSignWarn", "DiagnosticSignInfo", "DiagnosticSignHint" }
 		local best = 5
 		for _, d in ipairs(diagnostics) do
@@ -60,7 +60,8 @@ vim.opt.showmode = false
 vim.opt.fillchars = { eob = " " }
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
-vim.opt.pumheight = 10
+vim.opt.pumheight = 5
+vim.opt.pumblend = 30
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.wrap = false
@@ -92,22 +93,22 @@ vim.opt.backup = false
 -- Diagnostics
 local theme = require("config.theme")
 
-vim.diagnostic.config({
-	signs = false,
-	underline = true,
-	virtual_text = false,
-	virtual_lines = false,
-	update_in_insert = false,
-	severity_sort = true,
-	float = {
-		border = "rounded",
-		focusable = true,
-		style = "minimal",
-		source = true,
-		header = "",
-		prefix = "",
-	},
-})
+-- vim.diagnostic.config({
+-- 	signs = false,
+-- 	underline = true,
+-- 	virtual_text = false,
+-- 	virtual_lines = false,
+-- 	update_in_insert = false,
+-- 	severity_sort = true,
+-- 	float = {
+-- 		border = "rounded",
+-- 		focusable = true,
+-- 		style = "minimal",
+-- 		source = true,
+-- 		header = "",
+-- 		prefix = "",
+-- 	},
+-- })
 
 -- LSP Inlay Hints highlight
 vim.api.nvim_set_hl(0, "LspInlayHint", {

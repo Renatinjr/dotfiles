@@ -2,7 +2,7 @@
 local M = {}
 
 M.diagnostic = {
-	signs = { error = "󰅚 ", warn = " ", hint = "󰌶", info = " ", ok = " " },
+	signs = { error = "", warn = "", hint = "", info = "", ok = " " },
 }
 
 M.window = {

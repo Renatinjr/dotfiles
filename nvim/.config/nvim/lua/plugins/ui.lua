@@ -219,6 +219,26 @@ return {
 		end,
 	},
 
+	{
+		"rachartier/tiny-devicons-auto-colors.nvim",
+		dependencies = {
+			"nvim-tree/nvim-web-devicons",
+		},
+		event = "VeryLazy",
+		config = function()
+			require("tiny-devicons-auto-colors").setup()
+		end,
+	},
+	{
+		"rachartier/tiny-inline-diagnostic.nvim",
+		event = "VeryLazy",
+		priority = 1000,
+		config = function()
+			require("tiny-inline-diagnostic").setup()
+			vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
+		end,
+	},
+
 	-- Incline (floating filename labels)
 	{
 		"b0o/incline.nvim",

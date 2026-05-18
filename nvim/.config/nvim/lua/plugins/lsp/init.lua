@@ -48,7 +48,7 @@ return {
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-			-- Global capabilities for all servers
+			-- Global capabilities for all servers (merged with blink.cmp)
 			vim.lsp.config("*", {
 				capabilities = require("blink.cmp").get_lsp_capabilities({
 					textDocument = {
