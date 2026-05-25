@@ -1016,7 +1016,7 @@ return {
 				keywordStyle = { italic = true },
 				statementStyle = {},
 				typeStyle = {},
-				transparent = false,
+				transparent = true,
 				dimInactive = true,
 				terminalColors = true,
 				background = { dark = "zen", light = "pearl" },

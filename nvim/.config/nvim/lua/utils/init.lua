@@ -460,4 +460,7 @@ function M.lsp_get_clients(...)
   return M.__HAS_NVIM_011 and vim.lsp.get_clients(...) or vim.lsp.get_active_clients(...)
 end
 
+-- Side-effect: registers the :YaziIconsExport user command.
+require("utils.yazi-icons")
+
 return M

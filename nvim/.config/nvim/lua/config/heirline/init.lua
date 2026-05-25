@@ -74,7 +74,7 @@ local function get_colors()
 		normal_bg4 = hex_color(signcolumn.bg) or "#1F1F28",
 
 		insert_fg = hex_color(normal.fg) or "#cdd6f4",
-		insert_bg = "#FF8AFF",
+		insert_bg = hex_color(string_hl.fg) or "#a6e3a1",
 
 		visual_fg = hex_color(normal.fg) or "#cdd6f4",
 		visual_bg = hex_color(keyword.fg) or "#cba6f7",
@@ -146,25 +146,29 @@ local ModeNames = {
 	["t"] = "TERMINAL",
 }
 
-local ModeHighlights = {
-	NORMAL = { fg = colors.normal_fg1, bg = "#3e404a", bold = true },
-	["O-PENDING"] = { fg = colors.normal_fg1, bg = colors.normal_bg1, bold = true },
-	INSERT = { fg = colors.normal_fg1, bg = colors.insert_bg, bold = true },
-	VISUAL = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	["V-LINE"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	["V-BLOCK"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	SELECT = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	["S-LINE"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	["S-BLOCK"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-	REPLACE = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-	MORE = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-	["V-REPLACE"] = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-	COMMAND = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-	EX = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-	CONFIRM = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-	SHELL = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-	TERMINAL = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-}
+local function build_mode_highlights(c)
+	return {
+		NORMAL = { fg = c.bg, bg = c.normal_bg1, bold = true },
+		["O-PENDING"] = { fg = c.bg, bg = c.normal_bg1, bold = true },
+		INSERT = { fg = c.bg, bg = c.insert_bg, bold = true },
+		VISUAL = { fg = c.bg, bg = c.visual_bg, bold = true },
+		["V-LINE"] = { fg = c.bg, bg = c.visual_bg, bold = true },
+		["V-BLOCK"] = { fg = c.bg, bg = c.visual_bg, bold = true },
+		SELECT = { fg = c.bg, bg = c.visual_bg, bold = true },
+		["S-LINE"] = { fg = c.bg, bg = c.visual_bg, bold = true },
+		["S-BLOCK"] = { fg = c.bg, bg = c.visual_bg, bold = true },
+		REPLACE = { fg = c.bg, bg = c.replace_bg, bold = true },
+		MORE = { fg = c.bg, bg = c.replace_bg, bold = true },
+		["V-REPLACE"] = { fg = c.bg, bg = c.replace_bg, bold = true },
+		COMMAND = { fg = c.bg, bg = c.command_bg, bold = true },
+		EX = { fg = c.bg, bg = c.command_bg, bold = true },
+		CONFIRM = { fg = c.bg, bg = c.command_bg, bold = true },
+		SHELL = { fg = c.bg, bg = c.command_bg, bold = true },
+		TERMINAL = { fg = c.bg, bg = c.command_bg, bold = true },
+	}
+end
+
+local ModeHighlights = build_mode_highlights(colors)
 
 local function GetModeName(mode)
 	return ModeNames[mode] or "???"
@@ -745,25 +749,7 @@ local function update_colors()
 	colors = get_colors()
 
 	-- Update ModeHighlights with new colors
-	ModeHighlights = {
-		NORMAL = { fg = colors.normal_fg1, bg = "#3e404a", bold = true },
-		["O-PENDING"] = { fg = colors.normal_fg1, bg = colors.normal_bg1, bold = true },
-		INSERT = { fg = colors.insert_fg, bg = colors.insert_bg, bold = true },
-		VISUAL = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		["V-LINE"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		["V-BLOCK"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		SELECT = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		["S-LINE"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		["S-BLOCK"] = { fg = colors.visual_fg, bg = colors.visual_bg, bold = true },
-		REPLACE = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-		MORE = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-		["V-REPLACE"] = { fg = colors.replace_fg, bg = colors.replace_bg, bold = true },
-		COMMAND = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-		EX = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-		CONFIRM = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-		SHELL = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-		TERMINAL = { fg = colors.command_fg, bg = colors.command_bg, bold = true },
-	}
+	ModeHighlights = build_mode_highlights(colors)
 
 	-- Update DiagnosticColors
 	DiagnosticColors = {

@@ -7,6 +7,7 @@ return {
 	dependencies = {
 		"rafamadriz/friendly-snippets",
 		"onsails/lspkind.nvim",
+		"xzbdmw/colorful-menu.nvim",
 	},
 
 	---@module 'blink.cmp'
@@ -91,10 +92,12 @@ return {
 							end,
 						},
 						label = {
-							text = function(item)
-								return item.label
+							text = function(ctx)
+								return require("colorful-menu").blink_components_text(ctx)
 							end,
-							highlight = "BlinkCmpLabel",
+							highlight = function(ctx)
+								return require("colorful-menu").blink_components_highlight(ctx)
+							end,
 						},
 						kind = {
 							text = function(item)
@@ -203,6 +206,7 @@ return {
 				lsp = {
 					-- LSP suggestions show from the first keystroke (most relevant).
 					min_keyword_length = 0,
+					async = true,
 					score_offset = 1,
 					opts = { tailwind_color_icon = "██" },
 				},

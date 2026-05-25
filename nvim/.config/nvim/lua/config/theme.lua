@@ -858,7 +858,7 @@ local koda = function()
 		},
 
 		alpha = {
-			heading = p.warning,
+			heading = p.keyword,
 			button = p.highlight,
 			shortcut = p.info,
 		},

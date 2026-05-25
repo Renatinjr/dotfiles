@@ -74,6 +74,30 @@ return {
 			"<cmd>lua require('fzf-lua').git_branches()<CR>",
 			{ desc = "Git branches", noremap = true, silent = true },
 		},
+		-- Git stash
+		{
+			"<leader>gS",
+			"<cmd>lua require('fzf-lua').git_stash()<CR>",
+			{ desc = "Git stash", noremap = true, silent = true },
+		},
+		-- Git tags
+		{
+			"<leader>gt",
+			"<cmd>lua require('fzf-lua').git_tags()<CR>",
+			{ desc = "Git tags", noremap = true, silent = true },
+		},
+		-- Git hunks (changed hunks across the worktree)
+		{
+			"<leader>gh",
+			"<cmd>lua require('fzf-lua').git_hunks()<CR>",
+			{ desc = "Git hunks", noremap = true, silent = true },
+		},
+		-- Git blame for the current buffer
+		{
+			"<leader>gB",
+			"<cmd>lua require('fzf-lua').git_blame()<CR>",
+			{ desc = "Git blame", noremap = true, silent = true },
+		},
 		-- Neovim help
 		{
 			"<leader>h",

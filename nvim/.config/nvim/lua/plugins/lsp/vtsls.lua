@@ -296,7 +296,7 @@ return {
 			-- installs its own publishDiagnostics handler (filters noise codes
 			-- 80001/2691, then translates); the two handlers would conflict.
 			opts = {
-				auto_override_publish_diagnostics = false,
+				auto_attach = false,
 			},
 		},
 	},
