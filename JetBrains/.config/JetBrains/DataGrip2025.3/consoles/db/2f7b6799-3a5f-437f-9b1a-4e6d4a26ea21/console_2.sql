@@ -1,1 +1,0 @@
-select * from sales s order by s.issue_date desc limit 10

@@ -1,50 +1,87 @@
-# Lines configured by zsh-newuser-install
+# ~/.zshrc — portable (macOS + Linux). Managed via dotfiles + GNU stow.
+
+# --- History ---
 HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=10000
+SAVEHIST=10000
 bindkey -v
 
-#Path
-export PATH=$PATH:/home/renatojr/.local/bin
-export PATH=$PATH:/home/renatojr/.asdf/installs/rust/1.81.0/bin/
+# --- OS detection ---
+case "$(uname -s)" in
+  Darwin) IS_MAC=1 ;;
+  *)      IS_MAC=0 ;;
+esac
 
-# eval "$(oh-my-posh init zsh --config ~/.config/ohmyposh/base.json)"
-#Vars
-export EDITOR="neovim"
-export TERM=xterm-256color
+# --- Homebrew (macOS) ---
+if [ "$IS_MAC" = 1 ]; then
+  if [ -x /opt/homebrew/bin/brew ]; then        # Apple Silicon (M3)
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then         # Intel fallback
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+fi
+
+# --- PATH ---
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# --- Vars ---
+export EDITOR="nvim"
 export RUST_WITHOUT=rust-docs
-export GH_TOKEN="gh"
+# GH_TOKEN intentionally NOT set here — run `gh auth login` instead (token stored in gh's keyring).
 
-#Starship
+# --- Starship prompt ---
 export STARSHIP_CONFIG=~/.config/starship.toml
 export STARSHIP_CACHE=~/.starship/cache
-eval "$(starship init zsh)"
+command -v starship >/dev/null && eval "$(starship init zsh)"
 
+# --- zsh plugins (brew path on mac, ~/.zsh fallback) ---
+if [ "$IS_MAC" = 1 ] && command -v brew >/dev/null; then
+  ZPLUG="$(brew --prefix)/share"
+  [ -f "$ZPLUG/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && source "$ZPLUG/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  [ -f "$ZPLUG/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && source "$ZPLUG/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+else
+  [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+  [ -f ~/.zsh/F-Sy-H/F-Sy-H.plugin.zsh ] && source ~/.zsh/F-Sy-H/F-Sy-H.plugin.zsh
+  [ -f ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+fi
 
-#Source pluguins
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/F-Sy-H/F-Sy-H.plugin.zsh
-source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-
-#Asdf
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
+# --- asdf (version manager) ---
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
+fpath=("$ASDF_DATA_DIR/completions" $fpath)
 autoload -Uz compinit && compinit
-#Alias
-alias lzd=lazydocker
+
+# --- Android SDK (path differs per OS) ---
+if [ "$IS_MAC" = 1 ]; then
+  export ANDROID_HOME="$HOME/Library/Android/sdk"
+else
+  export ANDROID_HOME="$HOME/Android/Sdk"
+fi
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+[ -d "$ANDROID_HOME" ] && export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin"
+
+# --- pnpm ---
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# --- Aliases ---
 alias myip="curl -s https://ipinfo.io/ip"
-alias ls=eza
+command -v eza >/dev/null && alias ls=eza
+alias lzd=lazydocker
 alias kthemes="kitty +kitten themes"
-alias docker="sudo podman"
-alias "docker compose"="sudo podman compose"
-# eval "$(ssh-agent -s)"
+# Linux used podman as a docker shim; on macOS use Docker Desktop / colima directly.
+if [ "$IS_MAC" = 0 ]; then
+  alias docker="sudo podman"
+fi
 
-#Bat
-#
+# --- zoxide (smart cd) ---
+command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
 
-#Eval
-eval "$(zoxide init zsh --cmd cd)"
-___MY_VMOPTIONS_SHELL_FILE="${HOME}/.jetbrains.vmoptions.sh"; if [ -f "${___MY_VMOPTIONS_SHELL_FILE}" ]; then . "${___MY_VMOPTIONS_SHELL_FILE}"; fi
-
-export PATH="$HOME/.cargo/bin:$PATH"
-export QT_WAYLAND_DECORATION=whitesur-gtk
+# --- Linux-only desktop env ---
+if [ "$IS_MAC" = 0 ]; then
+  export QT_WAYLAND_DECORATION=whitesur-gtk
+fi

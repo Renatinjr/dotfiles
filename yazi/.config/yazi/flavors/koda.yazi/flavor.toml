@@ -1,0 +1,169 @@
+# koda — Code's quiet companion (orange variant)
+# Yazi flavor ported from the koda.nvim orange colorscheme
+# https://github.com/oskarnurm/koda.nvim
+#
+# UI palette (same as koda dark; orange differs only in syntax tokens):
+#   bg        #101010   line      #272727   dim       #474747
+#   fg        #DCD7BA   comment   #50585d   emphasis  #ffffff
+#   const     #d9ba73   highlight #458ee6   info      #8ebeec
+#   success   #86cd82   warning   #d9ba73   danger    #ff7676
+#   green     #14ba19   orange    #ff5733   red       #701516
+#   pink      #f2a4db   cyan      #5abfb5
+#
+# Syntax tokens (tmtheme.xml): string #ffffb8  func #8ebeec  char/special #ffffff
+#   type/keyword/operator #777777  const #d9ba73
+
+[mgr]
+cwd = { fg = "#5abfb5" }
+
+# Symlink target
+symlink_target = { fg = "#50585d", italic = true }
+
+# Find
+find_keyword  = { fg = "#d9ba73", italic = true }
+find_position = { fg = "#f2a4db", bg = "reset", italic = true }
+
+# Marker
+marker_copied   = { fg = "#86cd82", bg = "#86cd82" }
+marker_cut      = { fg = "#ff7676", bg = "#ff7676" }
+marker_marked   = { fg = "#5abfb5", bg = "#5abfb5" }
+marker_selected = { fg = "#458ee6", bg = "#458ee6" }
+
+# Count
+count_copied   = { fg = "#101010", bg = "#86cd82" }
+count_cut      = { fg = "#101010", bg = "#ff7676" }
+count_selected = { fg = "#101010", bg = "#458ee6" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#474747" }
+
+# Highlighting (empty = use this flavor's tmtheme.xml)
+syntect_theme = ""
+
+# Hovered/cursor row (yazi 26: moved out of [mgr] into [indicator])
+[indicator]
+current = { fg = "#101010", bg = "#458ee6" }
+parent  = { fg = "#101010", bg = "#458ee6" }
+preview = { underline = true }
+
+[tabs]
+active   = { fg = "#101010", bg = "#DCD7BA" }
+inactive = { fg = "#DCD7BA", bg = "#272727" }
+
+[mode]
+normal_main = { fg = "#101010", bg = "#458ee6", bold = true }
+normal_alt  = { fg = "#458ee6", bg = "#272727" }
+
+select_main = { fg = "#101010", bg = "#86cd82", bold = true }
+select_alt  = { fg = "#86cd82", bg = "#272727" }
+
+unset_main  = { fg = "#101010", bg = "#f2a4db", bold = true }
+unset_alt   = { fg = "#f2a4db", bg = "#272727" }
+
+[status]
+sep_left  = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+
+perm_sep   = { fg = "#474747" }
+perm_type  = { fg = "#458ee6" }
+perm_read  = { fg = "#d9ba73" }
+perm_write = { fg = "#ff7676" }
+perm_exec  = { fg = "#86cd82" }
+
+progress_label  = { fg = "#DCD7BA", bold = true }
+progress_normal = { fg = "#458ee6", bg = "#272727" }
+progress_error  = { fg = "#ff7676", bg = "#272727" }
+
+[which]
+cols            = 3
+mask            = { bg = "#101010" }
+cand            = { fg = "#5abfb5" }
+rest            = { fg = "#777777" }
+desc            = { fg = "#DCD7BA" }
+separator       = "  "
+separator_style = { fg = "#474747" }
+
+[confirm]
+border     = { fg = "#458ee6" }
+title      = { fg = "#458ee6" }
+body       = { fg = "#DCD7BA" }
+list       = { fg = "#5abfb5" }
+btn_yes    = { fg = "#101010", bg = "#86cd82", bold = true }
+btn_no     = { fg = "#DCD7BA" }
+btn_labels = ["  [Y]es  ", "  (N)o  "]
+
+[spot]
+border   = { fg = "#458ee6" }
+title    = { fg = "#458ee6" }
+tbl_col  = { fg = "#d9ba73" }
+tbl_cell = { fg = "#101010", bg = "#458ee6" }
+
+[notify]
+title_info  = { fg = "#86cd82" }
+title_warn  = { fg = "#d9ba73" }
+title_error = { fg = "#ff7676" }
+
+[pick]
+border   = { fg = "#458ee6" }
+active   = { fg = "#f2a4db", bold = true }
+inactive = { fg = "#DCD7BA" }
+
+[input]
+border   = { fg = "#458ee6" }
+title    = { fg = "#DCD7BA" }
+value    = { fg = "#DCD7BA" }
+selected = { bg = "#272727" }
+
+[cmp]
+border   = { fg = "#458ee6" }
+active   = { fg = "#f2a4db", bold = true }
+inactive = { fg = "#DCD7BA" }
+
+[tasks]
+border  = { fg = "#458ee6" }
+title   = { fg = "#458ee6" }
+hovered = { fg = "#f2a4db", underline = true }
+
+[help]
+on      = { fg = "#f2a4db" }
+run     = { fg = "#5abfb5" }
+desc    = { fg = "#DCD7BA" }
+hovered = { bg = "#272727", bold = true }
+footer  = { fg = "#101010", bg = "#DCD7BA" }
+
+# : File-specific styles : -----------------------------------------------------
+
+[filetype]
+rules = [
+	# Images
+	{ mime = "image/*", fg = "#5abfb5" },
+
+	# Media
+	{ mime = "{audio,video}/*", fg = "#d9ba73" },
+
+	# Archives
+	{ mime = "application/{,g}zip", fg = "#f2a4db" },
+	{ mime = "application/x-{tar,bzip*,7z-compressed,xz,rar}", fg = "#f2a4db" },
+
+	# Documents
+	{ mime = "application/{pdf,doc,rtf}", fg = "#8ebeec" },
+
+	# Empty / orphan
+	{ url = "*", is = "orphan", fg = "#ff7676" },
+
+	# Executables
+	{ url = "*", is = "exec", fg = "#86cd82" },
+
+	# Directories
+	{ url = "*/", fg = "#458ee6" },
+
+	# Fallback
+	{ url = "*", fg = "#DCD7BA" },
+]
+
+[icon]
+prepend_rules = [
+	{ name = "*", text = "" },
+	{ name = "*/", text = "" },
+]

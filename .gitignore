@@ -1,0 +1,25 @@
+# --- Secrets: never commit these ---
+**/.ssh/id_*
+**/.ssh/*.pem
+**/.ssh/known_hosts*
+**/.config/gh/hosts.yml          # gh CLI auth token lives here
+**/*token*
+**/*secret*
+**/*.key
+**/.netrc
+
+# --- IDE / app caches & state (machine/version specific) ---
+JetBrains/
+DataGripProjects/
+**/.idea/
+**/*.iml
+
+# --- Editor / tooling junk ---
+**/.claude/
+**/.DS_Store          # macOS Finder metadata
+**/.cache/
+**/*.swp
+**/*.bak
+
+# --- Yazi caches ---
+yazi/.config/yazi/.claude/

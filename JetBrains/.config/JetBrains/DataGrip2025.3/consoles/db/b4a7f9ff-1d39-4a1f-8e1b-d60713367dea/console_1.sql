@@ -1,1 +1,0 @@
-select * from venda order by data_emissao desc

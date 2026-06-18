@@ -1,0 +1,45 @@
+# yazi config — git integration + nvim-friendly defaults.
+# Full schema: https://yazi-rs.github.io/docs/configuration/yazi
+
+[mgr]
+ratio          = [1, 3, 4]   # parent / current / preview
+sort_by        = "natural"
+sort_sensitive = false
+sort_reverse   = false
+sort_dir_first = true
+linemode       = "size"
+show_hidden    = true
+show_symlink   = true
+
+[preview]
+wrap            = "no"
+tab_size        = 2
+max_width       = 600
+max_height      = 900
+cache_dir       = ""
+image_delay     = 30
+image_filter    = "triangle"
+image_quality   = 75
+sixel_fraction  = 15
+ueberzug_scale  = 1
+ueberzug_offset = [0, 0, 0, 0]
+
+[opener]
+edit = [
+  { run = '${EDITOR:=nvim} "$@"', desc = "$EDITOR", block = true, for = "unix" },
+]
+open = [
+  { run = 'xdg-open "$@"', desc = "Open", for = "linux" },
+]
+reveal = [
+  { run = 'xdg-open "$(dirname "$0")"', desc = "Reveal", for = "linux" },
+]
+
+[plugin]
+# Make the git plugin run on every file and every directory so its M/A/?/D
+# markers + dimming for untracked/ignored show up everywhere.
+# `group` is required in yazi 26+: 1 = file group, 2 = directory group.
+prepend_fetchers = [
+  { id = "git", url = "*",  run = "git", group = "files" },
+  { id = "git", url = "*/", run = "git", group = "dirs"  },
+]

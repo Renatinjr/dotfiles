@@ -1,1 +1,0 @@
-select * from movements order by timestamp_date desc

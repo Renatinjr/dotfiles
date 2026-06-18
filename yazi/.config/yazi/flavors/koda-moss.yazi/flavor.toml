@@ -1,0 +1,168 @@
+# koda-moss — Code's quiet companion (moss variant)
+# Yazi flavor ported from the koda.nvim moss colorscheme
+# https://github.com/oskarnurm/koda.nvim
+#
+# Palette (synced to local koda.nvim overrides in lua/plugins/colorscheme.lua):
+#   bg        #0e1415   line      #182325   dim       #30464a
+#   fg        #DCD7BA   comment   #707070   border    #DCD7BA   (fg overridden from moss #cecece)
+#   keyword   #999999   type      #708b8d   func      #87bced   (func overridden from moss #71ade7)
+#   string    #95cb82   const     #dfdf8e   highlight #cd974b
+#   info      #8ebeec   success   #6abf40   warning   #ec8013
+#   danger    #d2322d   green     #95cb82   orange    #ec8013
+#   red       #c33c33   pink      #cc8bc9   cyan      #47bea9
+#   property  #dddd8d   (object keys; matches @property override in nvim)
+
+[mgr]
+cwd = { fg = "#47bea9" }
+
+# Hovered
+hovered         = { fg = "#0e1415", bg = "#cd974b" }
+preview_hovered = { underline = true }
+
+# Find
+find_keyword  = { fg = "#dfdf8e", italic = true }
+find_position = { fg = "#cc8bc9", bg = "reset", italic = true }
+
+# Marker
+marker_copied   = { fg = "#6abf40", bg = "#6abf40" }
+marker_cut      = { fg = "#d2322d", bg = "#d2322d" }
+marker_marked   = { fg = "#47bea9", bg = "#47bea9" }
+marker_selected = { fg = "#cd974b", bg = "#cd974b" }
+
+# Tab
+tab_active   = { fg = "#0e1415", bg = "#DCD7BA" }
+tab_inactive = { fg = "#DCD7BA", bg = "#182325" }
+tab_width    = 1
+
+# Count
+count_copied   = { fg = "#0e1415", bg = "#6abf40" }
+count_cut      = { fg = "#0e1415", bg = "#d2322d" }
+count_selected = { fg = "#0e1415", bg = "#cd974b" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#30464a" }
+
+# Highlighting
+syntect_theme = ""
+
+[tabs]
+active   = { fg = "#0e1415", bg = "#DCD7BA" }
+inactive = { fg = "#DCD7BA", bg = "#182325" }
+
+[mode]
+normal_main = { fg = "#0e1415", bg = "#cd974b", bold = true }
+normal_alt  = { fg = "#cd974b", bg = "#182325" }
+
+select_main = { fg = "#0e1415", bg = "#6abf40", bold = true }
+select_alt  = { fg = "#6abf40", bg = "#182325" }
+
+unset_main  = { fg = "#0e1415", bg = "#cc8bc9", bold = true }
+unset_alt   = { fg = "#cc8bc9", bg = "#182325" }
+
+[status]
+sep_left  = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+
+perm_sep   = { fg = "#30464a" }
+perm_type  = { fg = "#cd974b" }
+perm_read  = { fg = "#dfdf8e" }
+perm_write = { fg = "#d2322d" }
+perm_exec  = { fg = "#6abf40" }
+
+progress_label  = { fg = "#DCD7BA", bold = true }
+progress_normal = { fg = "#cd974b", bg = "#182325" }
+progress_error  = { fg = "#d2322d", bg = "#182325" }
+
+[which]
+cols            = 3
+mask            = { bg = "#0e1415" }
+cand            = { fg = "#47bea9" }
+rest            = { fg = "#707070" }
+desc            = { fg = "#DCD7BA" }
+separator       = "  "
+separator_style = { fg = "#30464a" }
+
+[confirm]
+border     = { fg = "#cd974b" }
+title      = { fg = "#cd974b" }
+content    = { fg = "#DCD7BA" }
+list       = { fg = "#47bea9" }
+btn_yes    = { fg = "#0e1415", bg = "#6abf40", bold = true }
+btn_no     = { fg = "#DCD7BA" }
+btn_labels = ["  [Y]es  ", "  (N)o  "]
+
+[spot]
+border   = { fg = "#cd974b" }
+title    = { fg = "#cd974b" }
+tbl_col  = { fg = "#dfdf8e" }
+tbl_cell = { fg = "#0e1415", bg = "#cd974b" }
+
+[notify]
+title_info  = { fg = "#6abf40" }
+title_warn  = { fg = "#ec8013" }
+title_error = { fg = "#d2322d" }
+
+[pick]
+border   = { fg = "#cd974b" }
+active   = { fg = "#cc8bc9", bold = true }
+inactive = { fg = "#DCD7BA" }
+
+[input]
+border   = { fg = "#cd974b" }
+title    = { fg = "#DCD7BA" }
+value    = { fg = "#DCD7BA" }
+selected = { bg = "#182325" }
+
+[cmp]
+border   = { fg = "#cd974b" }
+active   = { fg = "#cc8bc9", bold = true }
+inactive = { fg = "#DCD7BA" }
+
+[tasks]
+border  = { fg = "#cd974b" }
+title   = { fg = "#cd974b" }
+hovered = { fg = "#cc8bc9", underline = true }
+
+[help]
+on      = { fg = "#cc8bc9" }
+run     = { fg = "#47bea9" }
+desc    = { fg = "#DCD7BA" }
+hovered = { bg = "#182325", bold = true }
+footer  = { fg = "#0e1415", bg = "#DCD7BA" }
+
+# : File-specific styles : -----------------------------------------------------
+
+[filetype]
+rules = [
+	# Images
+	{ mime = "image/*", fg = "#47bea9" },
+
+	# Media
+	{ mime = "{audio,video}/*", fg = "#dfdf8e" },
+
+	# Archives
+	{ mime = "application/{,g}zip", fg = "#cc8bc9" },
+	{ mime = "application/x-{tar,bzip*,7z-compressed,xz,rar}", fg = "#cc8bc9" },
+
+	# Documents
+	{ mime = "application/{pdf,doc,rtf}", fg = "#8ebeec" },
+
+	# Empty / orphan
+	{ url = "*", is = "orphan", fg = "#d2322d" },
+
+	# Executables
+	{ url = "*", is = "exec", fg = "#6abf40" },
+
+	# Directories
+	{ url = "*/", fg = "#cd974b" },
+
+	# Fallback
+	{ url = "*", fg = "#DCD7BA" },
+]
+
+[icon]
+prepend_rules = [
+	{ name = "*", text = "" },
+	{ name = "*/", text = "" },
+]
