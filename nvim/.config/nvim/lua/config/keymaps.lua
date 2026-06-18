@@ -2,6 +2,9 @@
 local map = vim.keymap.set
 local utils = require("utils")
 
+-- Macro
+map("n", "<leader>m", "qa", { noremap = true, silent = true })
+
 -- Clear search highlight
 map("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Clear search highlight" })
 

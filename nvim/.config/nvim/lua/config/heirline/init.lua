@@ -94,7 +94,7 @@ local function get_colors()
 
 		diagnostic_error = hex_color(error_hl.fg) or "#f38ba8",
 		diagnostic_warn = hex_color(warning.fg) or "#f9e2af",
-		diagnostic_info = hex_color(info.fg) or "#89dceb",
+		diagnostic_info = "#89dceb",
 
 		dark_bg = "#1F1F28",
 	}
@@ -366,7 +366,7 @@ local GitBranch = {
 		self.changed = (git_status_cache.added > 0) or (git_status_cache.deleted > 0)
 	end,
 
-	hl = { fg = colors.normal_fg3, bg = colors.dark_bg },
+	hl = { fg = colors.normal_fg3, bg = colors.normal_bg3 },
 
 	{
 		provider = function(self)
@@ -378,7 +378,7 @@ local GitBranch = {
 			return self.changed
 		end,
 		provider = "* ",
-		hl = { fg = colors.git_dirty, bg = colors.dark_bg },
+		hl = { fg = colors.git_dirty, bg = colors.normal_bg3 },
 	},
 	{
 		condition = function(self)
@@ -387,7 +387,7 @@ local GitBranch = {
 		provider = function(self)
 			return string.format("↑[%d] ", self.ahead)
 		end,
-		hl = { fg = colors.git_ahead, bg = colors.dark_bg },
+		hl = { fg = colors.git_ahead, bg = colors.normal_bg3 },
 	},
 	{
 		condition = function(self)
@@ -396,11 +396,11 @@ local GitBranch = {
 		provider = function(self)
 			return string.format("↓[%d] ", self.behind)
 		end,
-		hl = { fg = colors.git_behind, bg = colors.dark_bg },
+		hl = { fg = colors.git_behind, bg = colors.normal_bg3 },
 	},
 	{
 		provider = right_slant,
-		hl = { fg = colors.dark_bg, bg = statusline_bg },
+		hl = { fg = colors.normal_bg3, bg = statusline_bg },
 	},
 }
 
@@ -464,7 +464,7 @@ local LSPActive = {
 	update = { "LspAttach", "LspDetach" },
 	{
 		provider = left_slant,
-		hl = { fg = colors.dark_bg, bg = statusline_bg },
+		hl = { fg = colors.normal_bg3, bg = statusline_bg },
 	},
 
 	{
@@ -475,11 +475,11 @@ local LSPActive = {
 			end
 			return " 󰘦 " .. table.concat(names, " ") .. " "
 		end,
-		hl = { fg = colors.normal_fg4, bg = colors.dark_bg, bold = true },
+		hl = { fg = colors.normal_fg, bg = colors.normal_bg3, bold = true },
 	},
 	{
 		provider = right_slant,
-		hl = { fg = colors.dark_bg, bg = statusline_bg },
+		hl = { fg = colors.normal_bg3, bg = statusline_bg },
 	},
 }
 
@@ -721,9 +721,13 @@ local StatusLine = {
 	{
 		condition = function()
 			local ft = vim.bo.filetype or ""
-			return ft:match("^dapui") or ft == "dap-repl" or ft:match("^qf")
+			return ft:match("^dapui") or ft == "dap-repl" or ft:match("^qf") or ft == "kulala_ui"
 		end,
+		{ provider = "%=", hl = { fg = "#000000", bg = "#393836" } },
 		FileEncoding,
+		Location,
+		CursorHex,
+		Progress,
 	},
 	{
 		Mode,

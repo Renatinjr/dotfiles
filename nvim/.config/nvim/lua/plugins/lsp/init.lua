@@ -1,12 +1,12 @@
 -- LSP configuration: Mason, mason-tool-installer, nvim-lspconfig (0.11+ API)
 local rust = require("plugins.lsp.rust")
-local vtsls = require("plugins.lsp.vtsls")
 local kotlin = require("plugins.lsp.kotlin")
+local vtsls = require("plugins.lsp.vtsls")
 
 return {
 	rust,
-	vtsls,
 	kotlin,
+	vtsls,
 	{
 		"williamboman/mason.nvim",
 		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
@@ -27,6 +27,7 @@ return {
 		opts = {
 			ensure_installed = {
 				"gofumpt",
+				"kulala-fmt",
 				"goimports",
 				"golines",
 				"gopls",
@@ -48,7 +49,11 @@ return {
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-			-- Global capabilities for all servers (merged with blink.cmp)
+			-- Global capabilities for all servers. blink.cmp's completion
+			-- capabilities (snippets, resolve, additionalTextEdits, …) are merged
+			-- in here so every enabled server inherits them. get_lsp_capabilities
+			-- folds blink's caps over the default client capabilities and then our
+			-- folding-range override; requiring blink here loads it on demand.
 			vim.lsp.config("*", {
 				capabilities = require("blink.cmp").get_lsp_capabilities({
 					textDocument = {
@@ -180,7 +185,7 @@ return {
 				},
 			})
 
-			-- NOTE: rust-analyzer is managed by rustaceanvim, vtsls by its own plugin spec
+			-- NOTE: rust-analyzer is managed by rustaceanvim.
 			vim.lsp.enable({
 				"lua_ls",
 				"html",
@@ -189,6 +194,7 @@ return {
 				"gopls",
 				"basedpyright",
 				"elixirls",
+				"jsonls",
 			})
 		end,
 	},

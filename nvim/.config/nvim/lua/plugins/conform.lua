@@ -3,6 +3,12 @@ return {
 	event = { "BufReadPre", "BufNewFile" },
 	config = function()
 		local conform = require("conform")
+		conform.formatters["kulala_fmt"] = {
+			command = "kulala-fmt",
+			args = { "fix", "--stdin" },
+			stdin = true,
+		}
+
 		conform.setup({
 			formatters_by_ft = {
 				javascript = { "prettier" },
@@ -18,6 +24,8 @@ return {
 				graphql = { "prettier" },
 				lua = { "stylua" },
 				python = { "isort", "black" },
+				http = { "kulala_fmt" },
+				rest = { "kulala_fmt" },
 			},
 			format_on_save = {
 				lsp_fallback = true,

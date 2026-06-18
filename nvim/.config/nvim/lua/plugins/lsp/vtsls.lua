@@ -28,15 +28,23 @@ local function filterReactDTS(value)
 end
 
 local handlers = {
-	["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-		silent = true,
-		border = "rounded",
-		focusable = false,
-	}),
-	["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-		border = "rounded",
-		focusable = false,
-	}),
+	-- Rounded, non-focusable hover/signature popups. Plain wrappers rather than
+	-- vim.lsp.with(), which is deprecated on Neovim 0.11+.
+	["textDocument/hover"] = function(err, result, ctx, config)
+		config = vim.tbl_extend("force", config or {}, {
+			silent = true,
+			border = "rounded",
+			focusable = false,
+		})
+		return vim.lsp.handlers.hover(err, result, ctx, config)
+	end,
+	["textDocument/signatureHelp"] = function(err, result, ctx, config)
+		config = vim.tbl_extend("force", config or {}, {
+			border = "rounded",
+			focusable = false,
+		})
+		return vim.lsp.handlers.signature_help(err, result, ctx, config)
+	end,
 	["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
 		if not result or not result.diagnostics then
 			return vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
@@ -102,7 +110,7 @@ local settings = {
 		},
 		updateImportsOnFileMove = { enabled = "always" },
 		tsserver = {
-			maxTsServerMemory = 2080,
+			maxTsServerMemory = 4096,
 			useBatchedBufferSync = true,
 		},
 		referencesCodeLens = {
@@ -136,7 +144,7 @@ local settings = {
 		},
 		updateImportsOnFileMove = { enabled = "always" },
 		tsserver = {
-			maxTsServerMemory = 2080,
+			maxTsServerMemory = 4096,
 			useBatchedBufferSync = true,
 		},
 	},
@@ -260,11 +268,8 @@ local M = {
 	},
 	root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
 	single_file_support = true,
-	capabilities = vim.tbl_deep_extend(
-		"force",
-		vim.lsp.protocol.make_client_capabilities(),
-		require("blink.cmp").get_lsp_capabilities() or {}
-	),
+	-- No explicit `capabilities` here: vtsls inherits the global blink-enriched
+	-- capabilities set via vim.lsp.config("*", …) in plugins/lsp/init.lua.
 	flags = {
 		debounce_text_changes = 150,
 		allow_incremental_sync = true,

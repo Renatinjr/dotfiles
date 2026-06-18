@@ -1,5 +1,75 @@
 local M = {}
 
+-- Build the full set of NvimTree highlight groups from a small semantic color
+-- map, so each palette only has to name its accents once. nvim-tree applies the
+-- `*FileHL`/`*FolderHL` groups (folder links to file by default) plus the legacy
+-- status-icon groups; we set both so colors land regardless of which the
+-- renderer reaches for.
+local function make_nvim_tree(c)
+	return {
+		-- Window / chrome
+		NvimTreeNormal = { fg = c.fg, bg = c.bg },
+		NvimTreeNormalFloat = { fg = c.fg, bg = c.bg },
+		NvimTreeNormalNC = { fg = c.fg, bg = c.bg },
+		NvimTreeEndOfBuffer = { fg = c.bg, bg = c.bg },
+		NvimTreeNormalFloatBorder = { fg = c.border, bg = c.bg },
+		NvimTreeWinSeparator = { fg = c.border, bg = c.bg },
+		NvimTreeCursorLine = { bg = c.sel_bg },
+		NvimTreeLiveFilterPrefix = { fg = c.accent, bold = true },
+		NvimTreeLiveFilterValue = { fg = c.fg },
+		-- Files / folders
+		NvimTreeRootFolder = { fg = c.accent, bold = true },
+		NvimTreeFolderName = { fg = c.folder },
+		NvimTreeOpenedFolderName = { fg = c.folder, bold = true, italic = true },
+		NvimTreeEmptyFolderName = { fg = c.comment },
+		NvimTreeFolderIcon = { fg = c.folder },
+		NvimTreeIndentMarker = { fg = c.comment },
+		NvimTreeSymlink = { fg = c.symlink },
+		NvimTreeSpecialFile = { fg = c.special, bold = true },
+		NvimTreeOpenedFile = { fg = c.fg, bold = true },
+		NvimTreeOpenedHL = { fg = c.fg, bold = true },
+		NvimTreeModifiedFile = { fg = c.modified },
+		NvimTreeModifiedFileHL = { fg = c.modified },
+		NvimTreeModifiedIcon = { fg = c.modified },
+		NvimTreeWindowPicker = { fg = c.bg, bg = c.accent, bold = true },
+		-- Git: new
+		NvimTreeGitNew = { fg = c.git_new },
+		NvimTreeGitNewIcon = { fg = c.git_new },
+		NvimTreeGitFileNewHL = { fg = c.git_new },
+		NvimTreeGitFolderNewHL = { fg = c.git_new },
+		-- Git: dirty / unstaged
+		NvimTreeGitDirty = { fg = c.git_dirty },
+		NvimTreeGitDirtyIcon = { fg = c.git_dirty },
+		NvimTreeGitFileDirtyHL = { fg = c.git_dirty },
+		NvimTreeGitFolderDirtyHL = { fg = c.git_dirty },
+		-- Git: staged
+		NvimTreeGitStaged = { fg = c.git_staged },
+		NvimTreeGitStagedIcon = { fg = c.git_staged },
+		NvimTreeGitFileStagedHL = { fg = c.git_staged },
+		NvimTreeGitFolderStagedHL = { fg = c.git_staged },
+		-- Git: renamed
+		NvimTreeGitRenamed = { fg = c.git_renamed },
+		NvimTreeGitRenamedIcon = { fg = c.git_renamed },
+		NvimTreeGitFileRenamedHL = { fg = c.git_renamed },
+		NvimTreeGitFolderRenamedHL = { fg = c.git_renamed },
+		-- Git: deleted
+		NvimTreeGitDeleted = { fg = c.git_deleted },
+		NvimTreeGitDeletedIcon = { fg = c.git_deleted },
+		NvimTreeGitFileDeletedHL = { fg = c.git_deleted },
+		NvimTreeGitFolderDeletedHL = { fg = c.git_deleted },
+		-- Git: merge conflict
+		NvimTreeGitMerge = { fg = c.git_merge },
+		NvimTreeGitMergeIcon = { fg = c.git_merge },
+		NvimTreeGitFileMergeHL = { fg = c.git_merge },
+		NvimTreeGitFolderMergeHL = { fg = c.git_merge },
+		-- Git: ignored
+		NvimTreeGitIgnored = { fg = c.comment, italic = true },
+		NvimTreeGitIgnoredIcon = { fg = c.comment, italic = true },
+		NvimTreeGitFileIgnoredHL = { fg = c.comment, italic = true },
+		NvimTreeGitFolderIgnoredHL = { fg = c.comment, italic = true },
+	}
+end
+
 -- Rose Pine palette (main variant)
 local rose_pine = function()
 	local ok, palette = pcall(require, "rose-pine.palette")
@@ -77,6 +147,25 @@ local rose_pine = function()
 			button = p.iris,
 			shortcut = p.rose,
 		},
+
+		nvim_tree = make_nvim_tree({
+			bg = p.base,
+			fg = p.text,
+			comment = p.muted,
+			border = p.highlight_high,
+			sel_bg = p.overlay,
+			accent = p.iris,
+			folder = p.foam,
+			special = p.gold,
+			symlink = p.foam,
+			modified = p.gold,
+			git_new = p.foam,
+			git_dirty = p.gold,
+			git_staged = p.pine,
+			git_renamed = p.iris,
+			git_deleted = p.love,
+			git_merge = p.rose,
+		}),
 
 		incline = {
 			normal = { bg = p.overlay, fg = p.text },
@@ -223,6 +312,25 @@ local kanagawa = function()
 			button = p.magenta,
 			shortcut = p.blue,
 		},
+
+		nvim_tree = make_nvim_tree({
+			bg = p.bg,
+			fg = p.fg,
+			comment = p.comment,
+			border = p.separator,
+			sel_bg = p.bg_line,
+			accent = p.blue,
+			folder = p.blue,
+			special = p.yellow,
+			symlink = p.cyan,
+			modified = p.amber,
+			git_new = p.green,
+			git_dirty = p.yellow,
+			git_staged = p.green,
+			git_renamed = p.magenta,
+			git_deleted = p.red,
+			git_merge = p.pink,
+		}),
 
 		incline = {
 			normal = { bg = p.bg_gutter, fg = p.fg },
@@ -373,6 +481,25 @@ local jellybeans = function()
 			shortcut = p.blue,
 		},
 
+		nvim_tree = make_nvim_tree({
+			bg = p.bg,
+			fg = p.fg,
+			comment = p.comment,
+			border = p.grey_three,
+			sel_bg = p.grey_two,
+			accent = p.blue,
+			folder = p.blue,
+			special = p.yellow,
+			symlink = p.teal,
+			modified = p.yellow,
+			git_new = p.green,
+			git_dirty = p.yellow,
+			git_staged = p.green,
+			git_renamed = p.purple,
+			git_deleted = p.red,
+			git_merge = p.pink,
+		}),
+
 		incline = {
 			normal = { bg = p.grey_two, fg = p.fg },
 			border = { bg = p.bg, fg = p.bg },
@@ -516,6 +643,25 @@ local kanso = function()
 			button = theme.syn.keyword,
 			shortcut = theme.syn.fun,
 		},
+
+		nvim_tree = make_nvim_tree({
+			bg = theme.ui.bg,
+			fg = theme.ui.fg,
+			comment = theme.syn.comment,
+			border = theme.ui.bg_p2,
+			sel_bg = theme.ui.bg_gutter,
+			accent = theme.syn.fun,
+			folder = theme.syn.fun,
+			special = theme.syn.constant,
+			symlink = theme.syn.special1,
+			modified = theme.diag.warning,
+			git_new = theme.syn.string,
+			git_dirty = theme.diag.warning,
+			git_staged = theme.syn.string,
+			git_renamed = theme.syn.keyword,
+			git_deleted = theme.diag.error,
+			git_merge = theme.syn.special1,
+		}),
 
 		incline = {
 			normal = { bg = theme.ui.bg_p2, fg = theme.ui.fg },
@@ -703,6 +849,25 @@ local serenity = function()
 			shortcut = p.blue,
 		},
 
+		nvim_tree = make_nvim_tree({
+			bg = p.bg,
+			fg = p.fg,
+			comment = p.comment,
+			border = p.separator,
+			sel_bg = p.bg_line,
+			accent = p.blue,
+			folder = p.blue,
+			special = p.yellow,
+			symlink = p.cyan,
+			modified = p.amber,
+			git_new = p.green,
+			git_dirty = p.yellow,
+			git_staged = p.green,
+			git_renamed = p.purple,
+			git_deleted = p.red,
+			git_merge = p.pink,
+		}),
+
 		incline = {
 			normal = { bg = p.bg_sec, fg = p.fg },
 			border = { bg = p.bg, fg = p.bg },
@@ -863,6 +1028,27 @@ local koda = function()
 			shortcut = p.info,
 		},
 
+		nvim_tree = make_nvim_tree({
+			bg = p.bg,
+			fg = p.fg,
+			comment = p.comment,
+			-- p.border is pure white in koda; use the dim grey for chrome so the
+			-- float border/separators stay low-contrast like the rest of koda.
+			border = p.dim,
+			sel_bg = p.line,
+			accent = p.highlight,
+			folder = p.info,
+			special = p.const,
+			symlink = p.cyan,
+			modified = p.warning,
+			git_new = p.success,
+			git_dirty = p.warning,
+			git_staged = p.success,
+			git_renamed = p.highlight,
+			git_deleted = p.danger,
+			git_merge = p.pink,
+		}),
+
 		incline = {
 			normal = { bg = p.line, fg = p.fg },
 			border = { bg = p.bg, fg = p.bg },
@@ -878,45 +1064,45 @@ local koda = function()
 			tab = { fg = p.comment, bg = p.line },
 			tab_selected = { fg = p.emphasis, bg = p.bg, bold = true },
 			tab_close = { fg = p.comment, bg = p.line },
-			close_button = { fg = p.danger, bg = p.line },
+			close_button = { fg = p.danger, bg = p.bg },
 			close_button_visible = { fg = p.danger, bg = p.line },
 			close_button_selected = { fg = p.danger, bg = p.bg },
 			buffer_visible = { fg = p.comment, bg = p.line },
 			buffer_selected = { fg = p.emphasis, bg = p.bg, bold = true, italic = false },
-			numbers = { fg = p.cyan, bg = p.line },
+			numbers = { fg = p.cyan, bg = p.bg },
 			numbers_visible = { fg = p.cyan, bg = p.line },
 			numbers_selected = { fg = p.cyan, bg = p.bg, bold = true, italic = false },
-			diagnostic = { fg = p.comment, bg = p.line },
+			diagnostic = { fg = p.comment, bg = p.bg },
 			diagnostic_visible = { fg = p.comment, bg = p.line },
 			diagnostic_selected = { fg = p.fg, bg = p.bg, bold = true, italic = false },
-			hint = { fg = p.highlight, bg = p.line },
+			hint = { fg = p.highlight, bg = p.bg },
 			hint_visible = { fg = p.highlight, bg = p.line },
 			hint_selected = { fg = p.highlight, bg = p.bg, bold = true, italic = false },
-			hint_diagnostic = { fg = p.highlight, bg = p.line },
+			hint_diagnostic = { fg = p.highlight, bg = p.bg },
 			hint_diagnostic_visible = { fg = p.highlight, bg = p.line },
 			hint_diagnostic_selected = { fg = p.highlight, bg = p.bg, bold = true, italic = false },
-			info = { fg = p.info, bg = p.line },
+			info = { fg = p.info, bg = p.bg },
 			info_visible = { fg = p.info, bg = p.line },
 			info_selected = { fg = p.info, bg = p.bg, bold = true, italic = false },
-			info_diagnostic = { fg = p.info, bg = p.line },
+			info_diagnostic = { fg = p.info, bg = p.bg },
 			info_diagnostic_visible = { fg = p.info, bg = p.line },
 			info_diagnostic_selected = { fg = p.info, bg = p.bg, bold = true, italic = false },
-			warning = { fg = p.warning, bg = p.line },
+			warning = { fg = p.warning, bg = p.bg },
 			warning_visible = { fg = p.warning, bg = p.line },
 			warning_selected = { fg = p.warning, bg = p.bg, bold = true, italic = false },
-			warning_diagnostic = { fg = p.warning, bg = p.line },
+			warning_diagnostic = { fg = p.warning, bg = p.bg },
 			warning_diagnostic_visible = { fg = p.warning, bg = p.line },
 			warning_diagnostic_selected = { fg = p.warning, bg = p.bg, bold = true, italic = false },
-			error = { fg = p.danger, bg = p.line },
+			error = { fg = p.danger, bg = p.bg },
 			error_visible = { fg = p.danger, bg = p.line },
 			error_selected = { fg = p.danger, bg = p.bg, bold = true, italic = false },
-			error_diagnostic = { fg = p.danger, bg = p.line },
+			error_diagnostic = { fg = p.danger, bg = p.bg },
 			error_diagnostic_visible = { fg = p.danger, bg = p.line },
 			error_diagnostic_selected = { fg = p.danger, bg = p.bg, bold = true, italic = false },
-			modified = { fg = p.warning, bg = p.line },
+			modified = { fg = p.warning, bg = p.bg },
 			modified_visible = { fg = p.warning, bg = p.line },
 			modified_selected = { fg = p.warning, bg = p.bg },
-			duplicate = { fg = p.comment, bg = p.line, italic = true },
+			duplicate = { fg = p.comment, bg = p.bg, italic = true },
 			duplicate_visible = { fg = p.comment, bg = p.line, italic = true },
 			duplicate_selected = { fg = p.fg, bg = p.bg, italic = false },
 			separator = { fg = p.dim, bg = p.bg },

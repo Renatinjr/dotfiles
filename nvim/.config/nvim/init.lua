@@ -37,7 +37,6 @@ local disabled_builtins = {
 for _, plugin in ipairs(disabled_builtins) do
 	vim.g["loaded_" .. plugin] = 1
 end
-
 -- Bootstrap and load configuration
 require("config.lazy")
 require("config.options")

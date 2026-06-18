@@ -45,11 +45,11 @@ return {
 			},
 
 			server = {
-				capabilities = vim.tbl_deep_extend(
-					"force",
-					vim.lsp.protocol.make_client_capabilities(),
-					require("blink.cmp").get_lsp_capabilities() or {}
-				),
+				-- rustaceanvim configures rust-analyzer directly (it does not go
+				-- through vim.lsp.config("*")), so blink.cmp's completion
+				-- capabilities are merged in here. Requiring blink loads it on
+				-- demand; get_lsp_capabilities folds its caps over the defaults.
+				capabilities = require("blink.cmp").get_lsp_capabilities(),
 				on_attach = function(client, bufnr)
 					vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
