@@ -59,6 +59,9 @@ autocmd({ "BufRead", "BufNewFile" }, {
 autocmd("FileType", {
 	group = augroup("TreesitterStart", { clear = true }),
 	callback = function(args)
+		if vim.b[args.buf].bigfile then
+			return
+		end
 		local ok = pcall(vim.treesitter.start, args.buf)
 		if ok then
 			vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -69,7 +72,7 @@ autocmd("FileType", {
 -- Also start treesitter on buffers that are already open when plugin loads
 vim.schedule(function()
 	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-		if vim.api.nvim_buf_is_loaded(buf) then
+		if vim.api.nvim_buf_is_loaded(buf) and not vim.b[buf].bigfile then
 			pcall(vim.treesitter.start, buf)
 		end
 	end

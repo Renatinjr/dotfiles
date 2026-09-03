@@ -36,15 +36,15 @@
 -- hack. Applied per source below.
 local MIN_KEYWORD = 2
 
--- ---------------------------------------------------------------------------
--- Theme integration — derive the menu palette from the ACTIVE colorscheme.
--- koda is the live theme (lua/config/theme.lua); we read its palette directly
--- (with a hardcoded fallback, mirroring theme.lua) and re-apply on every
--- :colorscheme change so the menu always tracks the editor. blink, unlike coq,
--- emits a real per-item highlight group (BlinkCmpKind<Kind>), so icons CAN be
--- colored per kind — that's what the kind map below is for.
--- ---------------------------------------------------------------------------
-local function blink_highlights()
+-- Filetypes served by the TypeScript 7.0 language server (plugins/lsp/tsc.lua),
+-- where a completion is far more expensive than in other languages.
+
+local function blink_palette()
+	local ok_theme, theme = pcall(require, "config.theme")
+	if ok_theme and type(theme.current_theme) == "table" and type(theme.current_theme.blink) == "table" then
+		return theme.current_theme.blink
+	end
+
 	local ok, p = pcall(require, "koda.palette.dark")
 	if not ok or type(p) ~= "table" then
 		p = {
@@ -67,7 +67,7 @@ local function blink_highlights()
 	-- Semantic shorthands. `func`/`string` use the values colorscheme.lua
 	-- overrides koda with (gold functions, pale-yellow strings) so the menu
 	-- matches the actual buffer syntax rather than koda's muted defaults.
-	local c = {
+	return {
 		fg = p.fg,
 		blue = p.highlight,
 		info = p.info,
@@ -83,6 +83,10 @@ local function blink_highlights()
 		func = "#E6C384",
 		string = "#ffffb8",
 	}
+end
+
+local function blink_highlights()
+	local c = blink_palette()
 
 	-- LSP CompletionItemKind -> accent color.
 	local kinds = {
@@ -176,7 +180,18 @@ return {
 				preset = "enter", -- <CR> accepts / falls back to autopairs' <CR>
 				["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
 				["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+				-- Manual completion trigger, bound three ways:
+				--   <C-space>  what most terminals send
+				--   <C-@>      what others send for the same chord (NUL)
+				--   <C-l>      terminal-safe fallback -- macOS binds Ctrl+Space to
+				--              "Select the previous input source" (symbolic hotkeys 60
+				--              and 61) and swallows it system-wide, so neither of the
+				--              first two ever reaches Neovim until that is turned off
+				--              in System Settings > Keyboard > Keyboard Shortcuts >
+				--              Input Sources. <C-l> is unmapped in insert mode.
 				["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+				["<C-@>"] = { "show", "show_documentation", "hide_documentation" },
+				["<C-l>"] = { "show", "show_documentation", "hide_documentation" },
 				["<C-e>"] = { "hide", "fallback" },
 				["<C-y>"] = { "select_and_accept" },
 				["<C-u>"] = { "scroll_documentation_up", "fallback" },
@@ -225,11 +240,21 @@ return {
 				keyword = { range = "prefix" },
 
 				trigger = {
-					-- Prefetch on insert so the first menu render is instant — the
-					-- single biggest perceived-latency win.
-					prefetch_on_insert = true,
-					show_on_keyword = true,
-					show_on_trigger_character = true, -- ".", "::" etc. always fire
+					-- Fully manual: the menu only appears on <C-space>/<C-l>, never
+					-- while typing. Every automatic path is a request to the language
+					-- server for the whole open buffer, and on a large TS/JS file that
+					-- costs the server ~1.2s and a fresh type checker each time -- one
+					-- line of typing fired five of them and pinned the CPU. Manual-only
+					-- makes that cost something you ask for rather than something you
+					-- pay per word, in every language.
+					prefetch_on_insert = false,
+					show_on_keyword = false,
+					show_on_trigger_character = false, -- ".", "::" etc. no longer fire
+					show_on_insert = false,
+					show_on_backspace = false,
+					show_on_backspace_in_keyword = false,
+					show_on_backspace_after_accept = false,
+					show_on_backspace_after_insert_enter = false,
 				},
 
 				list = {
@@ -260,12 +285,26 @@ return {
 					},
 				},
 
-				-- Documentation float. blink positions it on whichever side has room
-				-- (and only fetches after the delay, on idle), so it no longer drops
-				-- on top of your code the way coq's preview did. Flip auto_show to
-				-- false if you'd rather pull docs manually with <C-space>/<C-k>.
+				-- Documentation float, on demand only.
+				--
+				-- auto_show fetches docs for whichever entry is selected, which means
+				-- one completionItem/resolve per entry you move over. Against the TS 7.0
+				-- server that is the single most expensive thing this config can do: a
+				-- resolve issued after an edit forces a fresh type checker for the new
+				-- program version, and the server's checker pool keeps them. Measured on
+				-- a 5154-line controller, eight rounds of "type a line, complete, move
+				-- over 40 entries":
+				--
+				--   auto_show = true    1.16 -> 3.68 GB, and it does not come back down
+				--   auto_show = false   1.16 -> 1.23 GB
+				--
+				-- The completions themselves are not the cost -- the same eight rounds
+				-- request 1487 items each either way. It is purely resolve-on-hover, and
+				-- disabling auto-imports does not help (3.78 GB), so there is nothing to
+				-- fix on the server side. Press <C-space>/<C-l> a second time with the
+				-- menu open to pull docs for the selected entry.
 				documentation = {
-					auto_show = true,
+					auto_show = false,
 					auto_show_delay_ms = 250,
 					window = { border = "rounded" },
 				},
@@ -277,6 +316,10 @@ return {
 			signature = {
 				enabled = true,
 				window = { border = "rounded" },
+				-- Same reasoning as completion.trigger: blink otherwise fires
+				-- textDocument/signatureHelp on "(" and friends as you type. <C-k>
+				-- shows it on demand.
+				trigger = { enabled = false },
 			},
 
 			-- ---- Sources --------------------------------------------------------
@@ -287,7 +330,6 @@ return {
 				providers = {
 					lsp = {
 						score_offset = 100,
-						min_keyword_length = MIN_KEYWORD,
 					},
 					snippets = {
 						score_offset = 80,
@@ -344,6 +386,28 @@ return {
 		},
 
 		config = function(_, opts)
+			-- Stop blink speculatively resolving whatever entry is selected.
+			--
+			-- completion/init.lua registers a prefetch on select_emitter with no
+			-- config flag behind it, so moving through the menu fires one
+			-- completionItem/resolve per entry even with documentation.auto_show
+			-- off. It debounces 50 ms and cancels the previous request, but an LSP
+			-- cancel does not unwind work the server has already started -- measured
+			-- against tsc, cancelling a fast scroll still cost 1.17 -> 1.80 GB.
+			--
+			-- Resolve is the expensive request for the TypeScript 7.0 server: issued
+			-- after an edit it forces a fresh type checker for the new program
+			-- version, and the checker pool keeps them. Eight rounds of "type a
+			-- line, complete, move over 40 entries" on a 5154-line controller took
+			-- the server from 1.16 to 3.68 GB, none of it released.
+			--
+			-- Accepting an item (completion/accept) and opening the docs window both
+			-- call sources.resolve directly, so both still work -- auto-import edits
+			-- on accept included. Only the speculative call is gone. The stub must
+			-- be in place before the first selection; require() inside the emitter
+			-- callback picks it up from package.loaded.
+			package.loaded["blink.cmp.completion.prefetch"] = function() end
+
 			require("blink.cmp").setup(opts)
 
 			-- Apply the theme-derived menu colors now and on every colorscheme swap.

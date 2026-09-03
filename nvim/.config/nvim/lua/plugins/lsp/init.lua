@@ -1,11 +1,20 @@
 -- LSP configuration: Mason, mason-tool-installer, nvim-lspconfig (0.11+ API)
 local rust = require("plugins.lsp.rust")
 local kotlin = require("plugins.lsp.kotlin")
+-- TypeScript/JavaScript: `vim.g.ts_lsp` picks which of these two actually
+-- enables its server ("tsc", the TypeScript 7.0 native Go server, is the
+-- default when unset). Both specs load; the loser returns early.
+local tsc = require("plugins.lsp.tsc")
 local vtsls = require("plugins.lsp.vtsls")
+-- Lint diagnostics for JS/TS. Independent of the pair above: tsc reports nothing
+-- on plain JS unless the project turns on checkJs, which is far too expensive on
+-- a large untyped codebase. See lua/plugins/lsp/eslint.lua.
+local eslint = require("plugins.lsp.eslint")
 
 return {
 	rust,
 	kotlin,
+	tsc,
 	vtsls,
 	{
 		"williamboman/mason.nvim",
@@ -38,7 +47,12 @@ return {
 				"prettier",
 				"codelldb",
 				"tailwindcss-language-server",
+				-- TypeScript/JavaScript LSP (see lua/plugins/lsp/vtsls.lua).
 				"vtsls",
+				-- Kotlin LSP (see lua/plugins/lsp/kotlin.lua). Bundles its own JBR.
+				"kotlin-lsp",
+				-- JS/TS lint diagnostics (see lua/plugins/lsp/eslint.lua).
+				"eslint-lsp",
 				"basedpyright",
 				"black",
 				"isort",
@@ -185,8 +199,14 @@ return {
 				},
 			})
 
+			-- Must run here rather than from a spec `init`: it reads the config
+			-- nvim-lspconfig ships for eslint before overriding it, which only
+			-- resolves once this plugin is on the runtimepath.
+			eslint.setup()
+
 			-- NOTE: rust-analyzer is managed by rustaceanvim.
 			vim.lsp.enable({
+				"eslint",
 				"lua_ls",
 				"html",
 				"tailwindcss",

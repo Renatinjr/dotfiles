@@ -936,45 +936,55 @@ local serenity = function()
 end
 
 -- Koda palette (oskarnurm/koda.nvim) — minimal dark, low-contrast.
--- Pulls the live palette from `koda.palette.dark`; mirrors the kanso() pattern
--- (read the plugin's source of truth, expose UI-shape consumed by FzfLua,
--- alpha, incline, bufferline). Koda's palette is FLAT (no theme.ui / syn /
--- diag tables like kanso), so the keys are read directly.
-local koda = function()
-	local ok, palette = pcall(require, "koda.palette.dark")
-	if not ok or type(palette) ~= "table" then
-		-- Fallback to the same hex values koda ships in palette/dark.lua so
-		-- theme.lua still works before lazy clones the plugin.
-		palette = {
-			bg = "#101010",
-			fg = "#b0b0b0",
-			dim = "#474747",
-			line = "#272727",
-			keyword = "#777777",
-			type = "#777777",
-			operator = "#777777",
-			comment = "#50585d",
-			border = "#ffffff",
-			emphasis = "#ffffff",
-			func = "#ffffff",
-			string = "#ffffff",
-			char = "#ffffff",
-			special = "#ffffff",
-			const = "#d9ba73",
-			highlight = "#458ee6",
-			info = "#8ebeec",
-			success = "#86cd82",
-			warning = "#d9ba73",
-			danger = "#ff7676",
-			green = "#14ba19",
-			orange = "#ff5733",
-			red = "#701516",
-			pink = "#f2a4db",
-			cyan = "#5abfb5",
-		}
-	end
+--
+-- KODA_COLORS is the single source of truth for koda's palette overrides: the
+-- plugin spec passes it straight into `require("koda").setup{ colors = ... }`,
+-- and koda's own `get_palette()` then hands the merged result back here, so the
+-- editor, the tree, the picker and the tabline can't drift apart.
+local KODA_COLORS = {
+	bg = "#0e1415", -- cooler and a shade darker than koda's stock #101010
+	border = "#474747", -- koda ships pure-white borders; keep the chrome quiet
+	func = "#E6C384", -- gold functions
+	string = "#ffffb8", -- pale-yellow strings
+	const = "#FFA066", -- constants / numbers / booleans
+}
 
-	local p = palette
+-- koda's palette is FLAT (no theme.ui / syn / diag sub-tables like kanso), so
+-- the keys are read directly.
+local koda = function()
+	-- koda's dark palette, transcribed from lua/koda/palette/dark.lua. This file
+	-- deliberately does NOT require the plugin: lazy.nvim loads a plugin the
+	-- moment one of its modules is required, and since this function runs while
+	-- config.theme itself is still loading, that pulls koda's `config` in mid-load
+	-- — which requires config.theme right back and dies on the circular require.
+	-- Merging KODA_COLORS here yields exactly what koda's get_palette() would.
+	local p = vim.tbl_extend("force", {
+		bg = "#101010",
+		fg = "#b0b0b0",
+		dim = "#474747",
+		line = "#272727",
+		keyword = "#777777",
+		type = "#777777",
+		operator = "#777777",
+		comment = "#50585d",
+		border = "#ffffff",
+		emphasis = "#ffffff",
+		func = "#ffffff",
+		string = "#ffffff",
+		char = "#ffffff",
+		special = "#ffffff",
+		const = "#d9ba73",
+		highlight = "#458ee6",
+		info = "#8ebeec",
+		success = "#86cd82",
+		warning = "#d9ba73",
+		danger = "#ff7676",
+		green = "#14ba19",
+		orange = "#ff5733",
+		red = "#701516",
+		pink = "#f2a4db",
+		cyan = "#5abfb5",
+	}, KODA_COLORS)
 
 	return {
 		bg = p.bg,
@@ -989,7 +999,7 @@ local koda = function()
 			setup_colors = function()
 				local highlights = {
 					FzfLuaNormal = { bg = p.bg, fg = p.fg },
-					FzfLuaBorder = { fg = p.dim },
+					FzfLuaBorder = { fg = p.border, bg = p.bg },
 					FzfLuaCursorLine = { bg = p.line, fg = p.highlight },
 					FzfLuaTitle = { fg = p.info, bold = true },
 					FzfLuaPrompt = { fg = p.highlight, bold = true },
@@ -1023,18 +1033,43 @@ local koda = function()
 		},
 
 		alpha = {
-			heading = p.keyword,
+			heading = p.func,
 			button = p.highlight,
 			shortcut = p.info,
+		},
+
+		indent = {
+			line = p.line,
+			scope = p.dim,
+		},
+
+		-- blink.cmp menu palette (consumed by plugins/completion.lua). Previously
+		-- that file re-derived koda's palette itself and hardcoded the gold/pale
+		-- yellow; it now reads these, which come from KODA_COLORS.
+		blink = {
+			fg = p.fg,
+			blue = p.highlight,
+			info = p.info,
+			gold = p.const,
+			green = p.success,
+			red = p.danger,
+			cyan = p.cyan,
+			pink = p.pink,
+			orange = p.orange,
+			comment = p.comment,
+			dim = p.dim,
+			line = p.line,
+			func = p.func,
+			string = p.string,
 		},
 
 		nvim_tree = make_nvim_tree({
 			bg = p.bg,
 			fg = p.fg,
 			comment = p.comment,
-			-- p.border is pure white in koda; use the dim grey for chrome so the
-			-- float border/separators stay low-contrast like the rest of koda.
-			border = p.dim,
+			-- KODA_COLORS re-tints `border` (koda ships pure white), so the tree
+			-- chrome can just use it now.
+			border = p.border,
 			sel_bg = p.line,
 			accent = p.highlight,
 			folder = p.info,
@@ -1116,8 +1151,568 @@ local koda = function()
 	}
 end
 
+-- Material palette (marko-cerovac/material.nvim)
+--
+-- material.nvim picks its palette from `vim.g.material_style` and bakes it into
+-- `material.colors` at require time, which is too late for us: options.lua pulls
+-- theme.lua in before lazy has even cloned the plugin, and every :colorscheme
+-- material wipes `package.loaded["material.colors"]`. So the five styles are
+-- transcribed here from the plugin's lua/material/colors/init.lua and selected
+-- by that same global. MATERIAL_STYLE below is the default the plugin spec
+-- pushes into `vim.g.material_style`, so this file stays the single place to
+-- change the style: "deep ocean" | "darker" | "palenight" | "oceanic" | "lighter".
+local MATERIAL_STYLE = "darker"
+
+local material = function()
+	-- "main" colors — shared by every style except lighter, which overrides them
+	local main = {
+		white = "#EEFFFF",
+		gray = "#717CB4",
+		red = "#F07178",
+		green = "#C3E88D",
+		yellow = "#FFCB6B",
+		blue = "#82AAFF",
+		paleblue = "#B0C9FF",
+		cyan = "#89DDFF",
+		purple = "#C792EA",
+		orange = "#F78C6C",
+		pink = "#FF9CAC",
+		error_red = "#FF5370", -- colors.lsp.error
+		link = "#80CBC4", -- colors.editor.link
+	}
+
+	local styles = {
+		["deep ocean"] = {
+			editor = {
+				bg = "#0F111A",
+				bg_alt = "#090B10",
+				fg = "#A6ACCD",
+				fg_dark = "#717CB4",
+				selection = "#1F2233",
+				contrast = "#090B10",
+				active = "#1A1C25",
+				border = "#232637",
+				line_numbers = "#3B3F51",
+				highlight = "#1F2233",
+				disabled = "#464B5D",
+				accent = "#84FFFF",
+				comments = "#464B5D",
+			},
+		},
+		darker = {
+			editor = {
+				bg = "#212121",
+				bg_alt = "#1A1A1A",
+				fg = "#B0BEC5",
+				fg_dark = "#8C8B8B",
+				selection = "#404040",
+				contrast = "#1A1A1A",
+				active = "#323232",
+				border = "#343434",
+				line_numbers = "#424242",
+				highlight = "#3F3F3F",
+				disabled = "#474747",
+				accent = "#FF9800",
+				comments = "#515151",
+			},
+		},
+		palenight = {
+			editor = {
+				bg = "#292D3E",
+				bg_alt = "#1B1E2B",
+				fg = "#A6ACCD",
+				fg_dark = "#717CB4",
+				selection = "#444267",
+				contrast = "#202331",
+				active = "#414863",
+				border = "#364367",
+				line_numbers = "#3A3F58",
+				highlight = "#444267",
+				disabled = "#515772",
+				accent = "#AB47BC",
+				comments = "#676E95",
+			},
+		},
+		oceanic = {
+			editor = {
+				bg = "#25363B",
+				bg_alt = "#1C2C30",
+				fg = "#B0BEC5",
+				fg_dark = "#7C9EAD",
+				selection = "#395B65",
+				contrast = "#1E272C",
+				active = "#314549",
+				border = "#355058",
+				line_numbers = "#426367",
+				highlight = "#354A51",
+				disabled = "#3E5F64",
+				accent = "#11BBA3",
+				comments = "#546E7A",
+			},
+		},
+		lighter = {
+			editor = {
+				bg = "#FAFAFA",
+				bg_alt = "#FFFFFF",
+				fg = "#546E7A",
+				fg_dark = "#94A7B0",
+				selection = "#80CBC4",
+				contrast = "#EEEEEE",
+				active = "#E7E7E8",
+				border = "#D3E1E8",
+				line_numbers = "#CFD8DC",
+				highlight = "#E7E7E8",
+				disabled = "#D2D4D5",
+				accent = "#00BCD4",
+				comments = "#AABFC9",
+			},
+			-- lighter re-tints the whole "main" table for contrast on white
+			main = {
+				red = "#E53935",
+				green = "#91B859",
+				yellow = "#F6A434",
+				blue = "#6182B8",
+				paleblue = "#8796B0",
+				cyan = "#39ADB5",
+				purple = "#7C4DFF",
+				orange = "#F76D47",
+				pink = "#FF5370",
+			},
+		},
+	}
+
+	local style = styles[vim.g.material_style] or styles[MATERIAL_STYLE] or styles["deep ocean"]
+	local p = vim.tbl_extend("force", main, style.main or {}, style.editor)
+
+	return {
+		bg = p.bg,
+		bg_sec = p.active,
+		bg_notify = p.active,
+		text = p.fg,
+		text_sec = p.comments,
+		inlay_hint_bg = p.active,
+		inlay_hint_fg = p.disabled,
+
+		-- Floats and sidebars sit on `bg_alt` to match `contrast.floating_windows`
+		-- / `contrast.sidebars` in the plugin spec.
+		fzf = {
+			setup_colors = function()
+				local highlights = {
+					FzfLuaNormal = { bg = p.bg_alt, fg = p.fg },
+					FzfLuaBorder = { fg = p.border, bg = p.bg_alt },
+					FzfLuaCursorLine = { bg = p.selection, fg = p.accent },
+					FzfLuaTitle = { fg = p.blue, bold = true },
+					FzfLuaPrompt = { fg = p.purple, bold = true },
+					FzfLuaPointer = { fg = p.purple, bold = true },
+					FzfLuaMarker = { fg = p.green },
+					FzfLuaSpinner = { fg = p.accent, bold = true },
+					FzfLuaHeader = { fg = p.comments },
+					FzfLuaPreviewTitle = { fg = p.purple, bold = true },
+				}
+
+				for group, opts in pairs(highlights) do
+					vim.api.nvim_set_hl(0, group, opts)
+				end
+
+				return {
+					normal = "FzfLuaNormal",
+					border = "FzfLuaBorder",
+					cursor = "FzfLuaPointer",
+					cursorline = "FzfLuaCursorLine",
+					title = "FzfLuaTitle",
+					prompt = "FzfLuaPrompt",
+					pointer = "FzfLuaPointer",
+					marker = "FzfLuaMarker",
+					spinner = "FzfLuaSpinner",
+					header = "FzfLuaHeader",
+					preview_title = "FzfLuaPreviewTitle",
+					help_normal = "FzfLuaNormal",
+					help_border = "FzfLuaBorder",
+				}
+			end,
+		},
+
+		alpha = {
+			heading = p.accent,
+			button = p.purple,
+			shortcut = p.blue,
+		},
+
+		-- indent-blankline guides (consumed by plugins/editor.lua)
+		indent = {
+			line = p.border,
+			scope = p.disabled,
+		},
+
+		-- blink.cmp menu palette (consumed by plugins/completion.lua)
+		blink = {
+			fg = p.fg,
+			blue = p.blue,
+			info = p.paleblue,
+			gold = p.yellow,
+			green = p.green,
+			red = p.error_red,
+			cyan = p.cyan,
+			pink = p.pink,
+			orange = p.orange,
+			comment = p.comments,
+			dim = p.border,
+			line = p.selection,
+			func = p.blue,
+			string = p.green,
+		},
+
+		nvim_tree = make_nvim_tree({
+			bg = p.bg_alt,
+			fg = p.fg,
+			comment = p.comments,
+			border = p.border,
+			sel_bg = p.selection,
+			accent = p.accent,
+			folder = p.blue,
+			special = p.yellow,
+			symlink = p.link,
+			modified = p.yellow,
+			git_new = p.green,
+			git_dirty = p.yellow,
+			git_staged = p.green,
+			git_renamed = p.purple,
+			git_deleted = p.red,
+			git_merge = p.pink,
+		}),
+
+		incline = {
+			normal = { bg = p.active, fg = p.fg },
+			border = { bg = p.bg, fg = p.bg },
+			normal_nc = { bg = p.active, fg = p.comments },
+			focused = { one = p.active, two = p.active },
+			file_name = { guifg = p.fg },
+			modified = { guifg = p.yellow },
+		},
+
+		bufferline = {
+			fill = { fg = p.bg_alt, bg = p.bg_alt },
+			background = { fg = p.comments, bg = p.bg_alt },
+			tab = { fg = p.comments, bg = p.bg_alt },
+			tab_selected = { fg = p.accent, bg = p.bg, bold = true },
+			tab_close = { fg = p.comments, bg = p.bg_alt },
+			close_button = { fg = p.red, bg = p.bg_alt },
+			close_button_visible = { fg = p.red, bg = p.bg_alt },
+			close_button_selected = { fg = p.red, bg = p.bg },
+			buffer_visible = { fg = p.comments, bg = p.bg_alt },
+			buffer_selected = { fg = p.fg, bg = p.bg, bold = true, italic = false },
+			numbers = { fg = p.cyan, bg = p.bg_alt },
+			numbers_visible = { fg = p.cyan, bg = p.bg_alt },
+			numbers_selected = { fg = p.cyan, bg = p.bg, bold = true, italic = false },
+			diagnostic = { fg = p.comments, bg = p.bg_alt },
+			diagnostic_visible = { fg = p.comments, bg = p.bg_alt },
+			diagnostic_selected = { fg = p.fg, bg = p.bg, bold = true, italic = false },
+			hint = { fg = p.purple, bg = p.bg_alt },
+			hint_visible = { fg = p.purple, bg = p.bg_alt },
+			hint_selected = { fg = p.purple, bg = p.bg, bold = true, italic = false },
+			hint_diagnostic = { fg = p.purple, bg = p.bg_alt },
+			hint_diagnostic_visible = { fg = p.purple, bg = p.bg_alt },
+			hint_diagnostic_selected = { fg = p.purple, bg = p.bg, bold = true, italic = false },
+			info = { fg = p.paleblue, bg = p.bg_alt },
+			info_visible = { fg = p.paleblue, bg = p.bg_alt },
+			info_selected = { fg = p.paleblue, bg = p.bg, bold = true, italic = false },
+			info_diagnostic = { fg = p.paleblue, bg = p.bg_alt },
+			info_diagnostic_visible = { fg = p.paleblue, bg = p.bg_alt },
+			info_diagnostic_selected = { fg = p.paleblue, bg = p.bg, bold = true, italic = false },
+			warning = { fg = p.yellow, bg = p.bg_alt },
+			warning_visible = { fg = p.yellow, bg = p.bg_alt },
+			warning_selected = { fg = p.yellow, bg = p.bg, bold = true, italic = false },
+			warning_diagnostic = { fg = p.yellow, bg = p.bg_alt },
+			warning_diagnostic_visible = { fg = p.yellow, bg = p.bg_alt },
+			warning_diagnostic_selected = { fg = p.yellow, bg = p.bg, bold = true, italic = false },
+			error = { fg = p.error_red, bg = p.bg_alt },
+			error_visible = { fg = p.error_red, bg = p.bg_alt },
+			error_selected = { fg = p.error_red, bg = p.bg, bold = true, italic = false },
+			error_diagnostic = { fg = p.error_red, bg = p.bg_alt },
+			error_diagnostic_visible = { fg = p.error_red, bg = p.bg_alt },
+			error_diagnostic_selected = { fg = p.error_red, bg = p.bg, bold = true, italic = false },
+			modified = { fg = p.yellow, bg = p.bg_alt },
+			modified_visible = { fg = p.yellow, bg = p.bg_alt },
+			modified_selected = { fg = p.yellow, bg = p.bg },
+			duplicate = { fg = p.comments, bg = p.bg_alt, italic = true },
+			duplicate_visible = { fg = p.comments, bg = p.bg_alt, italic = true },
+			duplicate_selected = { fg = p.fg, bg = p.bg, italic = false },
+			separator = { fg = p.bg_alt, bg = p.bg_alt },
+			separator_visible = { fg = p.bg_alt, bg = p.bg_alt },
+			separator_selected = { fg = p.bg_alt, bg = p.bg },
+			indicator_selected = { fg = p.accent, bg = p.bg },
+			pick_selected = { fg = p.orange, bg = p.bg, bold = true, italic = false },
+			pick_visible = { fg = p.orange, bg = p.bg_alt, bold = true, italic = false },
+			pick = { fg = p.orange, bg = p.bg_alt, bold = true, italic = false },
+		},
+	}
+end
+
+-- Evergarden palette (everviolet/nvim)
+--
+-- Catppuccin-shaped palette: a base/mantle/crust background ramp, surface*/
+-- overlay* for chrome, and named accents. The plugin reads the variant from its
+-- own stored config rather than a global, and `evergarden.colors` isn't
+-- requireable before lazy clones the plugin, so the five palettes are
+-- transcribed here from lua/evergarden/palettes/ and picked by EVERGARDEN_VARIANT.
+-- The plugin spec reads the same constant, so both sides always agree.
+local EVERGARDEN_VARIANT = "winter" -- winter | fall | spring | summer | lunar
+local EVERGARDEN_ACCENT = "winter" -- any palette color name
+
+local evergarden = function()
+	-- Every dark variant shares the accent colors and differs only in the
+	-- background ramp; summer is the light one and lunar re-tints everything.
+	local accents = {
+		red = "#f57f82",
+		orange = "#f7a182",
+		yellow = "#f5d098",
+		lime = "#dbe6af",
+		green = "#cbe3b3",
+		aqua = "#b3e3ca",
+		skye = "#b3e6db",
+		snow = "#afd9e6",
+		blue = "#b2caed",
+		purple = "#d2bdf3",
+		pink = "#f3c0e5",
+		cherry = "#fae6ef",
+		text = "#f8f9e8",
+		subtext1 = "#adc9bc",
+		subtext0 = "#96b4aa",
+		overlay2 = "#839e9a",
+		overlay1 = "#6f8788",
+		overlay0 = "#58686d",
+		surface2 = "#4a585c",
+	}
+
+	local variants = {
+		winter = { surface1 = "#374145", surface0 = "#262f33", base = "#1e2528", mantle = "#191e21", crust = "#171c1f" },
+		fall = { surface1 = "#374145", surface0 = "#2b3337", base = "#232a2e", mantle = "#1c2225", crust = "#171c1f" },
+		spring = { surface1 = "#3e4a4f", surface0 = "#343e43", base = "#2b3438", mantle = "#232a2e", crust = "#1c2225" },
+		summer = {
+			red = "#c58687",
+			orange = "#c69883",
+			yellow = "#c4aa80",
+			lime = "#abb182",
+			green = "#91a77a",
+			aqua = "#74a48b",
+			skye = "#719f96",
+			snow = "#7799a3",
+			blue = "#8294ad",
+			purple = "#a897b8",
+			pink = "#c499b8",
+			cherry = "#c29fb2",
+			text = "#2b3034",
+			subtext1 = "#455355",
+			subtext0 = "#576869",
+			overlay2 = "#707d76",
+			overlay1 = "#829084",
+			overlay0 = "#acb5a4",
+			surface2 = "#ceccbd",
+			surface1 = "#e6e1d3",
+			surface0 = "#ede8dd",
+			base = "#f5efe6",
+			mantle = "#f2eae1",
+			crust = "#e8ded5",
+		},
+		lunar = {
+			red = "#EB7F86",
+			orange = "#F5A58D",
+			yellow = "#F7DDAF",
+			lime = "#DBE3C7",
+			green = "#C5D9B5",
+			aqua = "#ACD1B6",
+			skye = "#AAD0C9",
+			snow = "#ADD1D8",
+			blue = "#99B3D5",
+			purple = "#A69FD5",
+			pink = "#D6ABC3",
+			cherry = "#E0C5D0",
+			text = "#F7F1E6",
+			subtext1 = "#CBD7F2",
+			subtext0 = "#B4C0DB",
+			overlay2 = "#9EA5C1",
+			overlay1 = "#9096B1",
+			overlay0 = "#757A93",
+			surface2 = "#4C4F61",
+			surface1 = "#353847",
+			surface0 = "#21232E",
+			base = "#1C1D29",
+			mantle = "#171923",
+			crust = "#11121A",
+		},
+	}
+
+	local p = vim.tbl_extend("force", accents, variants[EVERGARDEN_VARIANT] or variants.winter)
+	local accent = p[EVERGARDEN_ACCENT] or p.green
+	-- Mirrors evergarden's own theme.lua: comments are overlay2, floats and the
+	-- completion menu sit on mantle, and the syntax roles are fixed accents.
+	local comment = p.overlay2
+	local syn = { func = p.green, string = p.lime, keyword = p.red, type = p.yellow, property = p.skye }
+
+	return {
+		bg = p.base,
+		bg_sec = p.surface0,
+		bg_notify = p.mantle,
+		text = p.text,
+		text_sec = comment,
+		inlay_hint_bg = p.surface0,
+		inlay_hint_fg = p.overlay1,
+
+		-- Floats/sidebars sit on `mantle`, matching editor.float.color in the spec.
+		fzf = {
+			setup_colors = function()
+				local highlights = {
+					FzfLuaNormal = { bg = p.mantle, fg = p.text },
+					FzfLuaBorder = { fg = p.surface1, bg = p.mantle },
+					FzfLuaCursorLine = { bg = p.surface0, fg = accent },
+					FzfLuaTitle = { fg = p.blue, bold = true },
+					FzfLuaPrompt = { fg = p.purple, bold = true },
+					FzfLuaPointer = { fg = p.purple, bold = true },
+					FzfLuaMarker = { fg = p.green },
+					FzfLuaSpinner = { fg = accent, bold = true },
+					FzfLuaHeader = { fg = p.overlay1 },
+					FzfLuaPreviewTitle = { fg = p.purple, bold = true },
+				}
+
+				for group, opts in pairs(highlights) do
+					vim.api.nvim_set_hl(0, group, opts)
+				end
+
+				return {
+					normal = "FzfLuaNormal",
+					border = "FzfLuaBorder",
+					cursor = "FzfLuaPointer",
+					cursorline = "FzfLuaCursorLine",
+					title = "FzfLuaTitle",
+					prompt = "FzfLuaPrompt",
+					pointer = "FzfLuaPointer",
+					marker = "FzfLuaMarker",
+					spinner = "FzfLuaSpinner",
+					header = "FzfLuaHeader",
+					preview_title = "FzfLuaPreviewTitle",
+					help_normal = "FzfLuaNormal",
+					help_border = "FzfLuaBorder",
+				}
+			end,
+		},
+
+		alpha = {
+			heading = accent,
+			button = p.purple,
+			shortcut = p.blue,
+		},
+
+		indent = {
+			line = p.surface0,
+			scope = p.surface2,
+		},
+
+		blink = {
+			fg = p.text,
+			blue = p.blue,
+			info = p.aqua,
+			gold = syn.type,
+			green = syn.func,
+			red = p.red,
+			cyan = p.skye,
+			pink = p.pink,
+			orange = p.orange,
+			comment = comment,
+			dim = p.surface1,
+			line = p.surface0,
+			func = syn.func,
+			string = syn.string,
+		},
+
+		nvim_tree = make_nvim_tree({
+			bg = p.mantle,
+			fg = p.text,
+			comment = p.overlay1,
+			border = p.surface1,
+			sel_bg = p.surface0,
+			accent = accent,
+			folder = p.blue,
+			special = p.yellow,
+			symlink = p.skye,
+			modified = p.yellow,
+			-- git colors follow evergarden's theme.git mapping
+			git_new = p.subtext1,
+			git_dirty = p.skye,
+			git_staged = p.green,
+			git_renamed = p.purple,
+			git_deleted = p.red,
+			git_merge = p.orange,
+		}),
+
+		incline = {
+			normal = { bg = p.surface0, fg = p.text },
+			border = { bg = p.base, fg = p.base },
+			normal_nc = { bg = p.surface0, fg = p.overlay1 },
+			focused = { one = p.surface0, two = p.surface0 },
+			file_name = { guifg = p.text },
+			modified = { guifg = p.yellow },
+		},
+
+		bufferline = {
+			fill = { fg = p.mantle, bg = p.mantle },
+			background = { fg = p.overlay1, bg = p.mantle },
+			tab = { fg = p.overlay1, bg = p.mantle },
+			tab_selected = { fg = accent, bg = p.base, bold = true },
+			tab_close = { fg = p.overlay1, bg = p.mantle },
+			close_button = { fg = p.red, bg = p.mantle },
+			close_button_visible = { fg = p.red, bg = p.mantle },
+			close_button_selected = { fg = p.red, bg = p.base },
+			buffer_visible = { fg = p.overlay1, bg = p.mantle },
+			buffer_selected = { fg = p.text, bg = p.base, bold = true, italic = false },
+			numbers = { fg = p.skye, bg = p.mantle },
+			numbers_visible = { fg = p.skye, bg = p.mantle },
+			numbers_selected = { fg = p.skye, bg = p.base, bold = true, italic = false },
+			diagnostic = { fg = p.overlay1, bg = p.mantle },
+			diagnostic_visible = { fg = p.overlay1, bg = p.mantle },
+			diagnostic_selected = { fg = p.text, bg = p.base, bold = true, italic = false },
+			hint = { fg = p.skye, bg = p.mantle },
+			hint_visible = { fg = p.skye, bg = p.mantle },
+			hint_selected = { fg = p.skye, bg = p.base, bold = true, italic = false },
+			hint_diagnostic = { fg = p.skye, bg = p.mantle },
+			hint_diagnostic_visible = { fg = p.skye, bg = p.mantle },
+			hint_diagnostic_selected = { fg = p.skye, bg = p.base, bold = true, italic = false },
+			info = { fg = p.aqua, bg = p.mantle },
+			info_visible = { fg = p.aqua, bg = p.mantle },
+			info_selected = { fg = p.aqua, bg = p.base, bold = true, italic = false },
+			info_diagnostic = { fg = p.aqua, bg = p.mantle },
+			info_diagnostic_visible = { fg = p.aqua, bg = p.mantle },
+			info_diagnostic_selected = { fg = p.aqua, bg = p.base, bold = true, italic = false },
+			warning = { fg = p.yellow, bg = p.mantle },
+			warning_visible = { fg = p.yellow, bg = p.mantle },
+			warning_selected = { fg = p.yellow, bg = p.base, bold = true, italic = false },
+			warning_diagnostic = { fg = p.yellow, bg = p.mantle },
+			warning_diagnostic_visible = { fg = p.yellow, bg = p.mantle },
+			warning_diagnostic_selected = { fg = p.yellow, bg = p.base, bold = true, italic = false },
+			error = { fg = p.red, bg = p.mantle },
+			error_visible = { fg = p.red, bg = p.mantle },
+			error_selected = { fg = p.red, bg = p.base, bold = true, italic = false },
+			error_diagnostic = { fg = p.red, bg = p.mantle },
+			error_diagnostic_visible = { fg = p.red, bg = p.mantle },
+			error_diagnostic_selected = { fg = p.red, bg = p.base, bold = true, italic = false },
+			modified = { fg = p.yellow, bg = p.mantle },
+			modified_visible = { fg = p.yellow, bg = p.mantle },
+			modified_selected = { fg = p.yellow, bg = p.base },
+			duplicate = { fg = p.overlay1, bg = p.mantle, italic = true },
+			duplicate_visible = { fg = p.overlay1, bg = p.mantle, italic = true },
+			duplicate_selected = { fg = p.text, bg = p.base, italic = false },
+			separator = { fg = p.crust, bg = p.mantle },
+			separator_visible = { fg = p.crust, bg = p.mantle },
+			separator_selected = { fg = p.crust, bg = p.base },
+			indicator_selected = { fg = accent, bg = p.base },
+			pick_selected = { fg = p.orange, bg = p.base, bold = true, italic = false },
+			pick_visible = { fg = p.orange, bg = p.mantle, bold = true, italic = false },
+			pick = { fg = p.orange, bg = p.mantle, bold = true, italic = false },
+		},
+	}
+end
+
 -- Active theme: change this to switch themes
--- Options: rose_pine(), kanagawa(), jellybeans(), kanso(), serenity(), koda()
+-- Options: material(), evergarden(), rose_pine(), kanagawa(), jellybeans(), kanso(), serenity(), koda()
 M.current_theme = koda()
 
 -- Keep all available for reference
@@ -1127,5 +1722,21 @@ M.jellybeans = jellybeans
 M.kanso = kanso
 M.serenity = serenity
 M.koda = koda
+M.material = material
+M.evergarden = evergarden
+
+-- koda's palette overrides; the plugin spec feeds these to require("koda").setup().
+M.koda_colors = KODA_COLORS
+
+-- Default material.nvim style; the plugin spec reads this and pushes it into
+-- `vim.g.material_style` before the colorscheme loads. `:MaterialStyle <style>`
+-- (defined in plugins/colorscheme.lua) swaps it at runtime and refreshes
+-- M.current_theme so every consumer above follows along.
+M.material_style = MATERIAL_STYLE
+
+-- Default evergarden variant + accent; the plugin spec passes both straight into
+-- `require("evergarden").setup()`, so this file stays the only place to change them.
+M.evergarden_variant = EVERGARDEN_VARIANT
+M.evergarden_accent = EVERGARDEN_ACCENT
 
 return M

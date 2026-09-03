@@ -337,27 +337,29 @@ return {
 		event = { "BufReadPost", "BufNewFile" },
 		config = function()
 			-- Kanso zen palette — quiet, monochromatic indent guides
-			local zen = {
-				bg0 = "#090E13",
-				bg1 = "#1C1E25",
-				bg2 = "#22262D",
-				bg3 = "#393B44",
-				gray4 = "#75797f",
-				gray5 = "#5C6066",
-				blue3 = "#8ba4b0",
-				violet2 = "#8992a7",
-			}
+			local zen = { line = "#22262D", scope = "#393B44" }
+
+			-- The active theme (lua/config/theme.lua) supplies the two greys when
+			-- it defines an `indent` table; otherwise the kanso zen values stand in.
+			local function indent_colors()
+				local ok, theme = pcall(require, "config.theme")
+				if ok and type(theme.current_theme) == "table" and type(theme.current_theme.indent) == "table" then
+					return theme.current_theme.indent
+				end
+				return zen
+			end
 
 			local hooks = require("ibl.hooks")
 			hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+				local c = indent_colors()
 				-- Indent line — barely visible, just enough structure
 				vim.api.nvim_set_hl(0, "IblIndent", {
-					fg = zen.bg2,
+					fg = c.line,
 					nocombine = true,
 				})
 				-- Active scope — softly highlighted
 				vim.api.nvim_set_hl(0, "IblScope", {
-					fg = zen.bg3,
+					fg = c.scope,
 					nocombine = true,
 				})
 			end)
@@ -379,6 +381,7 @@ return {
 				},
 				exclude = {
 					filetypes = {
+						"bigfile",
 						"help",
 						"alpha",
 						"dashboard",

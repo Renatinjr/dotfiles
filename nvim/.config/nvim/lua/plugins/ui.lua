@@ -149,7 +149,7 @@ return {
 		config = function()
 			require("nvim-web-devicons").setup({
 				color_icons = true,
-				default = true,
+				default = false,
 				variant = "dark",
 				strict = false,
 				override = {
@@ -240,100 +240,236 @@ return {
 	},
 
 	-- Incline (floating filename labels)
+	--
+	-- A rounded pill in each window's top-right corner: filetype icon, filename,
+	-- file size, git churn, diagnostics and a modified dot. Colors come from the
+	-- active palette (lua/config/theme.lua, `incline` key) and the live
+	-- Diagnostic*/GitSigns* groups, and the whole config is rebuilt on
+	-- :colorscheme so the labels follow a theme switch.
 	{
 		"b0o/incline.nvim",
 		event = "BufReadPre",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-			"linrongbin16/commons.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		keys = {
+			{
+				"<leader>ui",
+				function()
+					require("incline").toggle()
+				end,
+				desc = "Toggle incline labels",
+			},
 		},
 		config = function()
 			local incline = require("incline")
-			local theme = require("config.theme")
-			local edge_bg = theme.current_theme.bg
+			local devicons = require("nvim-web-devicons")
 
-			local function returnSize(bufnr)
-				local uv = vim.uv
-				local filename = vim.api.nvim_buf_get_name(bufnr)
+			-- Read a group's foreground as "#rrggbb" so it can be paired with the
+			-- pill background; chunks that use `group =` would drag along that
+			-- group's background and punch a hole in the pill.
+			local function hl_fg(group, fallback)
+				local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
+				if ok and hl and hl.fg then
+					return string.format("#%06x", hl.fg)
+				end
+				return fallback
+			end
 
-				if not filename or filename == "" then
+			-- Human-readable size of the file backing `bufnr`; "" when the buffer
+			-- has no file on disk yet.
+			local function file_size(bufnr)
+				local name = vim.api.nvim_buf_get_name(bufnr)
+				if name == "" then
 					return ""
 				end
 
-				local fstat = uv.fs_stat(filename)
-
-				if not fstat or not fstat.size then
+				local stat = vim.uv.fs_stat(name)
+				local size = stat and stat.size
+				if type(size) ~= "number" or size <= 0 then
 					return ""
 				end
 
-				local fsize_value = fstat.size
-
-				if type(fsize_value) ~= "number" or fsize_value <= 0 then
-					return ""
-				end
-
-				local suffixes = { "B", "KB", "MB", "GB" }
+				local units = { "B", "KB", "MB", "GB" }
 				local i = 1
-				while fsize_value > 1024 and i < #suffixes do
-					fsize_value = fsize_value / 1024
+				while size > 1024 and i < #units do
+					size = size / 1024
 					i = i + 1
 				end
 
-				local fsize_format = i == 1 and "[%d %s] " or "[%.1f %s] "
-				local sizeForm = string.format(fsize_format, fsize_value, suffixes[i])
-				return sizeForm
+				return string.format(i == 1 and "[%d %s]" or "[%.1f %s]", size, units[i])
 			end
 
-			incline.setup({
-				window = {
-					padding = 0,
-					margin = { horizontal = 0, vertical = 1 },
-					zindex = 50,
-					winhighlight = {
-						Normal = "InclineNormal",
-						FloatBorder = "InclineBorder",
-					},
-				},
-				render = function(props)
-					local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-					local modified = vim.api.nvim_buf_get_option(props.buf, "modified") and "●" or ""
-					local filetype_icon, filetype_color = require("nvim-web-devicons").get_icon_color(filename)
+			-- gitsigns publishes its per-buffer counts on b:gitsigns_status_dict.
+			local function git_chunks(bufnr, bg, c)
+				local status = vim.b[bufnr].gitsigns_status_dict
+				if not status then
+					return {}
+				end
 
-					local sizeForm = returnSize(props.buf)
-					local bg_color = props.focused and theme.current_theme.incline.focused.one
-						or theme.current_theme.incline.focused.two
+				local chunks = {}
+				for _, spec in ipairs({
+					{ key = "added", icon = " ", color = c.git_add },
+					{ key = "changed", icon = " ", color = c.git_change },
+					{ key = "removed", icon = " ", color = c.git_delete },
+				}) do
+					local count = status[spec.key]
+					if count and count > 0 then
+						table.insert(chunks, { spec.icon .. count .. " ", guifg = spec.color, guibg = bg })
+					end
+				end
+				return chunks
+			end
 
-					local buffer = {
-						{ filetype_icon, guifg = filetype_color, guibg = bg_color, gui = "bold" },
-						{ " ", guibg = bg_color },
-						{
-							filename .. " " .. sizeForm,
-							gui = props.focused and "bold" or "none",
-							guifg = theme.current_theme.incline.file_name.guifg,
-							guibg = bg_color,
+			local function diagnostic_chunks(bufnr, bg, c)
+				local chunks = {}
+				for _, spec in ipairs({
+					{ severity = vim.diagnostic.severity.ERROR, icon = " ", color = c.error },
+					{ severity = vim.diagnostic.severity.WARN, icon = " ", color = c.warn },
+					{ severity = vim.diagnostic.severity.INFO, icon = " ", color = c.info },
+					{ severity = vim.diagnostic.severity.HINT, icon = "󰌶 ", color = c.hint },
+				}) do
+					local count = #vim.diagnostic.get(bufnr, { severity = spec.severity })
+					if count > 0 then
+						table.insert(chunks, { spec.icon .. count .. " ", guifg = spec.color, guibg = bg })
+					end
+				end
+				return chunks
+			end
+
+			-- Built as a function so the ColorScheme handler below can re-run setup
+			-- against the new palette.
+			local function build_opts()
+				local theme = require("config.theme").current_theme
+				local t = theme.incline
+
+				-- The float itself stays out of the way — the editor background, or
+				-- nothing at all under a transparent colorscheme. The pill is painted
+				-- entirely by the render chunks, which is what gives the  ends
+				-- their rounded silhouette instead of a hard rectangle.
+				local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+				local base_bg = normal.bg and string.format("#%06x", normal.bg) or "NONE"
+
+				local c = {
+					error = hl_fg("DiagnosticError", "#ff7676"),
+					warn = hl_fg("DiagnosticWarn", "#d9ba73"),
+					info = hl_fg("DiagnosticInfo", "#8ebeec"),
+					hint = hl_fg("DiagnosticHint", "#5abfb5"),
+					git_add = hl_fg("GitSignsAdd", "#86cd82"),
+					git_change = hl_fg("GitSignsChange", "#d9ba73"),
+					git_delete = hl_fg("GitSignsDelete", "#ff7676"),
+				}
+
+				return {
+					-- Rising/falling debounce around window events; the defaults are
+					-- responsive without redrawing on every keystroke.
+					debounce_threshold = { rising = 10, falling = 50 },
+
+					window = {
+						width = "fit",
+						padding = 0, -- the pill's own  ends are the padding
+						margin = { horizontal = 0, vertical = 1 },
+						placement = { vertical = "top", horizontal = "right" },
+						overlap = {
+							winbar = false,
+							tabline = false,
+							borders = true,
+							statusline = false,
 						},
-						{ modified, guifg = theme.current_theme.incline.modified.guifg, guibg = bg_color },
-					}
+						zindex = 50,
+						-- Must be split active/inactive: a flat table is applied to
+						-- BOTH states, which leaves InclineNormalNC unused.
+						winhighlight = {
+							active = { Normal = "InclineNormal" },
+							inactive = { Normal = "InclineNormalNC" },
+						},
+					},
 
-					return {
-						{ "", guifg = edge_bg, guibg = bg_color },
-						buffer,
-						{ "", guifg = edge_bg, guibg = bg_color },
-					}
+					-- Declaring the groups here rather than calling nvim_set_hl once:
+					-- incline re-registers them on every ColorScheme, so they survive
+					-- a scheme reload that would otherwise wipe them.
+					highlight = {
+						groups = {
+							InclineNormal = { guifg = t.normal.fg, guibg = base_bg },
+							InclineNormalNC = { guifg = t.normal_nc.fg, guibg = base_bg },
+						},
+					},
+
+					hide = {
+						cursorline = "smart", -- step aside when the cursor lands under it
+						focused_win = false,
+						only_win = false,
+					},
+
+					ignore = {
+						unlisted_buffers = true,
+						floating_wins = true,
+						buftypes = "special",
+						wintypes = "special",
+						filetypes = {
+							"alpha",
+							"NvimTree",
+							"fzf",
+							"grug-far",
+							"help",
+							"lazy",
+							"mason",
+							"dap-repl",
+							"dapui_scopes",
+							"dapui_breakpoints",
+							"dapui_stacks",
+							"dapui_watches",
+							"dapui_console",
+						},
+					},
+
+					render = function(props)
+						local bufname = vim.api.nvim_buf_get_name(props.buf)
+						local filename = bufname ~= "" and vim.fn.fnamemodify(bufname, ":t") or "[No Name]"
+						local icon, icon_color = devicons.get_icon_color(filename)
+						local bg = props.focused and t.normal.bg or t.normal_nc.bg
+						local fg = props.focused and t.file_name.guifg or t.normal_nc.fg
+
+						local label = {
+							{ " ", guibg = bg },
+							icon and { icon .. " ", guifg = icon_color, guibg = bg, gui = "bold" } or "",
+							{
+								filename .. " ",
+								guifg = fg,
+								guibg = bg,
+								gui = props.focused and "bold" or "none",
+							},
+						}
+
+						local size = file_size(props.buf)
+						if size ~= "" then
+							table.insert(label, { size .. " ", guifg = t.normal_nc.fg, guibg = bg })
+						end
+
+						-- Git churn and diagnostics only on the window you're in — on
+						-- the others the filename is the point.
+
+						if vim.bo[props.buf].modified then
+							table.insert(label, { "● ", guifg = t.modified.guifg, guibg = bg })
+						end
+
+						-- Rounded ends: drawn in the pill color against the float's
+						-- background, so they read as the pill's edges.
+						return {
+							{ "", guifg = bg, guibg = base_bg },
+							label,
+							{ "", guifg = bg, guibg = base_bg },
+						}
+					end,
+				}
+			end
+
+			incline.setup(build_opts())
+
+			vim.api.nvim_create_autocmd("ColorScheme", {
+				group = vim.api.nvim_create_augroup("InclineThemeIntegration", { clear = true }),
+				callback = function()
+					incline.setup(build_opts())
 				end,
 			})
-
-			vim.api.nvim_set_hl(
-				0,
-				"InclineNormal",
-				{ fg = theme.current_theme.incline.normal.fg, bg = theme.current_theme.incline.normal.bg }
-			)
-			vim.api.nvim_set_hl(0, "InclineBorder", { fg = edge_bg, bg = edge_bg })
-			vim.api.nvim_set_hl(
-				0,
-				"InclineNormalNC",
-				{ fg = theme.current_theme.incline.normal_nc.fg, bg = theme.current_theme.incline.normal_nc.bg }
-			)
 		end,
 	},
 }

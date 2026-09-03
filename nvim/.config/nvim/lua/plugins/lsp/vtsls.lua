@@ -1,152 +1,97 @@
--- TypeScript/JavaScript development: vtsls
-local map = vim.keymap.set
-
--- Inlined from utils/filter.lua
-local function filter(arr, fn)
-	if type(arr) ~= "table" then
-		return arr
-	end
-
-	local filtered = {}
-	for k, v in pairs(arr) do
-		if fn(v, k, arr) then
-			table.insert(filtered, v)
-		end
-	end
-
-	return filtered
-end
-
--- Inlined from utils/filterReactDTS.lua
-local function filterReactDTS(value)
-	-- Depending on typescript version either uri or targetUri is returned
-	if value.uri then
-		return string.match(value.uri, "%.d.ts") == nil
-	elseif value.targetUri then
-		return string.match(value.targetUri, "%.d.ts") == nil
-	end
-end
+-- TypeScript/JavaScript development: vtsls (https://github.com/yioneko/vtsls)
+-- The server is registered through the native vim.lsp.config/enable API. Three
+-- `lsp/vtsls.lua` layers get deep-merged before ours: nvim-lspconfig's (cmd,
+-- init_options.hostInfo and the monorepo/Deno-aware `root_dir` function) and
+-- nvim-vtsls' own, then the table below on top.
+--
+-- The `yioneko/nvim-vtsls` companion plugin registers the buffer-local :VtsExec
+-- command (and :VtsRename) from an LspAttach autocmd, gated on the client being
+-- named exactly "vtsls" — which vim.lsp.config("vtsls", …) guarantees.
+--
+-- NOTE: in a Deno project no TS client attaches at all. That is intentional:
+-- lspconfig's root_dir bails without calling on_dir when deno.json/deno.lock is
+-- closer than the package-manager lockfile.
+--
+-- Only one TS server may attach at a time. TypeScript 7.0's native server is the
+-- default; set `vim.g.ts_lsp = "vtsls"` (before lazy loads plugins) to come back
+-- here instead. See plugins/lsp/tsc.lua for the other half of the switch.
+local shared = require("plugins.lsp.ts_shared")
 
 local handlers = {
-	-- Rounded, non-focusable hover/signature popups. Plain wrappers rather than
-	-- vim.lsp.with(), which is deprecated on Neovim 0.11+.
-	["textDocument/hover"] = function(err, result, ctx, config)
-		config = vim.tbl_extend("force", config or {}, {
-			silent = true,
-			border = "rounded",
-			focusable = false,
-		})
-		return vim.lsp.handlers.hover(err, result, ctx, config)
-	end,
-	["textDocument/signatureHelp"] = function(err, result, ctx, config)
-		config = vim.tbl_extend("force", config or {}, {
-			border = "rounded",
-			focusable = false,
-		})
-		return vim.lsp.handlers.signature_help(err, result, ctx, config)
-	end,
-	["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
-		if not result or not result.diagnostics then
-			return vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
-		end
-
-		local filtered_diagnostics = {}
-		for _, diagnostic in ipairs(result.diagnostics) do
-			-- Skip CommonJS conversion suggestions and other noisy diagnostics
-			if diagnostic.code ~= 80001 and diagnostic.code ~= 2691 then
-				-- Translate TypeScript error message
-				local success, translated = pcall(function()
-					return require("ts-error-translator").translate(diagnostic.message, diagnostic.code)
-				end)
-
-				if success and translated then
-					diagnostic.message = translated
-				end
-
-				table.insert(filtered_diagnostics, diagnostic)
-			end
-		end
-
-		result.diagnostics = filtered_diagnostics
-		vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
-	end,
-	["textDocument/definition"] = function(err, result, method, ...)
-		if not result or vim.tbl_isempty(result) then
-			return vim.lsp.handlers["textDocument/definition"](err, result, method, ...)
-		end
-		if vim.islist(result) and #result > 1 then
-			local filtered_result = filter(result, filterReactDTS)
-			return vim.lsp.handlers["textDocument/definition"](err, filtered_result, method, ...)
-		end
-		vim.lsp.handlers["textDocument/definition"](err, result, method, ...)
-	end,
+	["textDocument/hover"] = shared.hover,
+	["textDocument/signatureHelp"] = shared.signature_help,
+	-- vtsls speaks the tsserver protocol and PUSHES diagnostics, so the clean-up
+	-- and ts-error-translator rewrite hook the publish path here. (The TS 7.0
+	-- server uses the pull path instead -- see plugins/lsp/tsc.lua.)
+	["textDocument/publishDiagnostics"] = shared.on_publish_diagnostics,
+	["textDocument/definition"] = shared.definition,
 }
 
+-- vtsls consumes the VSCode settings schema, NOT raw tsserver preference names —
+-- keys outside that schema are silently ignored, so every key here is one vtsls
+-- actually reads (packages/service/configuration.schema.json upstream).
 local settings = {
-	complete_function_calls = true,
 	typescript = {
 		preferences = {
 			includePackageJsonAutoImports = "on",
 			importModuleSpecifier = "relative",
 			importModuleSpecifierEnding = "minimal",
-			includeCompletionsWithSnippetText = true,
 		},
-		implementAbstractClasses = "auto",
 		suggest = {
 			completeFunctionCalls = true,
-			includeCompletionsForModuleExports = true,
-			includeCompletionsWithInsertText = true,
+			autoImports = true,
 			includeAutomaticOptionalChainCompletions = true,
 			includeCompletionsForImportStatements = true,
 		},
 		inlayHints = {
-			includeInlayParameterNameHints = "literals",
-			includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-			includeInlayFunctionParameterTypeHints = false,
-			includeInlayVariableTypeHints = false,
-			includeInlayPropertyDeclarationTypeHints = false,
-			includeInlayFunctionLikeReturnTypeHints = true,
-			includeInlayEnumMemberValueHints = true,
+			parameterNames = {
+				enabled = "literals",
+				suppressWhenArgumentMatchesName = true,
+			},
+			parameterTypes = { enabled = false },
+			variableTypes = { enabled = false },
+			propertyDeclarationTypes = { enabled = false },
+			functionLikeReturnTypes = { enabled = true },
+			enumMemberValues = { enabled = true },
 		},
 		updateImportsOnFileMove = { enabled = "always" },
+		-- Pairs with the `goto_source_definition` keymap: jump past .d.ts stubs.
+		preferGoToSourceDefinition = true,
 		tsserver = {
 			maxTsServerMemory = 4096,
-			useBatchedBufferSync = true,
 		},
 		referencesCodeLens = {
 			enabled = true,
 			showOnAllFunctions = false,
 		},
-		implementationCodeLens = {
+		-- Plural — `implementationCodeLens` is not a real key.
+		implementationsCodeLens = {
 			enabled = true,
 		},
 	},
 	javascript = {
 		preferences = {
-			includePackageJsonAutoImports = "on",
 			importModuleSpecifier = "relative",
 			importModuleSpecifierEnding = "minimal",
-			includeCompletionsWithSnippetText = true,
 		},
 		suggest = {
 			completeFunctionCalls = true,
-			includeCompletionsForModuleExports = true,
-			includeCompletionsWithInsertText = true,
+			autoImports = true,
 			includeAutomaticOptionalChainCompletions = true,
+			includeCompletionsForImportStatements = true,
 		},
 		inlayHints = {
-			includeInlayParameterNameHints = "literals",
-			includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-			includeInlayFunctionParameterTypeHints = false,
-			includeInlayVariableTypeHints = false,
-			includeInlayPropertyDeclarationTypeHints = false,
-			includeInlayFunctionLikeReturnTypeHints = true,
+			parameterNames = {
+				enabled = "literals",
+				suppressWhenArgumentMatchesName = true,
+			},
+			parameterTypes = { enabled = false },
+			variableTypes = { enabled = false },
+			propertyDeclarationTypes = { enabled = false },
+			functionLikeReturnTypes = { enabled = true },
 		},
 		updateImportsOnFileMove = { enabled = "always" },
-		tsserver = {
-			maxTsServerMemory = 4096,
-			useBatchedBufferSync = true,
-		},
+		preferGoToSourceDefinition = true,
 	},
 	vtsls = {
 		enableMoveToFileCodeAction = true,
@@ -154,109 +99,61 @@ local settings = {
 		experimental = {
 			completion = {
 				enableServerSideFuzzyMatch = true,
-				completeUnimported = true,
 			},
-		},
-		codeLens = {
-			references = true,
-			implementations = true,
 		},
 	},
 }
 
--- Enhanced on_attach function
 local on_attach = function(client, bufnr)
 	-- Enable omnifunc
 	vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
 
-	-- Enhanced move to file refactoring command
-	client.commands["_typescript.moveToFileRefactoring"] = function(command, ctx)
-		local action, uri, range = unpack(command.arguments)
-		local function move(newf)
-			client.request("workspace/executeCommand", {
-				command = command.command,
-				arguments = { action, uri, range, newf },
-			}, function(move_err, move_result)
-				if move_err then
-					vim.notify("Move to file failed: " .. tostring(move_err), vim.log.levels.ERROR)
-					return
-				end
-				vim.notify("Successfully moved to " .. vim.fn.fnamemodify(newf, ":~:."))
-			end)
-		end
+	-- Same TypeScript program, same cost as tsc; see ts_shared.
+	shared.tame_semantic_tokens(client, bufnr)
 
-		local fname = vim.uri_to_fname(uri)
-		client.request("workspace/executeCommand", {
-			command = "typescript.tsserverRequest",
-			arguments = {
-				"getMoveToRefactoringFileSuggestions",
-				{
-					file = fname,
-					startLine = range.start.line + 1,
-					startOffset = range.start.character + 1,
-					endLine = range["end"].line + 1,
-					endOffset = range["end"].character + 1,
-				},
-			},
-		}, function(_, result)
-			if not result or not result.body or not result.body.files then
-				vim.notify("No move suggestions available", vim.log.levels.WARN)
-				return
-			end
-
-			local files = result.body.files
-			table.insert(files, 1, "Enter new path...")
-			vim.ui.select(files, {
-				prompt = "Select move destination:",
-				format_item = function(f)
-					return vim.fn.fnamemodify(f, ":~:.")
-				end,
-			}, function(f)
-				if not f then
-					return
-				end
-				if f:find("^Enter new path") then
-					vim.ui.input({
-						prompt = "Enter move destination:",
-						default = vim.fn.fnamemodify(fname, ":h") .. "/",
-						completion = "file",
-					}, function(newf)
-						if newf and newf ~= "" then
-							move(newf)
-						end
-					end)
-				else
-					move(f)
-				end
-			end)
-		end)
+	-- referencesCodeLens/implementationsCodeLens above render nothing unless the
+	-- client is told to collect lenses for this buffer.
+	if client:supports_method("textDocument/codeLens") then
+		vim.lsp.codelens.enable(true, { bufnr = bufnr })
 	end
 
-	-- Enhanced keymaps with better descriptions
-	require("which-key").add({
-		{ buffer = bufnr },
-		{ "<leader>c", group = "TypeScript Actions" },
-		{ "<leader>ce", "<cmd>TSC<CR>", desc = "workspace errors (TSC)" },
-		{ "<leader>cF", "<cmd>VtsExec fix_all<CR>", desc = "fix all" },
-		{ "<leader>ci", "<cmd>VtsExec add_missing_imports<CR>", desc = "import all" },
-		{ "<leader>co", "<cmd>VtsExec organize_imports<CR>", desc = "organize imports" },
-		{ "<leader>cs", "<cmd>VtsExec source_actions<CR>", desc = "source actions" },
-		{ "<leader>cu", "<cmd>VtsExec remove_unused<CR>", desc = "remove unused" },
-		{ "<leader>cV", "<cmd>VtsExec select_ts_version<CR>", desc = "select TS version" },
-		{ "<leader>cf", "<cmd>VtsExec file_references<CR>", desc = "file references" },
-	})
+	-- NOTE: no hand-rolled `_typescript.moveToFileRefactoring` command here —
+	-- nvim-vtsls registers its own (with a picker + auto-rename) on LspAttach,
+	-- and it skips registration when client.commands[…] is already set.
+	-- Set with vim.keymap.set rather than which-key's `add()`: which-key only
+	-- drains its spec queue once, from its own setup(), so an `add()` issued later
+	-- -- e.g. from an LspAttach handler like this one -- is queued and silently
+	-- never applied (that was the old pattern here, and these maps never existed).
+	-- Same reasoning as plugins/lsp/kotlin.lua. The group label still goes through
+	-- which-key, via the module setup() itself calls.
+	local keys = {
+		{ "<leader>ce", "<cmd>TSC<CR>", "workspace errors (TSC)" },
+		{ "<leader>cF", "<cmd>VtsExec fix_all<CR>", "fix all" },
+		{ "<leader>ci", "<cmd>VtsExec add_missing_imports<CR>", "import all" },
+		{ "<leader>co", "<cmd>VtsExec organize_imports<CR>", "organize imports" },
+		{ "<leader>cs", "<cmd>VtsExec source_actions<CR>", "source actions" },
+		{ "<leader>cu", "<cmd>VtsExec remove_unused<CR>", "remove unused" },
+		{ "<leader>cU", "<cmd>VtsExec remove_unused_imports<CR>", "remove unused imports" },
+		{ "<leader>cf", "<cmd>VtsExec file_references<CR>", "file references" },
+		{ "<leader>cr", "<cmd>VtsExec rename_file<CR>", "rename/move file" },
+		{ "<leader>cd", "<cmd>VtsExec goto_source_definition<CR>", "go to source definition" },
+		{ "<leader>cV", "<cmd>VtsExec select_ts_version<CR>", "select TS version" },
+		{ "<leader>cR", "<cmd>VtsExec reload_projects<CR>", "reload projects" },
+	}
+	for _, key in ipairs(keys) do
+		vim.keymap.set("n", key[1], key[2], { buffer = bufnr, silent = true, desc = key[3] })
+	end
 
-	-- Prettier formatting keymap
-	local curr_path = vim.fn.getcwd()
-	map("n", "<leader>pw", "<cmd>term ~/.local/share/nvim/mason/bin/prettier --write " .. curr_path .. "<CR>", {
-		buffer = bufnr,
-		desc = "Prettier Format All",
-	})
+	pcall(function()
+		require("which-key.config").add({ { "<leader>c", group = "TypeScript Actions", buffer = bufnr } })
+	end)
 
-	vim.notify("TypeScript LSP attached", vim.log.levels.INFO)
+	shared.prettier_keymap(bufnr)
 end
 
--- Main configuration
+-- Main configuration. Deliberately minimal: `cmd`, `init_options` and the
+-- monorepo-aware `root_dir` come from nvim-lspconfig's lsp/vtsls.lua, and
+-- `capabilities` from the vim.lsp.config("*", …) block in plugins/lsp/init.lua.
 local M = {
 	filetypes = {
 		"javascript",
@@ -266,82 +163,29 @@ local M = {
 		"typescriptreact",
 		"typescript.tsx",
 	},
-	root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
-	single_file_support = true,
-	-- No explicit `capabilities` here: vtsls inherits the global blink-enriched
-	-- capabilities set via vim.lsp.config("*", …) in plugins/lsp/init.lua.
-	flags = {
-		debounce_text_changes = 150,
-		allow_incremental_sync = true,
-	},
 	handlers = handlers,
 	on_attach = on_attach,
 	settings = settings,
-	workspace_folders = {
-		{
-			name = "workspace",
-			uri = vim.uri_from_fname(vim.fn.getcwd()),
-		},
-	},
 }
 
 return {
 	"yioneko/nvim-vtsls",
-	lazy = true,
 	ft = M.filetypes,
 	dependencies = {
+		-- Must load first: supplies the lockfile-rooted, Deno-excluding root_dir.
 		"neovim/nvim-lspconfig",
 		"nvim-lua/plenary.nvim",
-		{
-			"dmmulroy/ts-error-translator.nvim",
-			-- setup() loads the BetterTypeScriptErrors translation table that
-			-- powers require("ts-error-translator").translate() — without it the
-			-- call in our publishDiagnostics handler above returns the raw msg.
-			-- auto_override_publish_diagnostics stays false because vtsls already
-			-- installs its own publishDiagnostics handler (filters noise codes
-			-- 80001/2691, then translates); the two handlers would conflict.
-			opts = {
-				auto_attach = false,
-			},
-		},
+		-- Both configured in plugins/lsp/tsc.lua, which owns their specs; these are
+		-- bare references so vtsls only pulls them in as load-order dependencies.
+		"dmmulroy/ts-error-translator.nvim",
+		"dmmulroy/tsc.nvim",
 	},
 	opts = M,
 	config = function(_, opts)
+		if vim.g.ts_lsp ~= "vtsls" then
+			return
+		end
 		vim.lsp.config("vtsls", opts)
 		vim.lsp.enable("vtsls")
-
-		vim.api.nvim_create_user_command("TypeScriptReloadProjects", function()
-			local clients = vim.lsp.get_clients({ name = "vtsls" })
-			for _, client in ipairs(clients) do
-				if client.supports_method("workspace/executeCommand") then
-					client.request("workspace/executeCommand", {
-						command = "typescript.reloadProjects",
-						arguments = {},
-					}, function(err, result)
-						if err then
-							vim.notify("Failed to reload projects: " .. tostring(err), vim.log.levels.ERROR)
-						else
-							vim.notify("TypeScript projects reloaded", vim.log.levels.INFO)
-						end
-					end)
-				end
-			end
-		end, {})
-
-		-- Auto-initialize project when opening TypeScript/JavaScript files
-		vim.api.nvim_create_autocmd("FileType", {
-			pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact", "tsx", "jsx" },
-			callback = function(args)
-				local bufnr = args.buf
-				vim.defer_fn(function()
-					-- Try to trigger auto-import discovery
-					vim.lsp.buf_request(bufnr, "textDocument/completion", {
-						textDocument = { uri = vim.uri_from_bufnr(bufnr) },
-						position = { line = 0, character = 0 },
-						context = { triggerKind = 1 },
-					}, function() end)
-				end, 2000)
-			end,
-		})
 	end,
 }

@@ -174,7 +174,9 @@ return {
 
 			-- Folding with treesitter
 			vim.opt.foldmethod = "expr"
-			vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+			-- vim.treesitter.foldexpr, not nvim_treesitter#foldexpr: the latter
+			-- is the master-branch vimscript function and does not exist here.
+			vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 			vim.opt.foldenable = false
 		end,
 	},

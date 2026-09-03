@@ -4,6 +4,23 @@
 local is_windows = vim.uv.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
+-- TypeScript/JavaScript language server. Unset means "tsc" -- TypeScript 7.0's
+-- native Go server (`tsc --lsp`, plugins/lsp/tsc.lua). Uncomment to fall back to
+-- the Node tsserver wrapper (plugins/lsp/vtsls.lua), which still has the
+-- refactors TS 7.0 has not landed yet (move to file, file references).
+-- vim.g.ts_lsp = "vtsls"
+
+-- Soft cap on the TypeScript 7.0 server's heap (Go's GOMEMLIMIT). Every blink
+-- completion makes the server build a checker over the whole open file, and
+-- cancelling the in-flight request does not undo work the server already
+-- started, so a burst of typing in a large file piles up garbage faster than the
+-- collector is asked to deal with it.
+--
+-- This MUST sit above the project's live program or the GC thrashes and
+-- completions stop returning at all -- see the measurements in
+-- plugins/lsp/tsc.lua. Raise it for a monorepo that legitimately needs more.
+vim.g.tsc_memory_limit = "2GiB"
+
 -- Line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -11,6 +28,7 @@ vim.opt.relativenumber = true
 -- UI
 vim.opt.cursorline = true
 vim.opt.termguicolors = true
+vim.opt.termsync = false
 vim.opt.signcolumn = "no"
 
 _G.StatusCol = function()

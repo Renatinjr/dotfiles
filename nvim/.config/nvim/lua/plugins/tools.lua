@@ -46,10 +46,8 @@ return {
 		},
 	},
 
-	-- TypeScript error translator
-	{
-		"dmmulroy/ts-error-translator.nvim",
-		ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-		opts = {},
-	},
+	-- NOTE: ts-error-translator.nvim is declared as a dependency of nvim-vtsls
+	-- (lua/plugins/lsp/vtsls.lua) with auto_attach = false. Do not re-declare it
+	-- here — lazy.nvim merges duplicate specs and `opts = {}` would flip
+	-- auto_attach back to its default.
 }
