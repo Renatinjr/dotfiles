@@ -73,7 +73,52 @@ map("n", "O", function()
 	vim.diagnostic.open_float(nil, { focus = false })
 end, { desc = "Hover diagnostic" })
 
--- LSP keymaps (set on LspAttach)
+-- LSP (global; these work whenever a client is attached)
+local function toggle_inlay_hints()
+	for _, client in ipairs(vim.lsp.get_clients()) do
+		if client:supports_method("textDocument/inlayHint") then
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+			return
+		end
+	end
+	vim.notify("No LSP client with inlay hint support found", vim.log.levels.WARN)
+end
+
+map("n", "<leader>lq", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+map("n", "<leader>la", vim.lsp.buf.add_workspace_folder, { desc = "Add workspace folder" })
+map("n", "<leader>lr", vim.lsp.buf.remove_workspace_folder, { desc = "Remove workspace folder" })
+map("n", "<leader>ll", function()
+	print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+end, { desc = "List workspace folders" })
+map("n", "<leader>lD", vim.lsp.buf.type_definition, { desc = "Go to type definition" })
+map("n", "<leader>lR", vim.lsp.buf.rename, { desc = "Rename symbol" })
+map("n", "<leader>lA", vim.lsp.buf.code_action, { desc = "Code action" })
+map("n", "<leader>lf", function()
+	vim.lsp.buf.format({ async = true })
+end, { desc = "Format file" })
+map("n", "<leader>lh", toggle_inlay_hints, { desc = "Toggle inlay hints" })
+
+-- UI
+map("n", "<leader>uc", function()
+	require("config.theme_switcher").pick()
+end, { desc = "Colorscheme picker" })
+
+-- Window layout (utils.resize grows/shrinks toward the border you name)
+map("n", "<leader>w=", "<C-w>=", { desc = "Normalize split layout" })
+map("n", "<leader>w<Up>", function()
+	utils.resize(false, -5)
+end, { desc = "Horizontal split increase" })
+map("n", "<leader>w<Down>", function()
+	utils.resize(false, 5)
+end, { desc = "Horizontal split decrease" })
+map("n", "<leader>w<Left>", function()
+	utils.resize(true, -5)
+end, { desc = "Vertical split decrease" })
+map("n", "<leader>w<Right>", function()
+	utils.resize(true, 5)
+end, { desc = "Vertical split increase" })
+
+-- LSP keymaps (buffer-local, set on LspAttach)
 vim.api.nvim_create_autocmd("LspAttach", {
 	group = vim.api.nvim_create_augroup("LspKeymaps", { clear = true }),
 	callback = function(event)

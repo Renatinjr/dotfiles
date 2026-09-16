@@ -14,15 +14,15 @@
 -- node_modules/.bin/tsgo -> tsgo, each gated on `--version` major >= 7 and
 -- cached per root) and the lockfile-rooted, Deno-excluding `root_dir`.
 -- `capabilities` comes from the vim.lsp.config("*", ...) block in
--- plugins/lsp/init.lua. So no cmd / root_dir / capabilities here.
+-- plugins/lsp/lspconfig.lua. So no cmd / root_dir / capabilities here.
 --
 -- Only one TS server may attach at a time. `vim.g.ts_lsp` picks: "tsc" (default,
--- unset counts) or "vtsls" -- see the mirrored guard in plugins/lsp/vtsls.lua.
+-- unset counts) or "vtsls" -- see the mirrored guard in plugins/lang/vtsls.lua.
 --
 -- NOTE: in a Deno project no TS client attaches at all. That is intentional:
 -- lspconfig's root_dir bails without calling on_dir when deno.json/deno.lock is
 -- closer than the package-manager lockfile.
-local shared = require("plugins.lsp.ts_shared")
+local shared = require("lsp.ts_shared")
 
 -- The client-side command name that resolved reference/implementation code
 -- lenses invoke. The server only emits a command if we name one here.
@@ -249,7 +249,7 @@ local on_attach = function(client, bufnr)
 	-- Set with vim.keymap.set rather than which-key's `add()`: which-key only
 	-- drains its spec queue once, from its own setup(), so an `add()` issued later
 	-- -- e.g. from an LspAttach handler like this one -- is queued and silently
-	-- never applied. Same reasoning as plugins/lsp/kotlin.lua. The group label
+	-- never applied. Same reasoning as plugins/lang/kotlin.lua. The group label
 	-- still goes through which-key, via the module setup() itself calls.
 	local keys = {
 		{ "<leader>ce", workspace_errors, "workspace errors (TSC)" },

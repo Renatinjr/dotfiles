@@ -1,7 +1,7 @@
 -- Shared TypeScript/JavaScript LSP helpers.
 --
 -- Two TS servers live in this config and only one attaches at a time (see
--- `vim.g.ts_lsp` in lua/plugins/lsp/tsc.lua): TypeScript 7.0's native Go server
+-- `vim.g.ts_lsp` in lua/plugins/lang/tsc.lua): TypeScript 7.0's native Go server
 -- (`tsc --lsp`) and the older Node tsserver wrapper (vtsls). They want the same
 -- popup styling, the same diagnostic clean-up and the same `.d.ts`-skipping
 -- definition jump, so those live here instead of being copy-pasted per server.
@@ -57,7 +57,7 @@ end
 -- `checkJs: true`, and that is deliberately off here: turning it on made the
 -- server type-check every JS file in the program, which drove CPU to 99% and the
 -- resident set past 5 GB on this codebase. Lint-type findings (unused variables,
--- unreachable code) come from eslint instead -- see plugins/lsp/eslint.lua.
+-- unreachable code) come from eslint instead -- see lsp/eslint.lua.
 local DROP_CODES = { [80001] = true, [2691] = true }
 
 --- Drop noisy diagnostics and rewrite the survivors through ts-error-translator.
@@ -131,7 +131,7 @@ end
 --- to a per-client handler, and `vim.lsp.handlers["textDocument/definition"]`
 --- no longer exists. Kept for older clients and for explicit dispatch; the TS
 --- 7.0 server solves the same problem server-side with
---- `preferGoToSourceDefinition` (see plugins/lsp/tsc.lua).
+--- `preferGoToSourceDefinition` (see plugins/lang/tsc.lua).
 function M.definition(err, result, method, ...)
 	local default = vim.lsp.handlers["textDocument/definition"]
 	if not default then

@@ -19,11 +19,11 @@
 -- lspconfig also supplies cmd (preferring the project's own
 -- node_modules/.bin/vscode-eslint-language-server), filetypes, a full default
 -- settings table, before_init and the eslint/* handlers. Capabilities come from
--- the vim.lsp.config("*", ...) block in plugins/lsp/init.lua.
+-- the vim.lsp.config("*", ...) block in plugins/lsp/lspconfig.lua.
 --
 -- Plain module rather than a lazy spec: M.setup() has to run *after*
 -- nvim-lspconfig is on the runtimepath, because it reads the shipped
--- vim.lsp.config.eslint before overriding it. plugins/lsp/init.lua calls it from
+-- vim.lsp.config.eslint before overriding it. plugins/lsp/lspconfig.lua calls it from
 -- the nvim-lspconfig `config` hook, next to the other servers.
 
 local M = {}

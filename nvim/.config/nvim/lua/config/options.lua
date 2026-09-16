@@ -5,8 +5,8 @@ local is_windows = vim.uv.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 -- TypeScript/JavaScript language server. Unset means "tsc" -- TypeScript 7.0's
--- native Go server (`tsc --lsp`, plugins/lsp/tsc.lua). Uncomment to fall back to
--- the Node tsserver wrapper (plugins/lsp/vtsls.lua), which still has the
+-- native Go server (`tsc --lsp`, plugins/lang/tsc.lua). Uncomment to fall back to
+-- the Node tsserver wrapper (plugins/lang/vtsls.lua), which still has the
 -- refactors TS 7.0 has not landed yet (move to file, file references).
 -- vim.g.ts_lsp = "vtsls"
 
@@ -18,7 +18,7 @@ vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or 
 --
 -- This MUST sit above the project's live program or the GC thrashes and
 -- completions stop returning at all -- see the measurements in
--- plugins/lsp/tsc.lua. Raise it for a monorepo that legitimately needs more.
+-- plugins/lang/tsc.lua. Raise it for a monorepo that legitimately needs more.
 vim.g.tsc_memory_limit = "2GiB"
 
 -- Line numbers

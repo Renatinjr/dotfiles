@@ -55,7 +55,7 @@ local opts = {
 	build_tool = "gradle",
 
 	-- LSP-driven folding via textDocument/foldingRange. The global capabilities
-	-- block in lua/plugins/lsp/init.lua already advertises lineFoldingOnly.
+	-- block in lua/plugins/lsp/lspconfig.lua already advertises lineFoldingOnly.
 	folding = {
 		enabled = true,
 	},

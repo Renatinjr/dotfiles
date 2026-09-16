@@ -14,15 +14,15 @@
 --
 -- Only one TS server may attach at a time. TypeScript 7.0's native server is the
 -- default; set `vim.g.ts_lsp = "vtsls"` (before lazy loads plugins) to come back
--- here instead. See plugins/lsp/tsc.lua for the other half of the switch.
-local shared = require("plugins.lsp.ts_shared")
+-- here instead. See plugins/lang/tsc.lua for the other half of the switch.
+local shared = require("lsp.ts_shared")
 
 local handlers = {
 	["textDocument/hover"] = shared.hover,
 	["textDocument/signatureHelp"] = shared.signature_help,
 	-- vtsls speaks the tsserver protocol and PUSHES diagnostics, so the clean-up
 	-- and ts-error-translator rewrite hook the publish path here. (The TS 7.0
-	-- server uses the pull path instead -- see plugins/lsp/tsc.lua.)
+	-- server uses the pull path instead -- see plugins/lang/tsc.lua.)
 	["textDocument/publishDiagnostics"] = shared.on_publish_diagnostics,
 	["textDocument/definition"] = shared.definition,
 }
@@ -124,7 +124,7 @@ local on_attach = function(client, bufnr)
 	-- drains its spec queue once, from its own setup(), so an `add()` issued later
 	-- -- e.g. from an LspAttach handler like this one -- is queued and silently
 	-- never applied (that was the old pattern here, and these maps never existed).
-	-- Same reasoning as plugins/lsp/kotlin.lua. The group label still goes through
+	-- Same reasoning as plugins/lang/kotlin.lua. The group label still goes through
 	-- which-key, via the module setup() itself calls.
 	local keys = {
 		{ "<leader>ce", "<cmd>TSC<CR>", "workspace errors (TSC)" },
@@ -153,7 +153,7 @@ end
 
 -- Main configuration. Deliberately minimal: `cmd`, `init_options` and the
 -- monorepo-aware `root_dir` come from nvim-lspconfig's lsp/vtsls.lua, and
--- `capabilities` from the vim.lsp.config("*", …) block in plugins/lsp/init.lua.
+-- `capabilities` from the vim.lsp.config("*", …) block in plugins/lsp/lspconfig.lua.
 local M = {
 	filetypes = {
 		"javascript",
@@ -175,7 +175,7 @@ return {
 		-- Must load first: supplies the lockfile-rooted, Deno-excluding root_dir.
 		"neovim/nvim-lspconfig",
 		"nvim-lua/plenary.nvim",
-		-- Both configured in plugins/lsp/tsc.lua, which owns their specs; these are
+		-- Both configured in plugins/lang/tsc.lua, which owns their specs; these are
 		-- bare references so vtsls only pulls them in as load-order dependencies.
 		"dmmulroy/ts-error-translator.nvim",
 		"dmmulroy/tsc.nvim",

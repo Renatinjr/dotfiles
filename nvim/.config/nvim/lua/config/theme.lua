@@ -1508,7 +1508,7 @@ local material = function()
 			shortcut = p.blue,
 		},
 
-		-- indent-blankline guides (consumed by plugins/editor.lua)
+		-- indent-blankline guides (consumed by plugins/editor/indent.lua)
 		indent = {
 			line = p.border,
 			scope = p.disabled,
