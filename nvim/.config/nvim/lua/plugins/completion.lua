@@ -1,33 +1,14 @@
--- ============================================================================
--- blink.cmp — performance-first completion engine (replaces coq_nvim)
--- Repo: https://github.com/saghen/blink.cmp
+-- blink.cmp: completion engine. Pinned to a tagged release so lazy downloads
+-- the prebuilt Rust matcher (no cargo needed).
 --
--- WHY blink.cmp
---   * The fuzzy matcher is a native Rust/SIMD library, so ranking/filtering of
---     thousands of candidates happens in well under a frame. We pin a tagged
---     release (`version = "1.*"`) so lazy.nvim downloads the PREBUILT binary —
---     no Rust toolchain required. If you ever want to build from source instead,
---     drop `version` and add `build = "cargo build --release"`.
---   * It debounces/pre-fetches LSP requests and renders the native-feeling
---     menu asynchronously, so typing never blocks on a slow server.
---
--- LSP capabilities
---   blink advertises richer completion capabilities (snippet support, resolve,
---   additionalTextEdits, etc.). They are injected centrally in
---   lua/plugins/lsp/init.lua via:
---       require("blink.cmp").get_lsp_capabilities({ ...overrides })
---   so every server enabled there inherits them. We deliberately do NOT run an
---   lspconfig setup loop here (that file uses the Neovim 0.11+ vim.lsp.config /
---   vim.lsp.enable API).
+-- LSP capabilities are injected centrally in plugins/lsp (blink.get_lsp_capabilities),
+-- not here.
 --
 -- Keymaps (preset "enter" + Tab navigation):
---   <CR>            accept the selected item — else fall through to nvim-autopairs'
---                   own <CR> (newline-between-brackets) because we list "fallback"
---   <Tab>/<S-Tab>  select next/prev row, then jump snippet placeholders
---   <C-y>          accept (always)            <C-e>  dismiss the menu
---   <C-space>      open menu / toggle docs    <C-k>  toggle signature window
---   <C-u>/<C-d>    scroll the documentation window
--- ============================================================================
+--   <CR>           accept, else fall through to nvim-autopairs' <CR>
+--   <Tab>/<S-Tab>  next/prev row, then snippet placeholders
+--   <C-y> accept   <C-e> dismiss   <C-space> open menu / toggle docs
+--   <C-k> toggle signature   <C-u>/<C-d> scroll docs
 
 -- Show completions only once the keyword under the cursor reaches this length.
 -- Trigger characters (".", "::", "/", …) bypass this, so member access still
@@ -35,9 +16,6 @@
 -- matching the 2-char gate the old coq config emulated with a CompleteChanged
 -- hack. Applied per source below.
 local MIN_KEYWORD = 2
-
--- Filetypes served by the TypeScript 7.0 language server (plugins/lsp/tsc.lua),
--- where a completion is far more expensive than in other languages.
 
 local function blink_palette()
 	local ok_theme, theme = pcall(require, "config.theme")

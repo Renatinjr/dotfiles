@@ -297,10 +297,10 @@ local M = {
 	settings = settings,
 }
 
-vim.g.tsc_memory_limit = "2GiB"
--- Optional cap on the server's heap: `vim.g.tsc_memory_limit = "6GiB"`.
+-- Optional cap on the server's heap, read from `vim.g.tsc_memory_limit`
+-- (set in config/options.lua; unset it to run uncapped).
 --
--- Off by default, because the right value depends on the project and a wrong one
+-- Choose the value carefully, because the right value depends on the project and a wrong one
 -- is worse than none. Measured on backend-katuxa (a JS project whose controller
 -- pulls in a 1216-file type graph, 990 of them node_modules .d.ts, ~2 GB live),
 -- typing sixteen characters with blink cancelling each in-flight completion:

@@ -907,5 +907,3 @@ setup_git_updates()
 vim.schedule(function()
 	update_colors()
 end)
-
--- Manual refresh function for git status

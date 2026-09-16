@@ -2,7 +2,7 @@
 local function toggle_inlay_hints()
 	local clients = vim.lsp.get_clients()
 	for _, client in ipairs(clients) do
-		if client.supports_method("textDocument/inlayHint") then
+		if client:supports_method("textDocument/inlayHint") then
 			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 			return
 		end
@@ -57,7 +57,6 @@ return {
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
-		dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
 		config = function()
 			local wk = require("which-key")
 			wk.setup({
@@ -295,48 +294,8 @@ return {
 					end,
 					desc = "Vertical split increase",
 				},
-
-				-- Misc group
-				{
-					"<leader>mu",
-					function()
-						memory_usage()
-					end,
-					desc = "Show memory usage",
-				},
 			})
 		end,
-		colors = true,
-		keys = {
-			Up = " ",
-			Down = " ",
-			Left = " ",
-			Right = " ",
-			C = "󰘴 ",
-			M = "󰘵 ",
-			D = "󰘳 ",
-			S = "󰘶 ",
-			CR = "󰌑 ",
-			Esc = "󱊷 ",
-			ScrollWheelDown = "󱕐 ",
-			ScrollWheelUp = "󱕑 ",
-			NL = "󰌑 ",
-			BS = "󰁮",
-			Space = "󱁐 ",
-			Tab = "󰌒 ",
-			F1 = "󱊫",
-			F2 = "󱊬",
-			F3 = "󱊭",
-			F4 = "󱊮",
-			F5 = "󱊯",
-			F6 = "󱊰",
-			F7 = "󱊱",
-			F8 = "󱊲",
-			F9 = "󱊳",
-			F10 = "󱊴",
-			F11 = "󱊵",
-			F12 = "󱊶",
-		},
 		cmd = "WhichKey",
 	},
 

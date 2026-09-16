@@ -21,32 +21,6 @@ end
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
--- Disable built-in plugins for performance
-local disabled_builtins = {
-	"gzip",
-	"zip",
-	"zipPlugin",
-	"tar",
-	"tarPlugin",
-	"getscript",
-	"getscriptPlugin",
-	"vimball",
-	"vimballPlugin",
-	"2html_plugin",
-	"matchit",
-	"matchparen",
-	"logiPat",
-	"rrhelper",
-	"netrw",
-	"netrwPlugin",
-	"netrwSettings",
-	"netrwFileHandlers",
-	"tohtml",
-	"tutor",
-}
-for _, plugin in ipairs(disabled_builtins) do
-	vim.g["loaded_" .. plugin] = 1
-end
 -- Big-file guard. Must be registered before the first file is read, so it goes
 -- ahead of the plugin bootstrap.
 require("config.bigfile")

@@ -288,8 +288,11 @@ function M.setup()
 	})
 
 	-- Startup: the persisted theme. No notification and no write-back — this is
-	-- restoring a choice, not making one.
-	M.apply(theme.active, { persist = false, notify = false })
+	-- restoring a choice, not making one. If the plugin fails to load, still
+	-- paint the setup()-time consumers from the fallback palette.
+	if not M.apply(theme.active, { persist = false, notify = false }) then
+		M.refresh()
+	end
 end
 
 return M

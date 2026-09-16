@@ -1,4 +1,4 @@
--- Tool integrations: tmux navigation, Claude Code, TypeScript error translation
+-- Tool integrations: tmux navigation, Claude Code
 return {
 	-- Tmux navigator
 	{
@@ -51,9 +51,4 @@ return {
 			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
 		},
 	},
-
-	-- NOTE: ts-error-translator.nvim is declared as a dependency of nvim-vtsls
-	-- (lua/plugins/lsp/vtsls.lua) with auto_attach = false. Do not re-declare it
-	-- here — lazy.nvim merges duplicate specs and `opts = {}` would flip
-	-- auto_attach back to its default.
 }

@@ -38,10 +38,8 @@ return {
 				"gofumpt",
 				"kulala-fmt",
 				"goimports",
-				"golines",
 				"gopls",
 				"lua-language-server",
-				"vue-language-server",
 				"rust-analyzer",
 				"stylua",
 				"prettier",
@@ -56,6 +54,11 @@ return {
 				"basedpyright",
 				"black",
 				"isort",
+				-- Servers enabled below that mason must provide.
+				"elixir-ls",
+				"json-lsp",
+				"yaml-language-server",
+				"html-lsp",
 			},
 		},
 	},
@@ -190,7 +193,6 @@ return {
 			})
 
 			vim.lsp.config("elixirls", {
-				cmd = { "/home/renatojr/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
 				settings = {
 					dialyzerEnabled = true,
 					fetchDeps = false,

@@ -6,17 +6,9 @@ local autocmd = vim.api.nvim_create_autocmd
 autocmd("TextYankPost", {
 	group = augroup("HighlightYank", { clear = true }),
 	callback = function()
-		vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+		vim.hl.on_yank({ higroup = "IncSearch", timeout = 200 })
 	end,
 })
-
--- -- Show diagnostics float on CursorHold
--- autocmd("CursorHold", {
--- 	group = augroup("DiagnosticFloat", { clear = true }),
--- 	callback = function()
--- 		vim.diagnostic.open_float(nil, { focus = false })
--- 	end,
--- })
 
 -- Resize splits on window resize
 autocmd("VimResized", {

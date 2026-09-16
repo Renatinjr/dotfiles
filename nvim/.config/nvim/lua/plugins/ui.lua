@@ -125,9 +125,9 @@ return {
 			dashboard.section.buttons.opts.hl = "AlphaButton"
 			dashboard.section.footer.opts.hl = "AlphaFooter"
 
-			vim.api.nvim_set_hl(0, "AlphaHeader", { fg = heading, bg = bg })
-			vim.api.nvim_set_hl(0, "AlphaButton", { fg = button, bg = bg })
-			vim.api.nvim_set_hl(0, "AlphaFooter", { fg = shortcut, bg = bg })
+			vim.api.nvim_set_hl(0, "AlphaHeader", { fg = heading })
+			vim.api.nvim_set_hl(0, "AlphaButton", { fg = button })
+			vim.api.nvim_set_hl(0, "AlphaFooter", { fg = shortcut })
 
 			dashboard.opts.opts.noautocmd = true
 			dashboard.section.footer.val = "-NvLeet-"
@@ -298,43 +298,6 @@ return {
 				return string.format(i == 1 and "[%d %s]" or "[%.1f %s]", size, units[i])
 			end
 
-			-- gitsigns publishes its per-buffer counts on b:gitsigns_status_dict.
-			local function git_chunks(bufnr, bg, c)
-				local status = vim.b[bufnr].gitsigns_status_dict
-				if not status then
-					return {}
-				end
-
-				local chunks = {}
-				for _, spec in ipairs({
-					{ key = "added", icon = " ", color = c.git_add },
-					{ key = "changed", icon = " ", color = c.git_change },
-					{ key = "removed", icon = " ", color = c.git_delete },
-				}) do
-					local count = status[spec.key]
-					if count and count > 0 then
-						table.insert(chunks, { spec.icon .. count .. " ", guifg = spec.color, guibg = bg })
-					end
-				end
-				return chunks
-			end
-
-			local function diagnostic_chunks(bufnr, bg, c)
-				local chunks = {}
-				for _, spec in ipairs({
-					{ severity = vim.diagnostic.severity.ERROR, icon = " ", color = c.error },
-					{ severity = vim.diagnostic.severity.WARN, icon = " ", color = c.warn },
-					{ severity = vim.diagnostic.severity.INFO, icon = " ", color = c.info },
-					{ severity = vim.diagnostic.severity.HINT, icon = "󰌶 ", color = c.hint },
-				}) do
-					local count = #vim.diagnostic.get(bufnr, { severity = spec.severity })
-					if count > 0 then
-						table.insert(chunks, { spec.icon .. count .. " ", guifg = spec.color, guibg = bg })
-					end
-				end
-				return chunks
-			end
-
 			-- Built as a function so the ColorScheme handler below can re-run setup
 			-- against the new palette.
 			local function build_opts()
@@ -443,9 +406,6 @@ return {
 						if size ~= "" then
 							table.insert(label, { size .. " ", guifg = t.normal_nc.fg, guibg = bg })
 						end
-
-						-- Git churn and diagnostics only on the window you're in — on
-						-- the others the filename is the point.
 
 						if vim.bo[props.buf].modified then
 							table.insert(label, { "● ", guifg = t.modified.guifg, guibg = bg })

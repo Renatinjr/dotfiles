@@ -107,31 +107,3 @@ vim.opt.completeopt = "menuone,noselect"
 vim.opt.clipboard = "unnamedplus"
 vim.opt.swapfile = false
 vim.opt.backup = false
-
--- Diagnostics
-local theme = require("config.theme")
-
--- vim.diagnostic.config({
--- 	signs = false,
--- 	underline = true,
--- 	virtual_text = false,
--- 	virtual_lines = false,
--- 	update_in_insert = false,
--- 	severity_sort = true,
--- 	float = {
--- 		border = "rounded",
--- 		focusable = true,
--- 		style = "minimal",
--- 		source = true,
--- 		header = "",
--- 		prefix = "",
--- 	},
--- })
-
--- LSP Inlay Hints highlight
-vim.api.nvim_set_hl(0, "LspInlayHint", {
-	bg = theme.current_theme.inlay_hint_bg,
-	fg = theme.current_theme.inlay_hint_fg,
-	italic = true,
-	underline = false,
-})

@@ -1,6 +1,6 @@
 return {
 	"ibhagwan/fzf-lua",
-	dependencies = { "nvim-tree/nvim-web-devicons", "nvim-treesitter/nvim-treesitter-textobjects" },
+	dependencies = { "nvim-tree/nvim-web-devicons" },
 	keys = {
 		-- Find files
 		{
@@ -160,7 +160,7 @@ return {
 				preview = {
 					horizontal = "right:60%",
 					layout = "horizontal",
-					wra = "nowrap",
+					wrap = "nowrap",
 					scrollbar = false,
 				},
 			},
