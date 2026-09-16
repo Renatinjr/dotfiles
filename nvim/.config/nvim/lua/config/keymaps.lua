@@ -100,7 +100,7 @@ map("n", "<leader>lh", toggle_inlay_hints, { desc = "Toggle inlay hints" })
 
 -- UI
 map("n", "<leader>uc", function()
-	require("config.theme_switcher").pick()
+	require("config.theme.switcher").pick()
 end, { desc = "Colorscheme picker" })
 
 -- Window layout (utils.resize grows/shrinks toward the border you name)

@@ -18,7 +18,7 @@ return {
 		end)
 
 		-- Integrate the tree with the active colorscheme. The highlight groups
-		-- are defined per-palette in config/theme.lua (nvim_tree key); apply them
+		-- are defined per-palette in lua/themes/*.lua (nvim_tree key); apply them
 		-- now and re-apply after any :colorscheme change so the tree always
 		-- tracks the current theme.
 		local function apply_nvimtree_hl()

@@ -50,14 +50,7 @@ local function first_hl(attr, ...)
 end
 
 -- Mix two hex colors, for the surfaces derived below.
-local function blend(fg, bg, alpha)
-	local function mix(i)
-		local a = tonumber(fg:sub(i, i + 1), 16) * alpha
-		local b = tonumber(bg:sub(i, i + 1), 16) * (1 - alpha)
-		return math.floor(math.min(math.max(a + b, 0), 255) + 0.5)
-	end
-	return string.format("#%02X%02X%02X", mix(2), mix(4), mix(6))
-end
+local blend = require("themes.lib").blend
 
 -- The statusline's palette, rebuilt on every ColorScheme by update_colors().
 --
@@ -890,7 +883,7 @@ require("heirline").setup({
 	},
 })
 
--- Rebuild the palette whenever the colorscheme changes. config.theme_switcher
+-- Rebuild the palette whenever the colorscheme changes. config.theme.switcher
 -- rebuilds theme.current_theme from its own ColorSchemePre hook, so by the time
 -- this runs get_colors() reads the incoming theme, not the outgoing one.
 vim.api.nvim_create_autocmd("ColorScheme", {

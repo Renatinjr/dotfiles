@@ -7,7 +7,7 @@ return {
 		-- Kanso zen palette — quiet, monochromatic indent guides
 		local zen = { line = "#22262D", scope = "#393B44" }
 
-		-- The active theme (lua/config/theme.lua) supplies the two greys when
+		-- The active theme (config.theme.current_theme) supplies the two greys when
 		-- it defines an `indent` table; otherwise the kanso zen values stand in.
 		local function indent_colors()
 			local ok, theme = pcall(require, "config.theme")

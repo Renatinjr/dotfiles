@@ -3,7 +3,7 @@
 --
 -- Switching themes in this config means moving two things at once: the
 -- colorscheme itself (highlight groups, from the plugin specs in
--- plugins/colorscheme.lua) and `config.theme.current_theme` (the transcribed
+-- lua/themes/*.lua) and `config.theme.current_theme` (the transcribed
 -- palette that bufferline, nvim-tree, alpha, incline, blink, fzf-lua, ibl and
 -- notify all read). Let them drift and the chrome no longer matches the buffer.
 --
@@ -11,7 +11,7 @@
 --
 --   ColorSchemePre  repoints current_theme at the INCOMING scheme, before it
 --                   loads, so the ColorScheme handlers in explorer.lua /
---                   completion.lua / ui.lua see the new palette when they run.
+--                   completion.lua / incline.lua see the new palette when they run.
 --   ColorScheme     re-emits the consumers that bake their colors in at
 --                   setup() and so can't follow the event themselves.
 --
@@ -71,7 +71,7 @@ function M.refresh()
 	end
 
 	-- alpha: the dashboard sets these three groups itself at setup(). Foreground
-	-- only, matching ui.lua — the transparent themes (koda, rose-pine, kanso)
+	-- only, matching alpha.lua — the transparent themes (koda, rose-pine, kanso)
 	-- would otherwise get a solid block painted behind the dashboard.
 	if type(current.alpha) == "table" then
 		pcall(vim.api.nvim_set_hl, 0, "AlphaHeader", { fg = current.alpha.heading })

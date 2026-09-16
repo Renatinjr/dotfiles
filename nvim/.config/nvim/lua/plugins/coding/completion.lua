@@ -17,54 +17,17 @@
 -- hack. Applied per source below.
 local MIN_KEYWORD = 2
 
+-- Menu colors come from the active palette's `blink` table when it has one;
+-- otherwise from koda's (config.theme.fallback), which is always buildable and
+-- carries the same generic hue slots (fg, blue, info, gold, green, red, cyan,
+-- pink, orange, comment, dim, line, func, string).
 local function blink_palette()
-	local ok_theme, theme = pcall(require, "config.theme")
-	if ok_theme and type(theme.current_theme) == "table" and type(theme.current_theme.blink) == "table" then
-		return theme.current_theme.blink
+	local theme = require("config.theme")
+	local current = theme.current_theme
+	if type(current) == "table" and type(current.blink) == "table" then
+		return current.blink
 	end
-
-	-- Fall back to koda's tuned palette (config.theme's KODA_DARK), not to
-	-- `koda.palette.dark` — that is the plugin's STOCK table, which knows nothing
-	-- of the overrides, and reading it is what let this path drift out of step
-	-- with the one above. The literal copy is the last resort, for when
-	-- config.theme itself is unavailable.
-	local p = ok_theme and type(theme.koda_colors) == "table" and theme.koda_colors
-		or {
-			fg = "#ACB3B4",
-			dim = "#566365",
-			line = "#1F282A",
-			comment = "#6F8184",
-			const = "#E8A67E",
-			func = "#C9A562",
-			string = "#D6CC8F",
-			highlight = "#99B5FE",
-			info = "#61C2FE",
-			success = "#7DCD89",
-			danger = "#FD9693",
-			orange = "#EC9660",
-			pink = "#E499DD",
-			cyan = "#30D0CC",
-		}
-
-	-- Semantic shorthands: the keys are generic hue slots, and they resolve to the
-	-- same values the buffer syntax uses, so the menu can't disagree with the code
-	-- behind it.
-	return {
-		fg = p.fg,
-		blue = p.highlight,
-		info = p.info,
-		gold = p.const,
-		green = p.success,
-		red = p.danger,
-		cyan = p.cyan,
-		pink = p.pink,
-		orange = p.orange,
-		comment = p.comment,
-		dim = p.dim,
-		line = p.line,
-		func = p.func,
-		string = p.string,
-	}
+	return theme.fallback().blink
 end
 
 local function blink_highlights()

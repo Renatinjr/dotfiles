@@ -47,4 +47,4 @@ require("lazy").setup({
 -- Registers the ColorScheme hooks and applies the persisted theme. Must run
 -- after lazy (it loads colorscheme plugins on demand) and before anything that
 -- reads config.theme.current_theme.
-require("config.theme_switcher").setup()
+require("config.theme.switcher").setup()
