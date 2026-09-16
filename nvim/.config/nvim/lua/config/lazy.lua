@@ -26,3 +26,7 @@ require("lazy").setup("plugins", {
     },
   },
 })
+
+-- Registers the ColorScheme hooks and applies the persisted theme. Runs before
+-- config.options, which reads theme.current_theme to paint LspInlayHint.
+require("config.theme_switcher").setup()

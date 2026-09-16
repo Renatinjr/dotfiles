@@ -254,6 +254,16 @@ return {
 				},
 				{ "<leader>lh", toggle_inlay_hints, desc = "Toggle inlay hints" },
 
+				-- UI group
+				{ "<leader>u", group = "UI" },
+				{
+					"<leader>uc",
+					function()
+						require("config.theme_switcher").pick()
+					end,
+					desc = "Colorscheme picker",
+				},
+
 				-- Window group
 				{ "<leader>w", group = "Window" },
 				{ "<leader>w=", "<C-w>=", desc = "Normalize split layout" },

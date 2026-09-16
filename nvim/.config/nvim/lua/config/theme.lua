@@ -71,30 +71,69 @@ local function make_nvim_tree(c)
 end
 
 -- Rose Pine palette (main variant)
-local rose_pine = function()
-	local ok, palette = pcall(require, "rose-pine.palette")
-	if not ok then
-		-- Hardcoded fallback so theme.lua works even before plugin loads
-		palette = {
-			base = "#191724",
-			surface = "#1f1d2e",
-			overlay = "#26233a",
-			muted = "#6e6a86",
-			subtle = "#908caa",
-			text = "#e0def4",
-			love = "#eb6f92",
-			gold = "#f6c177",
-			rose = "#ebbcba",
-			pine = "#31748f",
-			foam = "#9ccfd8",
-			iris = "#c4a7e7",
-			highlight_low = "#21202e",
-			highlight_med = "#403d52",
-			highlight_high = "#524f67",
-		}
-	end
+-- Rose Pine palette, transcribed from the plugin's lua/rose-pine/palette.lua.
+--
+-- Not required from the plugin: `rose-pine.palette` resolves to whichever
+-- variant is CURRENTLY configured, but this runs from the ColorSchemePre hook,
+-- i.e. before the incoming variant has loaded — so a live read would hand back
+-- the outgoing one. Transcribing keeps the three variants addressable by name,
+-- the same approach material() and evergarden() take below.
+local ROSE_PINE_VARIANTS = {
+	main = {
+		base = "#191724",
+		surface = "#1f1d2e",
+		overlay = "#26233a",
+		muted = "#6e6a86",
+		subtle = "#908caa",
+		text = "#e0def4",
+		love = "#eb6f92",
+		gold = "#f6c177",
+		rose = "#ebbcba",
+		pine = "#31748f",
+		foam = "#9ccfd8",
+		iris = "#c4a7e7",
+		highlight_low = "#21202e",
+		highlight_med = "#403d52",
+		highlight_high = "#524f67",
+	},
+	moon = {
+		base = "#232136",
+		surface = "#2a273f",
+		overlay = "#393552",
+		muted = "#6e6a86",
+		subtle = "#908caa",
+		text = "#e0def4",
+		love = "#eb6f92",
+		gold = "#f6c177",
+		rose = "#ea9a97",
+		pine = "#3e8fb0",
+		foam = "#9ccfd8",
+		iris = "#c4a7e7",
+		highlight_low = "#2a283e",
+		highlight_med = "#44415a",
+		highlight_high = "#56526e",
+	},
+	dawn = {
+		base = "#faf4ed",
+		surface = "#fffaf3",
+		overlay = "#f2e9e1",
+		muted = "#9893a5",
+		subtle = "#797593",
+		text = "#464261",
+		love = "#b4637a",
+		gold = "#ea9d34",
+		rose = "#d7827e",
+		pine = "#286983",
+		foam = "#56949f",
+		iris = "#907aa9",
+		highlight_low = "#f4ede8",
+		highlight_med = "#dfdad9",
+		highlight_high = "#cecacd",
+	},
+}
 
-	local p = palette
+local rose_pine = function(variant)
+	local p = ROSE_PINE_VARIANTS[variant] or ROSE_PINE_VARIANTS.main
 
 	return {
 		bg = p.base,
@@ -568,13 +607,17 @@ local jellybeans = function()
 end
 
 -- Kanso palette (zen variant)
-local kanso = function()
+-- Kanso reads straight off the plugin, which is safe here because
+-- kanso.colors.setup() takes the theme explicitly — it does not depend on which
+-- variant happens to be loaded. Returns {} when the plugin isn't in memory yet;
+-- M.build() catches that.
+local kanso = function(variant)
 	local ok, kanso_colors = pcall(require, "kanso.colors")
 	if not ok then
 		return {}
 	end
 
-	local colors = kanso_colors.setup({ theme = "zen" })
+	local colors = kanso_colors.setup({ theme = variant or "zen" })
 	local palette = colors.palette
 	local theme = colors.theme
 
@@ -937,54 +980,143 @@ end
 
 -- Koda palette (oskarnurm/koda.nvim) — minimal dark, low-contrast.
 --
--- KODA_COLORS is the single source of truth for koda's palette overrides: the
--- plugin spec passes it straight into `require("koda").setup{ colors = ... }`,
--- and koda's own `get_palette()` then hands the merged result back here, so the
--- editor, the tree, the picker and the tabline can't drift apart.
-local KODA_COLORS = {
-	bg = "#0e1415", -- cooler and a shade darker than koda's stock #101010
-	border = "#474747", -- koda ships pure-white borders; keep the chrome quiet
-	func = "#E6C384", -- gold functions
-	string = "#ffffb8", -- pale-yellow strings
-	const = "#FFA066", -- constants / numbers / booleans
+-- KODA_DARK is the single source of truth for koda's dark palette: the plugin
+-- spec passes it into `require("koda").setup{ colors = { dark = ... } }`, and
+-- koda's own `get_palette()` deep-extends it over the stock table — so because
+-- every one of koda's 25 keys is spelled out here, the merge yields exactly this
+-- and the editor, the tree, the picker and the tabline cannot drift apart.
+--
+-- ── How these values were chosen ──────────────────────────────────────────
+-- koda runs `transparent = true`, so what the eye actually sees is the kitty
+-- background, #0e1415 — the same value as `bg`. Every ratio below is measured
+-- against it, in OKLCH (perceptually uniform; HSL is not). Five rules:
+--
+--  1. One material. Surfaces and greys all carry the background's own hue
+--     (209°) at low chroma, rather than pure neutral grey on a teal-black
+--     ground — koda's stock greys are chroma 0.000, which never quite belonged.
+--  2. An even lightness ladder, each rung a distinct role. Every rung that
+--     carries TEXT clears 4.5:1; every rung that draws a LINE clears 3:1
+--     (WCAG 1.4.11). Stock `comment` was 2.56:1 and `border` 2.00:1.
+--  3. Equal energy. All fourteen accents sit in one lightness/chroma band, so
+--     none grabs the eye first: the contrast spread is 1.4×, where koda's stock
+--     accents ranged 1.60:1 (`red`, invisible) to 18.59:1 — 11.6×.
+--  4. Chroma encodes meaning. Syntax accents get C 0.095; semantic/state colors
+--     get C 0.125, so state stands out against code by being more SATURATED
+--     rather than brighter.
+--  5. Hue-adjacent colors separate on lightness. `func` (82°) and `string`
+--     (100°) are only 18° apart, so they are staggered L* 74/84 — keeping the
+--     original relationship where strings read lighter than functions. The
+--     spec's `styles` adds bold functions and italic strings as a second,
+--     non-color cue (which is what carries for color-vision deficiency).
+--
+-- koda's minimalism is deliberate and preserved: keyword/type/operator stay
+-- tinted greys, not colors. Only const/func/string carry hue in code.
+local KODA_DARK = {
+	-- Surfaces and greys — hue 209, on an even L* ladder.
+	bg = "#0E1415", -- L*18 · matches the kitty background
+	line = "#1F282A", -- L*27 · filled surface: CursorLine/Visual/Pmenu/float
+	dim = "#596668", -- L*50 · 3.12:1 · decorative: NonText/Conceal/FoldColumn
+	border = "#606F71", -- L*53 · 3.55:1 · structural: FloatBorder/WinSeparator
+	comment = "#6F8184", -- L*59 · 4.56:1 · comments/LineNr/inlay hints — TEXT
+	operator = "#7B8587", -- L*61 · 4.91:1 · near-neutral
+	keyword = "#898AA1", -- L*64 · 5.50:1 · subtle violet tint
+	type = "#819B9F", -- L*67 · 6.31:1 · subtle cool tint
+	fg = "#ACB3B4", -- L*76 · 8.73:1 · body text
+	emphasis = "#DADFE0", -- L*90 · 13.8:1 · brightest; stock was #ffffff at 18.6:1
+	special = "#DADFE0", -- = emphasis, so koda's `Identifier` stays neutral
+
+	-- Syntax accents — C 0.095, hues 52/82/100 kept, lightness staggered.
+	const = "#E8A67E", -- 9.02:1 · numbers / booleans / constants
+	func = "#C9A562", -- 8.00:1 · functions (bold)
+	string = "#D6CC8F", -- 11.4:1 · strings (italic); was #ffffb8 at 17.9:1
+	char = "#D6CC8F", -- = string, so chars read as the strings they are
+
+	-- Semantic accents — C 0.125, one lightness band.
+	danger = "#FD9693", -- 8.82:1 · errors / deletions
+	warning = "#ECA758", -- 9.06:1 · warnings / changes; koda links CurSearch here
+	success = "#7DCD89", -- 9.71:1 · adds / ok
+	cyan = "#30D0CC", -- 9.76:1 · hints
+	info = "#61C2FE", -- 9.43:1 · info / links / folders
+	highlight = "#99B5FE", -- 9.20:1 · UI accent: prompt/root/indicator; was 5.55:1
+	pink = "#E499DD", -- 8.76:1 · merge / trace
+	green = "#73C480", -- 8.80:1 · secondary green
+	orange = "#EC9660", -- 8.05:1 · untracked
+	red = "#F38C8A", -- 7.90:1 · conflict; stock #701516 was 1.60:1, invisible
+}
+
+-- The three koda variants this config registers. moss and glade are koda's stock
+-- palettes, untouched — the tuning above is scoped to `dark` (the plugin spec
+-- passes `colors = { dark = ... }`), because glade is a LIGHT palette and a flat
+-- override table would force the dark background onto it.
+--
+-- Transcribed rather than required: lazy.nvim loads a plugin the moment one of
+-- its modules is required, and since this runs while config.theme itself is
+-- still loading, that pulls koda's `config` in mid-load — which requires
+-- config.theme right back and dies on the circular require.
+local KODA_VARIANTS = {
+	dark = KODA_DARK,
+	-- koda's stock moss, from lua/koda/palette/moss.lua
+	moss = {
+		bg = "#0e1415",
+		fg = "#cecece",
+		dim = "#30464a",
+		line = "#182325",
+		keyword = "#999999",
+		type = "#708b8d",
+		operator = "#708b8d",
+		comment = "#707070",
+		border = "#cecece",
+		emphasis = "#71ade7",
+		func = "#71ade7",
+		string = "#95cb82",
+		char = "#dfdf8e",
+		special = "#dfdf8e",
+		const = "#dfdf8e",
+		highlight = "#cd974b",
+		info = "#8ebeec",
+		success = "#6abf40",
+		warning = "#ec8013",
+		danger = "#d2322d",
+		green = "#95cb82",
+		orange = "#ec8013",
+		red = "#c33c33",
+		pink = "#cc8bc9",
+		cyan = "#47bea9",
+	},
+	-- koda's stock glade, from lua/koda/palette/glade.lua — the light one
+	glade = {
+		bg = "#f7f7f7",
+		fg = "#000000",
+		dim = "#bfd9d9",
+		line = "#e2eeee",
+		keyword = "#525252",
+		type = "#708b8d",
+		operator = "#708b8d",
+		comment = "#696969",
+		border = "#999999",
+		emphasis = "#325cc0",
+		func = "#325cc0",
+		string = "#448c27",
+		char = "#7a3e9d",
+		special = "#7a3e9d",
+		const = "#7a3e9d",
+		highlight = "#BC7500",
+		info = "#007acc",
+		success = "#448c27",
+		warning = "#BC7500",
+		danger = "#d13e23",
+		green = "#448c27",
+		orange = "#ec8013",
+		red = "#aa3731",
+		pink = "#7a3e9d",
+		cyan = "#0083b2",
+	},
 }
 
 -- koda's palette is FLAT (no theme.ui / syn / diag sub-tables like kanso), so
 -- the keys are read directly.
-local koda = function()
-	-- koda's dark palette, transcribed from lua/koda/palette/dark.lua. This file
-	-- deliberately does NOT require the plugin: lazy.nvim loads a plugin the
-	-- moment one of its modules is required, and since this function runs while
-	-- config.theme itself is still loading, that pulls koda's `config` in mid-load
-	-- — which requires config.theme right back and dies on the circular require.
-	-- Merging KODA_COLORS here yields exactly what koda's get_palette() would.
-	local p = vim.tbl_extend("force", {
-		bg = "#101010",
-		fg = "#b0b0b0",
-		dim = "#474747",
-		line = "#272727",
-		keyword = "#777777",
-		type = "#777777",
-		operator = "#777777",
-		comment = "#50585d",
-		border = "#ffffff",
-		emphasis = "#ffffff",
-		func = "#ffffff",
-		string = "#ffffff",
-		char = "#ffffff",
-		special = "#ffffff",
-		const = "#d9ba73",
-		highlight = "#458ee6",
-		info = "#8ebeec",
-		success = "#86cd82",
-		warning = "#d9ba73",
-		danger = "#ff7676",
-		green = "#14ba19",
-		orange = "#ff5733",
-		red = "#701516",
-		pink = "#f2a4db",
-		cyan = "#5abfb5",
-	}, KODA_COLORS)
+local koda = function(variant)
+	local p = KODA_VARIANTS[variant] or KODA_VARIANTS.dark
 
 	return {
 		bg = p.bg,
@@ -993,7 +1125,9 @@ local koda = function()
 		text = p.fg,
 		text_sec = p.comment,
 		inlay_hint_bg = p.line,
-		inlay_hint_fg = p.dim,
+		-- comment, not dim: inlay hints are text, and `dim` sits at 2.98:1 on the
+		-- buffer background — worse still on the `line` chip behind them.
+		inlay_hint_fg = p.comment,
 
 		fzf = {
 			setup_colors = function()
@@ -1040,12 +1174,14 @@ local koda = function()
 
 		indent = {
 			line = p.line,
-			scope = p.dim,
+			-- border, not dim — matches the IblScope override in the plugin spec:
+			-- a scope guide is a meaningful line and wants the 3:1 floor.
+			scope = p.border,
 		},
 
 		-- blink.cmp menu palette (consumed by plugins/completion.lua). Previously
 		-- that file re-derived koda's palette itself and hardcoded the gold/pale
-		-- yellow; it now reads these, which come from KODA_COLORS.
+		-- yellow; it now reads these, which come from KODA_DARK.
 		blink = {
 			fg = p.fg,
 			blue = p.highlight,
@@ -1067,7 +1203,7 @@ local koda = function()
 			bg = p.bg,
 			fg = p.fg,
 			comment = p.comment,
-			-- KODA_COLORS re-tints `border` (koda ships pure white), so the tree
+			-- KODA_DARK re-tints `border` (koda ships pure white), so the tree
 			-- chrome can just use it now.
 			border = p.border,
 			sel_bg = p.line,
@@ -1147,6 +1283,245 @@ local koda = function()
 			pick_selected = { fg = p.orange, bg = p.bg, bold = true, italic = false },
 			pick_visible = { fg = p.orange, bg = p.line, bold = true, italic = false },
 			pick = { fg = p.orange, bg = p.line, bold = true, italic = false },
+		},
+	}
+end
+
+-- Black Metal (metalelf0/black-metal-theme-neovim) — sixteen near-monochrome
+-- bands, one per record.
+--
+-- Read live off the plugin, the way kanso() is: `black-metal.palette` is a pure
+-- module whose `get(theme, variant)` hands back a deepcopy without any setup()
+-- or colorscheme load, so there is nothing to transcribe and the sixteen bands
+-- cost one builder. Returns {} when the plugin isn't in memory yet — M.build()
+-- substitutes koda's palette for that, and config.theme_switcher rebuilds from
+-- its ColorSchemePre hook once lazy has loaded the plugin.
+local BLACK_METAL_BANDS = {
+	"bathory",
+	"burzum",
+	"dark-funeral",
+	"darkthrone",
+	"emperor",
+	"gorgoroth",
+	"immortal",
+	"impaled-nazarene",
+	"khold",
+	"marduk",
+	"mayhem",
+	"nile",
+	"taake",
+	"thyrfing",
+	"venom",
+	"windir",
+}
+
+-- Mix two hex colors. The bands share one very flat ramp — bg #000000, visual
+-- #222222, comment #505050 and nothing in between — so the chrome has to derive
+-- its middle greys rather than name them.
+local function blend(fg, bg, alpha)
+	local function mix(i)
+		local a = tonumber(fg:sub(i, i + 1), 16) * alpha
+		local b = tonumber(bg:sub(i, i + 1), 16) * (1 - alpha)
+		return math.floor(math.min(math.max(a + b, 0), 255) + 0.5)
+	end
+	return string.format("#%02X%02X%02X", mix(2), mix(4), mix(6))
+end
+
+local black_metal = function(band)
+	local ok, p = pcall(function()
+		return require("black-metal.palette").get(band or "bathory", "dark")
+	end)
+	if not ok or type(p) ~= "table" or not p.bg then
+		return {}
+	end
+
+	-- Only `string` (accent 1), `type` (accent 2) and `alt_bg` differ between the
+	-- sixteen dark bands; everything else — the greys AND the diagnostics — is
+	-- shared, and `diag_red` and `diag_yellow` are literally the same teal. So
+	-- mirroring diag_* in the chrome would leave error, warning and hint
+	-- indistinguishable in the tree, the tabline and the picker. The two per-band
+	-- accents carry the spread instead: `type` (the loudest color a band owns)
+	-- reads as error/deleted, `string` as warning/modified, `alt` (teal) as
+	-- hint/staged, `constant` (light grey) as info/added.
+	local accent = p.string
+	local accent2 = p.type
+	local err = p.type
+	local warn = p.string
+	local info = p.constant
+	local hint = p.alt
+
+	-- Chrome surfaces. `line` is #000000 on every band, i.e. the buffer
+	-- background, so `visual` is the only real second surface; `border` and
+	-- `dim` are blended out of the comment grey.
+	local surface = p.visual
+	-- Darkthrone is the one band whose alt_bg IS the background (#000000), so the
+	-- selected tab falls back to the second surface rather than vanishing.
+	local tab_bg = p.alt_bg ~= p.bg and p.alt_bg or surface
+	local border = blend(p.comment, p.bg, 0.7)
+	local dim = blend(p.comment, p.bg, 0.85)
+
+	return {
+		bg = p.bg,
+		bg_sec = surface,
+		bg_notify = surface,
+		text = p.fg,
+		text_sec = p.comment,
+		inlay_hint_bg = surface,
+		inlay_hint_fg = p.comment,
+
+		fzf = {
+			setup_colors = function()
+				local highlights = {
+					FzfLuaNormal = { bg = p.bg, fg = p.fg },
+					FzfLuaBorder = { fg = border, bg = p.bg },
+					FzfLuaCursorLine = { bg = surface, fg = accent },
+					FzfLuaTitle = { fg = accent2, bold = true },
+					FzfLuaPrompt = { fg = accent, bold = true },
+					FzfLuaPointer = { fg = accent2, bold = true },
+					FzfLuaMarker = { fg = hint },
+					FzfLuaSpinner = { fg = accent, bold = true },
+					FzfLuaHeader = { fg = p.comment },
+					FzfLuaPreviewTitle = { fg = accent2, bold = true },
+				}
+
+				for group, opts in pairs(highlights) do
+					vim.api.nvim_set_hl(0, group, opts)
+				end
+
+				return {
+					normal = "FzfLuaNormal",
+					border = "FzfLuaBorder",
+					cursor = "FzfLuaPointer",
+					cursorline = "FzfLuaCursorLine",
+					title = "FzfLuaTitle",
+					prompt = "FzfLuaPrompt",
+					pointer = "FzfLuaPointer",
+					marker = "FzfLuaMarker",
+					spinner = "FzfLuaSpinner",
+					header = "FzfLuaHeader",
+					preview_title = "FzfLuaPreviewTitle",
+					help_normal = "FzfLuaNormal",
+					help_border = "FzfLuaBorder",
+				}
+			end,
+		},
+
+		alpha = {
+			heading = accent2,
+			button = accent,
+			shortcut = hint,
+		},
+
+		indent = {
+			line = blend(p.comment, p.bg, 0.45),
+			scope = p.comment,
+		},
+
+		-- blink.cmp menu palette (plugins/completion.lua). The keys are generic
+		-- hue slots, not literal colors, so the band's two accents take the
+		-- prominent ones and the greys fill the rest.
+		blink = {
+			fg = p.fg,
+			blue = accent,
+			info = p.constant,
+			gold = accent,
+			green = hint,
+			red = err,
+			cyan = p.alt,
+			pink = p.operator,
+			orange = accent2,
+			comment = p.comment,
+			dim = dim,
+			line = surface,
+			func = accent2,
+			string = accent,
+		},
+
+		nvim_tree = make_nvim_tree({
+			bg = p.bg,
+			fg = p.fg,
+			comment = p.comment,
+			border = border,
+			sel_bg = surface,
+			accent = accent2,
+			folder = p.constant,
+			special = accent,
+			symlink = p.alt,
+			modified = warn,
+			git_new = info,
+			git_dirty = warn,
+			git_staged = hint,
+			git_renamed = p.keyword,
+			git_deleted = err,
+			git_merge = p.operator,
+		}),
+
+		incline = {
+			normal = { bg = surface, fg = p.fg },
+			border = { bg = p.bg, fg = p.bg },
+			normal_nc = { bg = surface, fg = p.comment },
+			focused = { one = surface, two = surface },
+			file_name = { guifg = p.fg },
+			modified = { guifg = warn },
+		},
+
+		-- The selected tab is the one place the band's own tinted background
+		-- (`alt_bg` — #3E2018 for bathory, #39121b for khold) earns its keep:
+		-- it is the only color that tells the sixteen bands apart at a glance.
+		bufferline = {
+			fill = { fg = p.bg, bg = p.bg },
+			background = { fg = p.comment, bg = p.bg },
+			tab = { fg = p.comment, bg = p.bg },
+			tab_selected = { fg = p.fg, bg = tab_bg, bold = true },
+			tab_close = { fg = p.comment, bg = p.bg },
+			close_button = { fg = err, bg = p.bg },
+			close_button_visible = { fg = err, bg = p.bg },
+			close_button_selected = { fg = err, bg = tab_bg },
+			buffer_visible = { fg = p.comment, bg = p.bg },
+			buffer_selected = { fg = p.fg, bg = tab_bg, bold = true, italic = false },
+			numbers = { fg = p.alt, bg = p.bg },
+			numbers_visible = { fg = p.alt, bg = p.bg },
+			numbers_selected = { fg = p.alt, bg = tab_bg, bold = true, italic = false },
+			diagnostic = { fg = p.comment, bg = p.bg },
+			diagnostic_visible = { fg = p.comment, bg = p.bg },
+			diagnostic_selected = { fg = p.fg, bg = tab_bg, bold = true, italic = false },
+			hint = { fg = hint, bg = p.bg },
+			hint_visible = { fg = hint, bg = p.bg },
+			hint_selected = { fg = hint, bg = tab_bg, bold = true, italic = false },
+			hint_diagnostic = { fg = hint, bg = p.bg },
+			hint_diagnostic_visible = { fg = hint, bg = p.bg },
+			hint_diagnostic_selected = { fg = hint, bg = tab_bg, bold = true, italic = false },
+			info = { fg = info, bg = p.bg },
+			info_visible = { fg = info, bg = p.bg },
+			info_selected = { fg = info, bg = tab_bg, bold = true, italic = false },
+			info_diagnostic = { fg = info, bg = p.bg },
+			info_diagnostic_visible = { fg = info, bg = p.bg },
+			info_diagnostic_selected = { fg = info, bg = tab_bg, bold = true, italic = false },
+			warning = { fg = warn, bg = p.bg },
+			warning_visible = { fg = warn, bg = p.bg },
+			warning_selected = { fg = warn, bg = tab_bg, bold = true, italic = false },
+			warning_diagnostic = { fg = warn, bg = p.bg },
+			warning_diagnostic_visible = { fg = warn, bg = p.bg },
+			warning_diagnostic_selected = { fg = warn, bg = tab_bg, bold = true, italic = false },
+			error = { fg = err, bg = p.bg },
+			error_visible = { fg = err, bg = p.bg },
+			error_selected = { fg = err, bg = tab_bg, bold = true, italic = false },
+			error_diagnostic = { fg = err, bg = p.bg },
+			error_diagnostic_visible = { fg = err, bg = p.bg },
+			error_diagnostic_selected = { fg = err, bg = tab_bg, bold = true, italic = false },
+			modified = { fg = warn, bg = p.bg },
+			modified_visible = { fg = warn, bg = p.bg },
+			modified_selected = { fg = warn, bg = tab_bg },
+			duplicate = { fg = p.comment, bg = p.bg, italic = true },
+			duplicate_visible = { fg = p.comment, bg = p.bg, italic = true },
+			duplicate_selected = { fg = p.fg, bg = tab_bg, italic = false },
+			separator = { fg = border, bg = p.bg },
+			separator_visible = { fg = border, bg = p.bg },
+			separator_selected = { fg = border, bg = tab_bg },
+			indicator_selected = { fg = accent2, bg = tab_bg },
+			pick_selected = { fg = accent, bg = tab_bg, bold = true, italic = false },
+			pick_visible = { fg = accent, bg = p.bg, bold = true, italic = false },
+			pick = { fg = accent, bg = p.bg, bold = true, italic = false },
 		},
 	}
 end
@@ -1711,9 +2086,237 @@ local evergarden = function()
 	}
 end
 
--- Active theme: change this to switch themes
--- Options: material(), evergarden(), rose_pine(), kanagawa(), jellybeans(), kanso(), serenity(), koda()
-M.current_theme = koda()
+-- ══════════════════════════════════════════════════════════════════════
+-- Theme registry
+--
+-- One entry per INSTALLED colorscheme, in picker order. `palette` is the
+-- builder above, `colorscheme` the name handed to :colorscheme, and `plugin`
+-- the lazy spec name so config.theme_switcher can load it BEFORE building the
+-- palette — kanso() in particular reads its colors straight off the plugin.
+-- `background` is either a string or a function, for the two themes whose
+-- light/dark answer depends on a variant constant.
+--
+-- serenity() is exported below but absent here: no plugin is installed for it.
+-- ══════════════════════════════════════════════════════════════════════
+M.themes = {
+	{
+		key = "koda",
+		label = "Koda",
+		plugin = "koda.nvim",
+		colorscheme = "koda-dark",
+		palette = koda,
+		background = "dark",
+	},
+	{
+		key = "koda-moss",
+		label = "Koda Moss",
+		plugin = "koda.nvim",
+		colorscheme = "koda-moss",
+		palette = koda,
+		variant = "moss",
+		background = "dark",
+	},
+	{
+		key = "koda-glade",
+		label = "Koda Glade",
+		plugin = "koda.nvim",
+		colorscheme = "koda-glade",
+		palette = koda,
+		variant = "glade",
+		background = "light", -- glade is koda's light palette
+	},
+
+	{
+		key = "material",
+		label = "Material",
+		plugin = "material.nvim",
+		colorscheme = "material",
+		palette = material,
+		background = function()
+			return (vim.g.material_style or MATERIAL_STYLE) == "lighter" and "light" or "dark"
+		end,
+	},
+	{
+		key = "evergarden",
+		label = "Evergarden",
+		plugin = "evergarden",
+		colorscheme = "evergarden",
+		palette = evergarden,
+		background = EVERGARDEN_VARIANT == "summer" and "light" or "dark",
+	},
+	{
+		key = "kanso-zen",
+		label = "Kanso Zen",
+		plugin = "kanso.nvim",
+		colorscheme = "kanso-zen",
+		alias = "kanso", -- what colors/kanso-zen reports as vim.g.colors_name
+		palette = kanso,
+		variant = "zen",
+		background = "dark",
+	},
+	{
+		key = "kanso-ink",
+		label = "Kanso Ink",
+		plugin = "kanso.nvim",
+		colorscheme = "kanso-ink",
+		palette = kanso,
+		variant = "ink",
+		background = "dark",
+	},
+	{
+		key = "kanso-mist",
+		label = "Kanso Mist",
+		plugin = "kanso.nvim",
+		colorscheme = "kanso-mist",
+		palette = kanso,
+		variant = "mist",
+		background = "dark",
+	},
+	{
+		key = "kanso-pearl",
+		label = "Kanso Pearl",
+		plugin = "kanso.nvim",
+		colorscheme = "kanso-pearl",
+		palette = kanso,
+		variant = "pearl",
+		background = "light",
+	},
+	{
+		key = "rose-pine",
+		label = "Rose Pine",
+		plugin = "rose-pine",
+		colorscheme = "rose-pine",
+		palette = rose_pine,
+		variant = "main",
+		background = "dark",
+	},
+	{
+		key = "rose-pine-moon",
+		label = "Rose Pine Moon",
+		plugin = "rose-pine",
+		colorscheme = "rose-pine-moon",
+		palette = rose_pine,
+		variant = "moon",
+		background = "dark",
+	},
+	{
+		key = "rose-pine-dawn",
+		label = "Rose Pine Dawn",
+		plugin = "rose-pine",
+		colorscheme = "rose-pine-dawn",
+		palette = rose_pine,
+		variant = "dawn",
+		background = "light",
+	},
+	{
+		key = "kanagawa",
+		label = "Kanagawa",
+		plugin = "kanagawa.nvim",
+		colorscheme = "kanagawa-wave",
+		alias = "kanagawa",
+		palette = kanagawa,
+		background = "dark",
+	},
+	{
+		key = "jellybeans",
+		label = "Jellybeans",
+		plugin = "jellybeans.nvim",
+		colorscheme = "jellybeans",
+		palette = jellybeans,
+		background = "dark",
+	},
+}
+
+-- Black Metal's sixteen bands. Generated rather than written out: the entries
+-- differ only in the band name, and the palette builder takes it as its
+-- `variant` (M.build passes entry.variant as the sole argument). `colorscheme`
+-- is the bare band name — the plugin registers `colors/<band>.lua`, there is no
+-- `black-metal-` prefix — and no `alias` is needed because its load() reports
+-- that same name as vim.g.colors_name.
+for _, band in ipairs(BLACK_METAL_BANDS) do
+	table.insert(M.themes, {
+		key = "black-metal-" .. band,
+		label = "Black Metal · " .. (band:gsub("(%a)([%w]*)", function(first, rest)
+			return first:upper() .. rest
+		end):gsub("%-", " ")),
+		plugin = "black-metal-theme-neovim",
+		colorscheme = band,
+		palette = black_metal,
+		variant = band,
+		background = "dark", -- light variants are disabled by `trve` in the spec
+	})
+end
+
+-- Fallback whenever nothing is persisted, the saved name is unknown, or a
+-- palette fails to build. koda is the only builder with no external dependency.
+M.DEFAULT_THEME = "koda"
+
+-- Where the chosen theme is remembered across restarts. Written only on an
+-- explicit switch (:Theme / the picker's <CR>), never from the ColorScheme
+-- autocmds — the picker's live preview fires one :colorscheme per cursor move.
+M.state_file = vim.fn.stdpath("state") .. "/theme.json"
+
+function M.by_key(key)
+	for _, entry in ipairs(M.themes) do
+		if entry.key == key then
+			return entry
+		end
+	end
+end
+
+-- Resolve a :colorscheme name to its registry entry. Also matches `alias`: two
+-- of these schemes set vim.g.colors_name to their family name rather than the
+-- variant they were loaded as ("kanso-zen" reports "kanso"), and fzf-lua's
+-- picker restores THAT string when you abort a live preview — so without the
+-- alias an <Esc> would leave current_theme pointing at the previewed palette.
+function M.by_colorscheme(name)
+	for _, entry in ipairs(M.themes) do
+		if entry.colorscheme == name or entry.alias == name then
+			return entry
+		end
+	end
+end
+
+-- Read the persisted choice. Returns nil — never throws — on a missing,
+-- unreadable, malformed or unrecognized file, so a corrupt state file costs a
+-- fallback to DEFAULT_THEME rather than a broken startup.
+function M.read_saved()
+	local file = io.open(M.state_file, "r")
+	if not file then
+		return nil
+	end
+	local contents = file:read("*a")
+	file:close()
+
+	local ok, decoded = pcall(vim.json.decode, contents)
+	if not ok or type(decoded) ~= "table" then
+		return nil
+	end
+	return M.by_key(decoded.theme) and decoded.theme or nil
+end
+
+-- Build a palette defensively. kanso() returns {} when its plugin isn't loaded
+-- yet (see its pcall above — unlike rose_pine() it has no hardcoded fallback),
+-- and this module is required from config.options before lazy has loaded
+-- anything, so a bare call can hand back a table with no `fzf` key that every
+-- consumer then indexes into. Callers get koda's palette instead of a crash;
+-- config.theme_switcher rebuilds properly once the plugin is in memory.
+function M.build(key)
+	local entry = M.by_key(key)
+	if not entry then
+		return koda()
+	end
+	local ok, palette = pcall(entry.palette, entry.variant)
+	if ok and type(palette) == "table" and palette.fzf then
+		return palette
+	end
+	return koda()
+end
+
+-- Active theme. Persisted by config.theme_switcher; edit theme.json or use
+-- :Theme / <leader>uc rather than hardcoding a builder here.
+M.active = M.read_saved() or M.DEFAULT_THEME
+M.current_theme = M.build(M.active)
 
 -- Keep all available for reference
 M.rose_pine = rose_pine
@@ -1724,9 +2327,17 @@ M.serenity = serenity
 M.koda = koda
 M.material = material
 M.evergarden = evergarden
+M.black_metal = black_metal
 
--- koda's palette overrides; the plugin spec feeds these to require("koda").setup().
-M.koda_colors = KODA_COLORS
+-- The sixteen black-metal bands, in registry order; exported so the plugin spec
+-- and anything else that needs the list reads the same table this file loops over.
+M.black_metal_bands = BLACK_METAL_BANDS
+
+-- koda's tuned dark palette. The plugin spec feeds it to require("koda").setup()
+-- as `colors = { dark = ... }` — scoped to that variant, because a flat table is
+-- applied to EVERY variant by koda's get_palette(), which would force this dark
+-- background onto glade, koda's light palette.
+M.koda_colors = KODA_DARK
 
 -- Default material.nvim style; the plugin spec reads this and pushes it into
 -- `vim.g.material_style` before the colorscheme loads. `:MaterialStyle <style>`

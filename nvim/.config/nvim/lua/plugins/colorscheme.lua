@@ -1,4 +1,9 @@
--- Colorschemes: koda (active), material, evergarden, kanso-zen, rose-pine, kanagawa & jellybeans (available)
+-- Colorschemes: koda, material, evergarden, kanso-zen, rose-pine, kanagawa,
+-- jellybeans & black-metal (sixteen bands).
+--
+-- None of these specs picks the active scheme any more: config.theme holds the
+-- registry and the persisted choice, and config.theme_switcher applies it (and
+-- owns `background`). Switch with :Theme, <leader>uc, or plain :colorscheme.
 return {
 	-- ══════════════════════════════════════════════════════════════════════
 	-- Material (available via :colorscheme material)
@@ -295,30 +300,15 @@ return {
 				end,
 			})
 
-			vim.opt.background = vim.g.material_style == "lighter" and "light" or "dark"
-			-- vim.cmd("colorscheme material")
-
 			-- :MaterialStyle darker | lighter | oceanic | palenight | deep ocean
-			-- Rebuilds theme.current_theme first so the ColorScheme autocmds in
-			-- explorer.lua / completion.lua / fzf.lua pick up the new palette.
+			--
+			-- Routed through config.theme_switcher so a style change takes exactly the
+			-- same path as a theme switch: its ColorSchemePre hook rebuilds
+			-- theme.current_theme from the new style and sets `background`, and its
+			-- ColorScheme hook re-emits bufferline, alpha, fzf-lua and notify.
 			vim.api.nvim_create_user_command("MaterialStyle", function(opts)
-				local style = opts.args ~= "" and opts.args or theme.material_style
-				vim.g.material_style = style
-				theme.current_theme = theme.material()
-				vim.opt.background = style == "lighter" and "light" or "dark"
-				vim.cmd("colorscheme material")
-
-				-- bufferline bakes its groups in at setup(), so it can't follow the
-				-- ColorScheme event; re-emit them from the fresh palette. The keys
-				-- in theme.current_theme.bufferline camelize into the group names
-				-- (buffer_selected -> BufferLineBufferSelected).
-				for key, hl in pairs(theme.current_theme.bufferline or {}) do
-					local group = "BufferLine"
-						.. key:gsub("(%a)([%w]*)", function(first, rest)
-							return first:upper() .. rest
-						end):gsub("_", "")
-					vim.api.nvim_set_hl(0, group, hl)
-				end
+				vim.g.material_style = opts.args ~= "" and opts.args or theme.material_style
+				require("config.theme_switcher").apply("material", { persist = true, notify = false })
 			end, {
 				nargs = "?",
 				desc = "Switch the material.nvim style",
@@ -464,12 +454,6 @@ return {
 
 				cache = true, -- compile the highlight table; cleared on config change
 			})
-
-			-- Switching the ACTIVE theme also means pointing
-			-- lua/config/theme.lua's `M.current_theme` at evergarden(), so
-			-- nvim-tree, fzf-lua, bufferline, incline, ibl and blink follow.
-			-- vim.cmd("colorscheme evergarden")
-			vim.opt.background = theme.evergarden_variant == "summer" and "light" or "dark"
 		end,
 	},
 	-- Koda (available via :colorscheme koda-dark)
@@ -482,8 +466,8 @@ return {
 	-- quiet to read at a glance.
 	{
 		"oskarnurm/koda.nvim",
-		lazy = false, -- ACTIVE colorscheme: load during startup
-		priority = 1000, -- ...and before every other start plugin
+		lazy = true,
+		priority = 1000, -- ...and before every other start plugin, when it is the active one
 		config = function()
 			local koda = require("koda")
 			local theme = require("config.theme")
@@ -506,12 +490,15 @@ return {
 				styles = {
 					functions = { bold = true },
 					keywords = { italic = true },
-					comments = { bold = true },
+					comments = { italic = true }, -- was bold, propping up a 2.56:1 comment color
 					strings = { italic = true },
 					constants = {}, -- includes numbers, booleans
 				},
 
-				colors = theme.koda_colors,
+				-- Scoped to `dark`: koda's get_palette() applies a FLAT colors table to
+				-- every variant, which would force this dark palette onto glade — koda's
+				-- light one. moss and glade keep their own stock palettes.
+				colors = { dark = theme.koda_colors },
 
 				-- (hl, c): `hl` is koda's finished highlight table, `c` the merged
 				-- palette. This runs after the cache is read, so edits here take
@@ -538,6 +525,12 @@ return {
 					hl.CurSearch = { fg = c.bg, bg = c.const, bold = true }
 					hl.IncSearch = { link = "CurSearch" }
 					hl.MatchParen = { fg = c.special, bg = c.line, bold = true }
+				-- koda aims CursorLineNr and Identifier at `special`. That key is now a
+				-- bright NEUTRAL (it was pure white), which is right for MatchParen but
+				-- leaves the cursor line number unaccented and renders plain identifiers
+				-- brighter than body text in non-treesitter buffers. Split them out.
+				hl.CursorLineNr = { fg = c.highlight, bold = true }
+				hl.Identifier = { fg = c.fg }
 
 					-- ── Syntax ─────────────────────────────────────────────────
 					hl["@property"] = { fg = muted }
@@ -588,7 +581,9 @@ return {
 					hl.TreesitterContextBottom = { sp = c.dim, underline = true }
 
 					hl.IblIndent = { fg = c.line, nocombine = true }
-					hl.IblScope = { fg = c.dim, nocombine = true }
+					-- border, not dim: a scope guide is a meaningful UI line, so it wants
+				-- the 3:1 floor (border 3.55:1) rather than dim's 2.98:1.
+				hl.IblScope = { fg = c.border, nocombine = true }
 
 					hl.NoiceCmdlinePopupBorder = { fg = c.border }
 					hl.NoiceCmdlineIcon = { fg = c.highlight }
@@ -615,9 +610,6 @@ return {
 					end
 				end,
 			})
-
-			vim.cmd("colorscheme koda-dark")
-			vim.opt.background = "dark"
 		end,
 	},
 	-- Rose Pine
@@ -628,9 +620,9 @@ return {
 		priority = 1000,
 		config = function()
 			require("rose-pine").setup({
-				variant = "main",
+				variant = "auto", -- the colors/rose-pine-*.lua files pick the variant
 				transparent = true,
-				dark_variant = "main",
+				dark_variant = "main", -- plain `:colorscheme rose-pine` on a dark background
 				dim_inactive_windows = false,
 				extend_background_behind_borders = true,
 
@@ -649,20 +641,20 @@ return {
 					["@string.special.url"] = { fg = "iris", underline = true },
 
 					-- UI
-					Normal = { bg = "#191724" },
-					NormalFloat = { bg = "#1f1d2e" },
-					NormalNC = { bg = "#191724" },
-					SignColumn = { bg = "#191724" },
-					LineNr = { bg = "#191724", fg = "muted" },
-					CursorLineNr = { bg = "#191724", fg = "text", bold = true },
-					FoldColumn = { bg = "#191724" },
-					WinSeparator = { fg = "#26233a", bg = "#191724" },
-					StatusLine = { bg = "#26233a", fg = "text" },
-					StatusLineNC = { bg = "#1f1d2e", fg = "muted" },
+					Normal = { bg = "base" },
+					NormalFloat = { bg = "surface" },
+					NormalNC = { bg = "base" },
+					SignColumn = { bg = "base" },
+					LineNr = { bg = "base", fg = "muted" },
+					CursorLineNr = { bg = "base", fg = "text", bold = true },
+					FoldColumn = { bg = "base" },
+					WinSeparator = { fg = "overlay", bg = "base" },
+					StatusLine = { bg = "overlay", fg = "text" },
+					StatusLineNC = { bg = "surface", fg = "muted" },
 
 					-- Pmenu / Completion
-					Pmenu = { bg = "#1f1d2e", fg = "text" },
-					PmenuSel = { bg = "#26233a", fg = "rose", bold = true },
+					Pmenu = { bg = "surface", fg = "text" },
+					PmenuSel = { bg = "overlay", fg = "rose", bold = true },
 					CmpItemAbbr = { fg = "text" },
 					CmpItemAbbrMatch = { fg = "rose", bold = true },
 					CmpItemAbbrMatchFuzzy = { fg = "rose", bold = true },
@@ -679,20 +671,20 @@ return {
 					FzfLuaPointer = { fg = "iris" },
 
 					-- Neo-tree
-					NeoTreeNormal = { bg = "#191724" },
-					NeoTreeNormalNC = { bg = "#191724" },
-					NeoTreeWinSeparator = { fg = "#191724", bg = "#191724" },
-					NeoTreeCursorLine = { bg = "#26233a" },
+					NeoTreeNormal = { bg = "base" },
+					NeoTreeNormalNC = { bg = "base" },
+					NeoTreeWinSeparator = { fg = "base", bg = "base" },
+					NeoTreeCursorLine = { bg = "overlay" },
 					NeoTreeGitAdded = { fg = "foam" },
 					NeoTreeGitModified = { fg = "rose" },
 					NeoTreeGitDeleted = { fg = "love" },
 					NeoTreeGitUntracked = { fg = "iris" },
 
 					-- Diagnostics
-					DiagnosticVirtualTextError = { fg = "love", bg = "#2a1f29" },
-					DiagnosticVirtualTextWarn = { fg = "gold", bg = "#28251e" },
-					DiagnosticVirtualTextInfo = { fg = "foam", bg = "#1e2a2d" },
-					DiagnosticVirtualTextHint = { fg = "iris", bg = "#231f2e" },
+					DiagnosticVirtualTextError = { fg = "love", bg = "love", blend = 15 },
+					DiagnosticVirtualTextWarn = { fg = "gold", bg = "gold", blend = 15 },
+					DiagnosticVirtualTextInfo = { fg = "foam", bg = "foam", blend = 15 },
+					DiagnosticVirtualTextHint = { fg = "iris", bg = "iris", blend = 15 },
 
 					-- Git signs
 					GitSignsAdd = { fg = "foam" },
@@ -700,13 +692,10 @@ return {
 					GitSignsDelete = { fg = "love" },
 
 					-- Indent blankline
-					IblIndent = { fg = "#26233a" },
-					IblScope = { fg = "#524f67" },
+					IblIndent = { fg = "overlay" },
+					IblScope = { fg = "highlight_high" },
 				},
 			})
-
-			-- vim.cmd("colorscheme rose-pine")
-			vim.opt.background = "dark"
 		end,
 	},
 	-- Kanagawa Wave (available via :colorscheme kanagawa-wave)
@@ -1159,8 +1148,6 @@ return {
 					}
 				end,
 			})
-			-- vim.cmd("colorscheme kanagawa-dragon")
-			vim.opt.background = "dark"
 		end,
 	},
 	-- Jellybeans (available via :colorscheme jellybeans)
@@ -1205,7 +1192,6 @@ return {
 				-- Indent blankline
 				hl.IblIndent = { fg = c.grey_one }
 				hl.IblScope = { fg = c.grey_three }
-				-- vim.cmd("colorscheme jellybeans")
 			end,
 		},
 	},
@@ -1231,12 +1217,29 @@ return {
 				overrides = function(colors)
 					local p = colors.palette
 					local t = colors.theme
-					local bg = p.zenBg0 -- #090E13
-					local bg1 = p.zenBg1 -- #1C1E25
-					local bg2 = p.zenBg2 -- #22262D
-					local bg3 = p.zenBg3 -- #393B44
-					local fg = "#DCD7BA" -- #C5C9C7
-					local fg2 = p.fg2 -- #f2f1ef
+					-- Theme-relative, so these follow whichever variant loaded
+					-- (zen | ink | mist | pearl) instead of pinning zen's ramp.
+					local bg = t.ui.bg
+					local bg1 = t.ui.bg_p1
+					local bg2 = t.ui.bg_p2
+					local bg3 = t.ui.bg_visual
+					-- The warm foreground and near-white accent are deliberate overrides
+					-- (kanso's own fg is #C5C9C7), but they only read against a dark
+					-- background — pearl gets what the theme itself specifies.
+					local light = vim.o.background == "light"
+					local fg = light and t.ui.fg or "#DCD7BA"
+					local fg2 = light and t.ui.fg or p.fg2
+
+					-- Mix two hex colors, matching the material spec above — the
+					-- diagnostic washes have to sit on the active variant's background.
+					local function blend(a, b, alpha)
+						local function mix(i)
+							local x = tonumber(a:sub(i, i + 1), 16) * alpha
+							local y = tonumber(b:sub(i, i + 1), 16) * (1 - alpha)
+							return math.floor(math.min(math.max(x + y, 0), 255) + 0.5)
+						end
+						return string.format("#%02X%02X%02X", mix(2), mix(4), mix(6))
+					end
 					return {
 						-- ══════════════════════════════════════════════
 						-- EDITOR UI — deep dark, minimal chrome
@@ -1554,10 +1557,10 @@ return {
 						DiagnosticSignWarn = { fg = p.orange },
 						DiagnosticSignInfo = { fg = p.blue },
 						DiagnosticSignHint = { fg = p.yellow },
-						DiagnosticVirtualTextError = { fg = p.red, bg = "#130A0C" },
-						DiagnosticVirtualTextWarn = { fg = p.orange, bg = "#15110A" },
-						DiagnosticVirtualTextInfo = { fg = p.blue2, bg = "#0A0F13" },
-						DiagnosticVirtualTextHint = { fg = p.green4, bg = "#0A1210" },
+						DiagnosticVirtualTextError = { fg = p.red, bg = blend(p.red, bg, 0.1) },
+						DiagnosticVirtualTextWarn = { fg = p.orange, bg = blend(p.orange, bg, 0.1) },
+						DiagnosticVirtualTextInfo = { fg = p.blue2, bg = blend(p.blue2, bg, 0.1) },
+						DiagnosticVirtualTextHint = { fg = p.green4, bg = blend(p.green4, bg, 0.1) },
 						DiagnosticUnderlineError = { undercurl = true, sp = p.red },
 						DiagnosticUnderlineWarn = { undercurl = true, sp = p.orange },
 						DiagnosticUnderlineInfo = { undercurl = true, sp = p.blue2 },
@@ -1592,12 +1595,12 @@ return {
 						Substitute = { bg = p.red2, fg = bg },
 
 						-- Word highlight
-						LspReferenceText = { bg = bg2, fg = "#DCD7BA" },
-						LspReferenceRead = { bg = bg2, fg = "#DCD7BA" },
-						LspReferenceWrite = { bg = bg2, fg = "#DCD7BA", underline = true },
-						IlluminatedWordText = { bg = bg2, fg = "#DCD7BA" },
-						IlluminatedWordRead = { bg = bg2, fg = "#DCD7BA" },
-						IlluminatedWordWrite = { bg = bg2, fg = "#DCD7BA", underline = true },
+						LspReferenceText = { bg = bg2, fg = fg },
+						LspReferenceRead = { bg = bg2, fg = fg },
+						LspReferenceWrite = { bg = bg2, fg = fg, underline = true },
+						IlluminatedWordText = { bg = bg2, fg = fg },
+						IlluminatedWordRead = { bg = bg2, fg = fg },
+						IlluminatedWordWrite = { bg = bg2, fg = fg, underline = true },
 
 						-- Which-key
 						WhichKey = { fg = p.violet2 },
@@ -1628,8 +1631,211 @@ return {
 					theme = { zen = {}, all = {} },
 				},
 			})
-			-- vim.cmd("colorscheme kanso-zen")
-			vim.opt.background = "dark"
+		end,
+	},
+	-- ══════════════════════════════════════════════════════════════════════
+	-- Black Metal (available via :colorscheme <band> — bathory, khold, mayhem…)
+	--
+	-- Sixteen bands, each a two-accent variation on one near-monochrome base.
+	-- config/theme.lua reads their palettes live through `black-metal.palette`
+	-- and registers one entry per band, so :Theme lists them all.
+	--
+	-- The colorscheme names are the BARE band name (`:colorscheme khold`); there
+	-- is no `black-metal-*` prefix and no `black-metal` scheme at all.
+	-- ══════════════════════════════════════════════════════════════════════
+	{
+		"metalelf0/black-metal-theme-neovim",
+		lazy = true,
+		priority = 1000,
+		config = function()
+			local opts = {
+				-- ── Band + variant ──────────────────────────────────────────
+				-- `theme` is only the fallback band: every registry entry loads
+				-- its own through :colorscheme, which calls load(<band>) and
+				-- overwrites this.
+				theme = "bathory",
+				variant = "dark",
+				-- "there is no light in trve black metal" — leaving this true
+				-- makes the plugin refuse the light palettes (and warn), which is
+				-- why no `-light` entries are registered in config/theme.lua.
+				trve = true,
+				-- Each band's tinted background (bathory #3E2018, khold #39121b)
+				-- instead of pure black. Off here: the tint is used for the
+				-- selected tab in theme.lua's bufferline table instead, where it
+				-- distinguishes the bands without lifting the whole editor.
+				alt_bg = false,
+
+				-- ── Background ──────────────────────────────────────────────
+				transparent = true, -- like koda / kanso / rose-pine
+				-- Floats set no background of their own. Required alongside
+				-- `transparent`: FloatBorder is NOT transparency-aware upstream,
+				-- so without this every bordered float gets a black ring.
+				plain_float = true,
+				-- Both off for the same reason — they paint the cursor line's
+				-- gutter cell and the whole signcolumn with an opaque `line`
+				-- (#000000 on every band), which would punch a black column
+				-- through the transparency.
+				cursorline_gutter = false,
+				dark_gutter = false,
+				show_eob = false, -- hide the trailing `~` filler lines
+				term_colors = true,
+
+				-- Docstrings read as strings rather than comments.
+				colored_docstrings = true,
+				-- Leave the LSP's semantic tokens on top of treesitter, which is
+				-- what every other theme here assumes.
+				favor_treesitter_hl = false,
+				-- Light is disabled by `trve`, so there is nothing to toggle.
+				toggle_variant_key = nil,
+
+				-- ── Diagnostics ─────────────────────────────────────────────
+				diagnostics = {
+					darker = true,
+					undercurl = true,
+					background = true, -- tinted wash behind virtual text
+				},
+
+				-- ── Syntax styles ───────────────────────────────────────────
+				-- gui attribute strings, not booleans. `constants` is read by the
+				-- plugin but missing from its defaults table, so it is spelled
+				-- out here rather than left nil.
+				code_style = {
+					comments = "italic",
+					conditionals = "bold",
+					constants = "none",
+					functions = "bold",
+					headings = "bold",
+					keyword_return = "bold,italic",
+					keywords = "italic",
+					operators = "none",
+					strings = "none",
+					variables = "none",
+				},
+
+				-- ── Plugin appearance ───────────────────────────────────────
+				plugin = {
+					-- Inert: the statusline here is heirline. (The plugin's own
+					-- lualine theme module is broken upstream anyway — it
+					-- requires a file that isn't in the repo.)
+					lualine = { bold = true, plain = false },
+					cmp = { plain = false, reverse = false },
+				},
+
+				-- Palette stays upstream; the highlights below reach into it
+				-- with `$name` references so every band stays correct.
+				colors = {},
+
+				-- ── Custom highlights ───────────────────────────────────────
+				-- Shape is `{ fg, bg, sp, fmt }` with `fmt` as a gui-attribute
+				-- STRING and `$name` resolving against the band's palette — not
+				-- the nvim_set_hl attribute tables the other specs in this file
+				-- use. Applied last, after the theme's own groups.
+				--
+				-- Only gaps are filled here. The plugin already ships nvim-tree,
+				-- gitsigns, diffview, blink/cmp kinds, indent-blankline,
+				-- treesitter, LSP semantic tokens and diagnostics.
+				--
+				-- The greys are identical across all sixteen bands (bg #000000,
+				-- visual #222222, comment #505050), so chrome can be literal hex
+				-- and only the accents need `$string` / `$type` / `$alt`.
+				highlights = {
+					-- Diagnostics the plugin leaves undefined
+					DiagnosticOk = { fg = "$diag_green" },
+					DiagnosticUnnecessary = { fg = "$comment", fmt = "italic" },
+					DiagnosticDeprecated = { fg = "$comment", fmt = "strikethrough" },
+
+					-- Comment tags: `Todo` is plain, and @comment.todo is absent
+					-- entirely, so TODOs vanish into the comment grey.
+					Todo = { fg = "$bg", bg = "$type", fmt = "bold" },
+					["@comment.todo"] = { fg = "$bg", bg = "$type", fmt = "bold" },
+					["@comment.note"] = { fg = "$bg", bg = "$alt", fmt = "bold" },
+					["@comment.warning"] = { fg = "$bg", bg = "$string", fmt = "bold" },
+					["@comment.error"] = { fg = "$bg", bg = "$diag_red", fmt = "bold" },
+
+					-- Inlay hints (config/options.lua and the theme switcher
+					-- re-emit this one too, from the same palette).
+					LspInlayHint = { fg = "$comment", bg = "#222222", fmt = "italic" },
+
+					-- Word under cursor: the theme ships LspReference* but not
+					-- vim-illuminate's groups.
+					IlluminatedWordText = { bg = "#222222" },
+					IlluminatedWordRead = { bg = "#222222" },
+					IlluminatedWordWrite = { bg = "#222222", fmt = "underline" },
+
+					-- fzf-lua. config/theme.lua feeds the picker the same values
+					-- at setup time; repeating them here keeps it correct after a
+					-- later :colorscheme reload.
+					FzfLuaNormal = { fg = "$fg", bg = "$bg" },
+					FzfLuaBorder = { fg = "#383838", bg = "$bg" },
+					FzfLuaCursorLine = { fg = "$string", bg = "#222222" },
+					FzfLuaTitle = { fg = "$type", fmt = "bold" },
+					FzfLuaPrompt = { fg = "$string", fmt = "bold" },
+					FzfLuaPointer = { fg = "$type", fmt = "bold" },
+					FzfLuaMarker = { fg = "$alt" },
+					FzfLuaSpinner = { fg = "$string", fmt = "bold" },
+					FzfLuaHeader = { fg = "$comment" },
+					FzfLuaPreviewTitle = { fg = "$type", fmt = "bold" },
+
+					-- treesitter-context
+					TreesitterContext = { bg = "#0D0D0D" },
+					TreesitterContextLineNumber = { fg = "$comment", bg = "#0D0D0D" },
+					TreesitterContextBottom = { sp = "#383838", fmt = "underline" },
+
+					-- which-key
+					WhichKey = { fg = "$type" },
+					WhichKeyDesc = { fg = "$fg" },
+					WhichKeyGroup = { fg = "$constant" },
+					WhichKeySeparator = { fg = "$comment" },
+					WhichKeyBorder = { fg = "#383838" },
+					WhichKeyTitle = { fg = "$string", fmt = "bold" },
+
+					-- noice
+					NoiceCmdlinePopupBorder = { fg = "#383838" },
+					NoiceCmdlineIcon = { fg = "$type" },
+					NoiceConfirmBorder = { fg = "#383838" },
+
+					-- nvim-notify
+					NotifyERRORBorder = { fg = "$type" },
+					NotifyERRORIcon = { fg = "$type" },
+					NotifyERRORTitle = { fg = "$type" },
+					NotifyWARNBorder = { fg = "$string" },
+					NotifyWARNIcon = { fg = "$string" },
+					NotifyWARNTitle = { fg = "$string" },
+					NotifyINFOBorder = { fg = "$constant" },
+					NotifyINFOIcon = { fg = "$constant" },
+					NotifyINFOTitle = { fg = "$constant" },
+					NotifyDEBUGBorder = { fg = "$comment" },
+					NotifyDEBUGIcon = { fg = "$comment" },
+					NotifyDEBUGTitle = { fg = "$comment" },
+					NotifyTRACEBorder = { fg = "$alt" },
+					NotifyTRACEIcon = { fg = "$alt" },
+					NotifyTRACETitle = { fg = "$alt" },
+
+					-- rainbow-delimiters: six slots out of a palette with two
+					-- accents, so the greys carry the rest of the cycle.
+					RainbowDelimiterRed = { fg = "$type" },
+					RainbowDelimiterYellow = { fg = "$string" },
+					RainbowDelimiterBlue = { fg = "$alt" },
+					RainbowDelimiterOrange = { fg = "$constant" },
+					RainbowDelimiterGreen = { fg = "$keyword" },
+					RainbowDelimiterViolet = { fg = "$operator" },
+				},
+			}
+
+			-- Every colors/<band>.lua is `setup({})` followed by `load(<band>)`,
+			-- and setup() rebuilds its options from black-metal.config.default —
+			-- so a plain :colorscheme, or one keystroke of the :Theme picker's
+			-- live preview, would reset everything above to plugin defaults
+			-- (only `trve` is sticky upstream). Folding the options into that
+			-- defaults table makes the reset reproduce them instead. Guarded:
+			-- if the module is ever reshaped the theme just loads with its own
+			-- defaults rather than erroring.
+			local ok, bm_config = pcall(require, "black-metal.config")
+			if ok and type(bm_config.default) == "table" then
+				bm_config.default = vim.tbl_deep_extend("force", bm_config.default, opts)
+			end
+
+			require("black-metal").setup(opts)
 		end,
 	},
 }

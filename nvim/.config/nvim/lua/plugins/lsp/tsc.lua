@@ -203,6 +203,24 @@ local function on_init(client)
 	end)
 end
 
+-- <leader>ce. tsc.nvim looks for tsconfig.json / tsconfig.*.json only -- a
+-- jsconfig.json does not count -- and when it finds none it takes the same
+-- early-return as a run that is already going, reporting "Type-checking already
+-- in progress". That is indistinguishable from a real failure, so say what is
+-- actually wrong before handing over.
+local function workspace_errors()
+	local ok, utils = pcall(require, "tsc.utils")
+	if ok and #utils.find_tsconfigs(true) == 0 then
+		vim.notify(
+			"No tsconfig.json in this project, so :TSC has nothing to type-check.\n"
+				.. "tsc.nvim does not read jsconfig.json. Diagnostics still come from the LSP.",
+			vim.log.levels.WARN
+		)
+		return
+	end
+	vim.cmd("TSC")
+end
+
 local on_attach = function(client, bufnr)
 	-- Enable omnifunc
 	vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
@@ -234,7 +252,7 @@ local on_attach = function(client, bufnr)
 	-- never applied. Same reasoning as plugins/lsp/kotlin.lua. The group label
 	-- still goes through which-key, via the module setup() itself calls.
 	local keys = {
-		{ "<leader>ce", "<cmd>TSC<CR>", "workspace errors (TSC)" },
+		{ "<leader>ce", workspace_errors, "workspace errors (TSC)" },
 		{ "<leader>cF", code_action("source.fixAll"), "fix all" },
 		-- Kept as an alias for the vtsls muscle memory, but it is NOT vtsls's
 		-- "add all missing imports": tsc 7.0.2 returns no quickfix actions at all
@@ -364,7 +382,11 @@ return {
 		-- quickfix list. Resolves tsc from the project's node_modules/.bin -- on
 		-- TS 7.0 that is the native compiler, so it is no longer slow.
 		auto_open_qflist = true,
-		bin_name = "tsgo",
+		-- "tsc", not "tsgo": tsc.nvim resolves node_modules/.bin/<bin_name> and
+		-- otherwise falls back to <bin_name> on $PATH, so the old beta name failed
+		-- both lookups ("tsgo was not available or found in your node_modules or
+		-- $PATH"). Same rename as the language server -- see the header.
+		bin_name = "tsc",
 		auto_focus_qflist = true,
 		auto_close_qflist = false,
 		run_as_monorepo = true,

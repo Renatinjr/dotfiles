@@ -1,7 +1,6 @@
 local conditions = require("heirline.conditions")
 local uv = vim.uv
 local tbl = {}
-local statusline_bg = "#393836"
 
 tbl.tbl_get = function(t, ...)
 	local keys = { ... }
@@ -33,70 +32,115 @@ local function get_hl(name)
 	return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
-local function get_colors()
-	local normal = get_hl("Normal")
-	local comment = get_hl("Comment")
-	local string_hl = get_hl("String")
-	local function_hl = get_hl("Function")
-	local type_hl = get_hl("Type")
-	local constant = get_hl("Constant")
-	local keyword = get_hl("Keyword")
-	local error_hl = get_hl("Error")
-	local warning = get_hl("WarningMsg")
-	local info = get_hl("MoreMsg")
-	local identifier = get_hl("Identifier")
-	local cursorline = get_hl("CursorLine")
-	local signcolumn = get_hl("SignColumn")
-	local folded = get_hl("Folded")
-	local diffadd = get_hl("DiffAdd")
-	local diffchange = get_hl("DiffChange")
-	local diffdelete = get_hl("DiffDelete")
+-- nvim_get_hl hands back packed integers, and leaves the key absent entirely
+-- when a group doesn't set that attribute — which is the normal case for `bg`
+-- under the transparent colorschemes in this config.
+local function hex(value)
+	return value and string.format("#%06x", value) or nil
+end
 
-	local function hex_color(color_num)
-		if not color_num then
-			return nil
+-- First group in the list that actually defines `attr`.
+local function first_hl(attr, ...)
+	for _, name in ipairs({ ... }) do
+		local value = hex(get_hl(name)[attr])
+		if value then
+			return value
 		end
-		return string.format("#%06x", color_num)
 	end
+end
+
+-- Mix two hex colors, for the surfaces derived below.
+local function blend(fg, bg, alpha)
+	local function mix(i)
+		local a = tonumber(fg:sub(i, i + 1), 16) * alpha
+		local b = tonumber(bg:sub(i, i + 1), 16) * (1 - alpha)
+		return math.floor(math.min(math.max(a + b, 0), 255) + 0.5)
+	end
+	return string.format("#%02X%02X%02X", mix(2), mix(4), mix(6))
+end
+
+-- The statusline's palette, rebuilt on every ColorScheme by update_colors().
+--
+-- Two sources, in order: config.theme.current_theme — the same palette
+-- nvim-tree, fzf-lua, bufferline and the blink menu are painted from, and the
+-- only one that knows a transparent theme's real background — and then the live
+-- highlight groups for everything semantic, so an unregistered `:colorscheme`
+-- still lands somewhere sensible. The literal hexes are last-resort only.
+local function get_colors()
+	local ok, theme = pcall(require, "config.theme")
+	local palette = (ok and type(theme.current_theme) == "table") and theme.current_theme or {}
+
+	local normal = get_hl("Normal")
+	local bg = palette.bg or hex(normal.bg) or "#1e1e2e"
+	local fg = hex(normal.fg) or palette.text or "#cdd6f4"
+
+	-- A three-step ramp lifted off the background, rather than read out of
+	-- CursorLine / Folded / StatusLine: those collapse INTO the background on
+	-- the transparent themes here (black-metal paints Folded and StatusLine
+	-- pure black, the same as Normal), which would flatten every slanted
+	-- separator into invisibility. Only the bar's own ground defers to the
+	-- theme, via the palette's second surface.
+	local surface1 = blend(fg, bg, 0.1)
+	local surface2 = (palette.bg_sec and palette.bg_sec ~= bg) and palette.bg_sec or blend(fg, bg, 0.18)
+	local surface3 = blend(fg, bg, 0.28)
+
+	local comment = first_hl("fg", "Comment") or palette.text_sec or "#6c7086"
+
+	local error_fg = first_hl("fg", "DiagnosticError", "ErrorMsg", "Error") or "#f38ba8"
+	local warn_fg = first_hl("fg", "DiagnosticWarn", "WarningMsg") or "#f9e2af"
+	local info_fg = first_hl("fg", "DiagnosticInfo", "MoreMsg") or "#89dceb"
+	local hint_fg = first_hl("fg", "DiagnosticHint", "DiagnosticInfo") or info_fg
+
+	-- GitSigns first: DiffAdd and friends often carry a background wash and no
+	-- foreground at all, which is what made these fall through to the defaults.
+	local git_add = first_hl("fg", "GitSignsAdd", "DiffAdd", "Added") or "#a6e3a1"
+	local git_change = first_hl("fg", "GitSignsChange", "DiffChange", "Changed") or warn_fg
+	local git_delete = first_hl("fg", "GitSignsDelete", "DiffDelete", "Removed") or error_fg
 
 	return {
-		bg = hex_color(normal.bg) or "#1e1e2e",
-		fg = hex_color(normal.fg) or "#cdd6f4",
+		bg = bg,
+		fg = fg,
 
-		normal_fg1 = hex_color(normal.fg) or "#cdd6f4",
-		normal_fg2 = hex_color(comment.fg) or "#6c7086",
-		normal_fg3 = hex_color(constant.fg) or "#f9e2af",
-		normal_fg4 = hex_color(identifier.fg) or "#89dceb",
+		normal_fg1 = fg,
+		normal_fg2 = comment,
+		normal_fg3 = first_hl("fg", "Constant") or fg,
+		normal_fg4 = first_hl("fg", "Identifier", "Special") or fg,
 
-		normal_bg1 = hex_color(type_hl.fg) or hex_color(function_hl.fg) or "#89b4fa",
-		normal_bg2 = hex_color(cursorline.bg) or hex_color(signcolumn.bg) or "#2d2d3e",
-		normal_bg3 = hex_color(folded.bg) or "#3a3a4e",
-		normal_bg4 = hex_color(signcolumn.bg) or "#1F1F28",
+		-- Mode pill + the three raised surfaces the separators slant between.
+		normal_bg1 = first_hl("fg", "Type", "Function") or "#89b4fa",
+		normal_bg2 = surface1,
+		normal_bg3 = surface3,
+		normal_bg4 = first_hl("bg", "SignColumn") or bg,
 
-		insert_fg = hex_color(normal.fg) or "#cdd6f4",
-		insert_bg = hex_color(string_hl.fg) or "#a6e3a1",
+		insert_fg = fg,
+		insert_bg = first_hl("fg", "String") or "#a6e3a1",
 
-		visual_fg = hex_color(normal.fg) or "#cdd6f4",
-		visual_bg = hex_color(keyword.fg) or "#cba6f7",
+		visual_fg = fg,
+		visual_bg = first_hl("fg", "Keyword", "Statement") or "#cba6f7",
 
-		replace_fg = hex_color(normal.fg) or "#cdd6f4",
-		replace_bg = hex_color(error_hl.fg) or "#f38ba8",
+		replace_fg = fg,
+		replace_bg = error_fg,
 
-		command_fg = hex_color(normal.fg) or "#cdd6f4",
-		command_bg = hex_color(constant.fg) or "#f9e2af",
+		command_fg = fg,
+		command_bg = first_hl("fg", "Constant") or "#f9e2af",
 
-		git_dirty = hex_color(warning.fg) or "#f9e2af",
-		git_ahead = hex_color(diffadd.fg) or "#a6e3a1",
-		git_behind = hex_color(diffdelete.fg) or "#f38ba8",
-		git_add = hex_color(diffadd.fg) or "#a6e3a1",
-		git_change = hex_color(diffchange.fg) or "#f9e2af",
-		git_delete = hex_color(diffdelete.fg) or "#f38ba8",
+		git_dirty = warn_fg,
+		git_ahead = git_add,
+		git_behind = git_delete,
+		git_add = git_add,
+		git_change = git_change,
+		git_delete = git_delete,
 
-		diagnostic_error = hex_color(error_hl.fg) or "#f38ba8",
-		diagnostic_warn = hex_color(warning.fg) or "#f9e2af",
-		diagnostic_info = "#89dceb",
+		diagnostic_error = error_fg,
+		diagnostic_warn = warn_fg,
+		diagnostic_info = info_fg,
+		diagnostic_hint = hint_fg,
 
-		dark_bg = "#1F1F28",
+		-- The bar's own ground, and the color behind the mode pill's slant.
+		-- Both were hardcoded (#393836 and kanagawa's #1F1F28) and so stayed
+		-- put through every theme switch.
+		statusline_bg = surface2,
+		dark_bg = bg,
 	}
 end
 
@@ -243,7 +287,9 @@ local FileName = {
 	init = function(self)
 		self.filename = vim.api.nvim_buf_get_name(0)
 	end,
-	hl = { fg = colors.normal_fg2, bg = colors.normal_bg2 },
+	hl = function()
+		return { fg = colors.normal_fg2, bg = colors.normal_bg2 }
+	end,
 
 	-- file name
 	{
@@ -292,7 +338,9 @@ local FileName = {
 	},
 	{
 		provider = right_slant,
-		hl = { fg = colors.normal_bg2, bg = colors.normal_bg3 },
+		hl = function()
+			return { fg = colors.normal_bg2, bg = colors.normal_bg3 }
+		end,
 	},
 }
 
@@ -366,7 +414,9 @@ local GitBranch = {
 		self.changed = (git_status_cache.added > 0) or (git_status_cache.deleted > 0)
 	end,
 
-	hl = { fg = colors.normal_fg3, bg = colors.normal_bg3 },
+	hl = function()
+		return { fg = colors.normal_fg3, bg = colors.normal_bg3 }
+	end,
 
 	{
 		provider = function(self)
@@ -378,7 +428,9 @@ local GitBranch = {
 			return self.changed
 		end,
 		provider = "* ",
-		hl = { fg = colors.git_dirty, bg = colors.normal_bg3 },
+		hl = function()
+			return { fg = colors.git_dirty, bg = colors.normal_bg3 }
+		end,
 	},
 	{
 		condition = function(self)
@@ -387,7 +439,9 @@ local GitBranch = {
 		provider = function(self)
 			return string.format("↑[%d] ", self.ahead)
 		end,
-		hl = { fg = colors.git_ahead, bg = colors.normal_bg3 },
+		hl = function()
+			return { fg = colors.git_ahead, bg = colors.normal_bg3 }
+		end,
 	},
 	{
 		condition = function(self)
@@ -396,11 +450,15 @@ local GitBranch = {
 		provider = function(self)
 			return string.format("↓[%d] ", self.behind)
 		end,
-		hl = { fg = colors.git_behind, bg = colors.normal_bg3 },
+		hl = function()
+			return { fg = colors.git_behind, bg = colors.normal_bg3 }
+		end,
 	},
 	{
 		provider = right_slant,
-		hl = { fg = colors.normal_bg3, bg = statusline_bg },
+		hl = function()
+			return { fg = colors.normal_bg3, bg = colors.statusline_bg }
+		end,
 	},
 }
 
@@ -415,7 +473,9 @@ local GitDiff = {
 		self.deleted = git_status_cache.deleted
 	end,
 
-	hl = { fg = colors.normal_fg4, bg = statusline_bg },
+	hl = function()
+		return { fg = colors.normal_fg4, bg = colors.statusline_bg }
+	end,
 
 	{
 		condition = function(self)
@@ -424,7 +484,9 @@ local GitDiff = {
 		provider = function(self)
 			return string.format(" 󰜅%d", self.added)
 		end,
-		hl = { fg = colors.git_add, bg = statusline_bg },
+		hl = function()
+			return { fg = colors.git_add, bg = colors.statusline_bg }
+		end,
 	},
 	{
 		condition = function(self)
@@ -433,7 +495,9 @@ local GitDiff = {
 		provider = function(self)
 			return string.format(" 󱘹%d", self.deleted)
 		end,
-		hl = { fg = "#F52700", bg = statusline_bg },
+		hl = function()
+			return { fg = colors.git_delete, bg = colors.statusline_bg }
+		end,
 	},
 }
 
@@ -464,7 +528,9 @@ local LSPActive = {
 	update = { "LspAttach", "LspDetach" },
 	{
 		provider = left_slant,
-		hl = { fg = colors.normal_bg3, bg = statusline_bg },
+		hl = function()
+			return { fg = colors.normal_bg3, bg = colors.statusline_bg }
+		end,
 	},
 
 	{
@@ -475,16 +541,22 @@ local LSPActive = {
 			end
 			return " 󰘦 " .. table.concat(names, " ") .. " "
 		end,
-		hl = { fg = colors.normal_fg, bg = colors.normal_bg3, bold = true },
+		hl = function()
+			return { fg = colors.normal_fg1, bg = colors.normal_bg3, bold = true }
+		end,
 	},
 	{
 		provider = right_slant,
-		hl = { fg = colors.normal_bg3, bg = statusline_bg },
+		hl = function()
+			return { fg = colors.normal_bg3, bg = colors.statusline_bg }
+		end,
 	},
 }
 
 local SearchCount = {
-	hl = { fg = colors.normal_fg1, bg = colors.normal_bg2 },
+	hl = function()
+		return { fg = colors.normal_fg1, bg = colors.normal_bg2 }
+	end,
 	provider = function()
 		if vim.v.hlsearch == 0 then
 			return ""
@@ -525,40 +597,50 @@ local DiagnosticColors = {
 	colors.diagnostic_error,
 	colors.diagnostic_warn,
 	colors.diagnostic_info,
-	colors.diagnostic_info, -- Using info color for hints as fallback
+	colors.diagnostic_hint,
 }
 
 local function GetDiagnosticHighlight(level)
-	return { fg = DiagnosticColors[level], bg = statusline_bg }
+	return { fg = DiagnosticColors[level], bg = colors.statusline_bg }
 end
 
 local Diagnostic = {
-	hl = { fg = colors.normal_fg1, bg = colors.normal_bg2 },
+	hl = function()
+		return { fg = colors.normal_fg1, bg = colors.normal_bg2 }
+	end,
 	update = { "DiagnosticChanged" },
 
 	{
 		provider = function()
 			return GetDiagnosticText(1)
 		end,
-		hl = GetDiagnosticHighlight(1),
+		hl = function()
+			return GetDiagnosticHighlight(1)
+		end,
 	},
 	{
 		provider = function()
 			return GetDiagnosticText(2)
 		end,
-		hl = GetDiagnosticHighlight(2),
+		hl = function()
+			return GetDiagnosticHighlight(2)
+		end,
 	},
 	{
 		provider = function()
 			return GetDiagnosticText(3)
 		end,
-		hl = GetDiagnosticHighlight(3),
+		hl = function()
+			return GetDiagnosticHighlight(3)
+		end,
 	},
 	{
 		provider = function()
 			return GetDiagnosticText(4)
 		end,
-		hl = GetDiagnosticHighlight(4),
+		hl = function()
+			return GetDiagnosticHighlight(4)
+		end,
 	},
 }
 
@@ -572,10 +654,14 @@ local FileEncodingIcons = {
 }
 
 local FileEncoding = {
-	hl = { fg = colors.normal_fg3, bg = colors.normal_bg3 },
+	hl = function()
+		return { fg = colors.normal_fg3, bg = colors.normal_bg3 }
+	end,
 	{
 		provider = left_slant,
-		hl = { fg = colors.normal_bg3, bg = statusline_bg },
+		hl = function()
+			return { fg = colors.normal_bg3, bg = colors.statusline_bg }
+		end,
 	},
 	{
 		provider = function()
@@ -604,7 +690,9 @@ local FileFormatIcons = {
 }
 
 local FileFormat = {
-	hl = { fg = colors.normal_fg3, bg = colors.normal_bg3 },
+	hl = function()
+		return { fg = colors.normal_fg3, bg = colors.normal_bg3 }
+	end,
 	provider = function(self)
 		local text = vim.bo.fileformat
 		if text == "" then
@@ -629,11 +717,15 @@ local FileType = {
 		self.filename_ext = vim.fn.fnamemodify(self.filename, ":e") or ""
 		self.devicons = require("nvim-web-devicons")
 	end,
-	hl = { fg = colors.normal_fg2, bg = colors.normal_bg2 },
+	hl = function()
+		return { fg = colors.normal_fg2, bg = colors.normal_bg2 }
+	end,
 
 	{
 		provider = left_slant,
-		hl = { fg = colors.normal_bg2, bg = colors.normal_bg3 },
+		hl = function()
+			return { fg = colors.normal_bg2, bg = colors.normal_bg3 }
+		end,
 	},
 	{
 		provider = function(self)
@@ -715,6 +807,15 @@ local Progress = {
 	provider = "  %P ",
 }
 
+-- The %= fillers between segments. Painted with the bar's own ground so the
+-- gaps match whichever theme is active.
+local Align = {
+	provider = "%=",
+	hl = function()
+		return { fg = colors.bg, bg = colors.statusline_bg }
+	end,
+}
+
 -- Main StatusLine
 local StatusLine = {
 	fallthrough = false,
@@ -723,7 +824,7 @@ local StatusLine = {
 			local ft = vim.bo.filetype or ""
 			return ft:match("^dapui") or ft == "dap-repl" or ft:match("^qf") or ft == "kulala_ui"
 		end,
-		{ provider = "%=", hl = { fg = "#000000", bg = "#393836" } },
+		Align,
 		FileEncoding,
 		Location,
 		CursorHex,
@@ -734,9 +835,9 @@ local StatusLine = {
 		-- FileName, -- Commented out as per your structure
 		GitBranch,
 		GitDiff,
-		{ provider = "%=", hl = { fg = "#000000", bg = "#393836" } },
+		Align,
 		LSPActive,
-		{ provider = "%=", hl = { fg = "#000000", bg = "#393836" } },
+		Align,
 		SearchCount,
 		Diagnostic,
 		FileEncoding,
@@ -748,9 +849,23 @@ local StatusLine = {
 	},
 }
 
--- Function to update colors and redraw
+-- Rebuild the palette from the newly active colorscheme and repaint.
+--
+-- `colors` is a module-level local that every hl callback closes over, so
+-- rebinding it here is what reaches the whole statusline — which is why the
+-- components below build their highlights in functions rather than as literal
+-- tables: a table would have captured the hexes once, at load time.
 local function update_colors()
 	colors = get_colors()
+
+	-- Drop heirline's cache of generated StatusLine* groups and reload its color
+	-- aliases. Required, not just tidy: a colorscheme that runs `hi clear` — which
+	-- is how black-metal applies itself — deletes those groups behind heirline's
+	-- back, and the cache would otherwise stop it from ever recreating them,
+	-- leaving the bar rendering against empty highlights.
+	pcall(function()
+		require("heirline.utils").on_colorscheme(colors)
+	end)
 
 	-- Update ModeHighlights with new colors
 	ModeHighlights = build_mode_highlights(colors)
@@ -760,7 +875,7 @@ local function update_colors()
 		colors.diagnostic_error,
 		colors.diagnostic_warn,
 		colors.diagnostic_info,
-		colors.diagnostic_info,
+		colors.diagnostic_hint,
 	}
 
 	-- Force redraw of statusline
@@ -775,12 +890,13 @@ require("heirline").setup({
 	},
 })
 
--- Update colors on colorscheme change
+-- Rebuild the palette whenever the colorscheme changes. config.theme_switcher
+-- rebuilds theme.current_theme from its own ColorSchemePre hook, so by the time
+-- this runs get_colors() reads the incoming theme, not the outgoing one.
 vim.api.nvim_create_autocmd("ColorScheme", {
+	group = vim.api.nvim_create_augroup("HeirlineThemeIntegration", { clear = true }),
 	callback = function()
-		vim.schedule(function()
-			update_colors()
-		end)
+		vim.schedule(update_colors)
 	end,
 })
 

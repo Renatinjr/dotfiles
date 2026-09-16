@@ -45,28 +45,32 @@ local function blink_palette()
 		return theme.current_theme.blink
 	end
 
-	local ok, p = pcall(require, "koda.palette.dark")
-	if not ok or type(p) ~= "table" then
-		p = {
-			bg = "#101010",
-			fg = "#b0b0b0",
-			dim = "#474747",
-			line = "#272727",
-			comment = "#50585d",
-			const = "#d9ba73",
-			highlight = "#458ee6",
-			info = "#8ebeec",
-			success = "#86cd82",
-			danger = "#ff7676",
-			orange = "#ff5733",
-			pink = "#f2a4db",
-			cyan = "#5abfb5",
+	-- Fall back to koda's tuned palette (config.theme's KODA_DARK), not to
+	-- `koda.palette.dark` — that is the plugin's STOCK table, which knows nothing
+	-- of the overrides, and reading it is what let this path drift out of step
+	-- with the one above. The literal copy is the last resort, for when
+	-- config.theme itself is unavailable.
+	local p = ok_theme and type(theme.koda_colors) == "table" and theme.koda_colors
+		or {
+			fg = "#ACB3B4",
+			dim = "#566365",
+			line = "#1F282A",
+			comment = "#6F8184",
+			const = "#E8A67E",
+			func = "#C9A562",
+			string = "#D6CC8F",
+			highlight = "#99B5FE",
+			info = "#61C2FE",
+			success = "#7DCD89",
+			danger = "#FD9693",
+			orange = "#EC9660",
+			pink = "#E499DD",
+			cyan = "#30D0CC",
 		}
-	end
 
-	-- Semantic shorthands. `func`/`string` use the values colorscheme.lua
-	-- overrides koda with (gold functions, pale-yellow strings) so the menu
-	-- matches the actual buffer syntax rather than koda's muted defaults.
+	-- Semantic shorthands: the keys are generic hue slots, and they resolve to the
+	-- same values the buffer syntax uses, so the menu can't disagree with the code
+	-- behind it.
 	return {
 		fg = p.fg,
 		blue = p.highlight,
@@ -76,12 +80,12 @@ local function blink_palette()
 		red = p.danger,
 		cyan = p.cyan,
 		pink = p.pink,
-		orange = p.orange or "#ff5733",
+		orange = p.orange,
 		comment = p.comment,
 		dim = p.dim,
 		line = p.line,
-		func = "#E6C384",
-		string = "#ffffb8",
+		func = p.func,
+		string = p.string,
 	}
 end
 
