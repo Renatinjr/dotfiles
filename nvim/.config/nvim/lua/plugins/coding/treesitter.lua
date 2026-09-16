@@ -77,81 +77,44 @@ return {
 				},
 			})
 
-			-- Select textobjects
-			map({ "x", "o" }, "af", function()
-				select.select_textobject("@function.outer", "textobjects")
-			end, { desc = "Select outer function" })
-			map({ "x", "o" }, "if", function()
-				select.select_textobject("@function.inner", "textobjects")
-			end, { desc = "Select inner function" })
-			map({ "x", "o" }, "ac", function()
-				select.select_textobject("@class.outer", "textobjects")
-			end, { desc = "Select outer class" })
-			map({ "x", "o" }, "ic", function()
-				select.select_textobject("@class.inner", "textobjects")
-			end, { desc = "Select inner class" })
-			map({ "x", "o" }, "aa", function()
-				select.select_textobject("@parameter.outer", "textobjects")
-			end, { desc = "Select outer argument" })
-			map({ "x", "o" }, "ia", function()
-				select.select_textobject("@parameter.inner", "textobjects")
-			end, { desc = "Select inner argument" })
-			map({ "x", "o" }, "ai", function()
-				select.select_textobject("@conditional.outer", "textobjects")
-			end, { desc = "Select outer conditional" })
-			map({ "x", "o" }, "ii", function()
-				select.select_textobject("@conditional.inner", "textobjects")
-			end, { desc = "Select inner conditional" })
-			map({ "x", "o" }, "al", function()
-				select.select_textobject("@loop.outer", "textobjects")
-			end, { desc = "Select outer loop" })
-			map({ "x", "o" }, "il", function()
-				select.select_textobject("@loop.inner", "textobjects")
-			end, { desc = "Select inner loop" })
-			map({ "x", "o" }, "ab", function()
-				select.select_textobject("@block.outer", "textobjects")
-			end, { desc = "Select outer block" })
-			map({ "x", "o" }, "ib", function()
-				select.select_textobject("@block.inner", "textobjects")
-			end, { desc = "Select inner block" })
+			-- Select textobjects: a<x>/i<x> for the outer/inner capture.
+			for key, spec in pairs({
+				f = { "function", "function" },
+				c = { "class", "class" },
+				a = { "parameter", "argument" },
+				i = { "conditional", "conditional" },
+				l = { "loop", "loop" },
+				b = { "block", "block" },
+			}) do
+				local capture, label = spec[1], spec[2]
+				map({ "x", "o" }, "a" .. key, function()
+					select.select_textobject("@" .. capture .. ".outer", "textobjects")
+				end, { desc = "Select outer " .. label })
+				map({ "x", "o" }, "i" .. key, function()
+					select.select_textobject("@" .. capture .. ".inner", "textobjects")
+				end, { desc = "Select inner " .. label })
+			end
 
-			-- Move to next/previous textobjects
-			map({ "n", "x", "o" }, "]f", function()
-				move.goto_next_start("@function.outer", "textobjects")
-			end, { desc = "Next function start" })
-			map({ "n", "x", "o" }, "]c", function()
-				move.goto_next_start("@class.outer", "textobjects")
-			end, { desc = "Next class start" })
-			map({ "n", "x", "o" }, "]a", function()
-				move.goto_next_start("@parameter.inner", "textobjects")
-			end, { desc = "Next argument start" })
-			map({ "n", "x", "o" }, "]F", function()
-				move.goto_next_end("@function.outer", "textobjects")
-			end, { desc = "Next function end" })
-			map({ "n", "x", "o" }, "]C", function()
-				move.goto_next_end("@class.outer", "textobjects")
-			end, { desc = "Next class end" })
-			map({ "n", "x", "o" }, "]A", function()
-				move.goto_next_end("@parameter.inner", "textobjects")
-			end, { desc = "Next argument end" })
-			map({ "n", "x", "o" }, "[f", function()
-				move.goto_previous_start("@function.outer", "textobjects")
-			end, { desc = "Previous function start" })
-			map({ "n", "x", "o" }, "[c", function()
-				move.goto_previous_start("@class.outer", "textobjects")
-			end, { desc = "Previous class start" })
-			map({ "n", "x", "o" }, "[a", function()
-				move.goto_previous_start("@parameter.inner", "textobjects")
-			end, { desc = "Previous argument start" })
-			map({ "n", "x", "o" }, "[F", function()
-				move.goto_previous_end("@function.outer", "textobjects")
-			end, { desc = "Previous function end" })
-			map({ "n", "x", "o" }, "[C", function()
-				move.goto_previous_end("@class.outer", "textobjects")
-			end, { desc = "Previous class end" })
-			map({ "n", "x", "o" }, "[A", function()
-				move.goto_previous_end("@parameter.inner", "textobjects")
-			end, { desc = "Previous argument end" })
+			-- Move to next/previous textobjects: ]x / [x = start, ]X / [X = end.
+			for key, spec in pairs({
+				f = { "@function.outer", "function" },
+				c = { "@class.outer", "class" },
+				a = { "@parameter.inner", "argument" },
+			}) do
+				local capture, label = spec[1], spec[2]
+				map({ "n", "x", "o" }, "]" .. key, function()
+					move.goto_next_start(capture, "textobjects")
+				end, { desc = "Next " .. label .. " start" })
+				map({ "n", "x", "o" }, "]" .. key:upper(), function()
+					move.goto_next_end(capture, "textobjects")
+				end, { desc = "Next " .. label .. " end" })
+				map({ "n", "x", "o" }, "[" .. key, function()
+					move.goto_previous_start(capture, "textobjects")
+				end, { desc = "Previous " .. label .. " start" })
+				map({ "n", "x", "o" }, "[" .. key:upper(), function()
+					move.goto_previous_end(capture, "textobjects")
+				end, { desc = "Previous " .. label .. " end" })
+			end
 
 			-- Swap textobjects
 			map("n", "<leader>sa", function()
