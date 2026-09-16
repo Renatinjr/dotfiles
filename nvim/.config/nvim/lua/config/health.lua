@@ -5,10 +5,10 @@ local health = vim.health
 
 local function check_version()
 	health.start("Neovim Version")
-	if vim.fn.has("nvim-0.10") == 1 then
-		health.ok("Neovim >= 0.10 (" .. tostring(vim.version()) .. ")")
+	if vim.fn.has("nvim-0.11") == 1 then
+		health.ok("Neovim >= 0.11 (" .. tostring(vim.version()) .. ")")
 	else
-		health.error("Neovim >= 0.10 is required, found " .. tostring(vim.version()))
+		health.error("Neovim >= 0.11 is required, found " .. tostring(vim.version()))
 	end
 end
 
@@ -41,7 +41,7 @@ local function check_formatters()
 		{ cmd = "isort", name = "isort" },
 		{ cmd = "gofumpt", name = "gofumpt" },
 		{ cmd = "goimports", name = "goimports" },
-		{ cmd = "shfmt", name = "shfmt" },
+		{ cmd = "kulala-fmt", name = "kulala-fmt" },
 	}
 	for _, fmt in ipairs(formatters) do
 		if vim.fn.executable(fmt.cmd) == 1 then
@@ -87,11 +87,16 @@ local function check_lsp_servers()
 	local servers = {
 		{ cmd = "lua-language-server", name = "lua_ls" },
 		{ cmd = "gopls", name = "gopls" },
-		{ cmd = "typescript-language-server", name = "ts_ls" },
-		{ cmd = "pyright-langserver", name = "pyright" },
+		{ cmd = "vtsls", name = "vtsls" },
+		{ cmd = "basedpyright-langserver", name = "basedpyright" },
 		{ cmd = "rust-analyzer", name = "rust_analyzer" },
-		{ cmd = "templ", name = "templ" },
 		{ cmd = "tailwindcss-language-server", name = "tailwindcss" },
+		{ cmd = "vscode-eslint-language-server", name = "eslint" },
+		{ cmd = "kotlin-lsp", name = "kotlin_lsp" },
+		{ cmd = "elixir-ls", name = "elixirls" },
+		{ cmd = "vscode-json-language-server", name = "jsonls" },
+		{ cmd = "yaml-language-server", name = "yamlls" },
+		{ cmd = "vscode-html-language-server", name = "html" },
 	}
 	for _, server in ipairs(servers) do
 		if vim.fn.executable(server.cmd) == 1 then

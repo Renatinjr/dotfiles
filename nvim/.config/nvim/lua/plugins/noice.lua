@@ -26,8 +26,6 @@ return {
 				end,
 			})
 
-			-- Same here - ensure opts.routes exists
-			opts.routes = opts.routes or {}
 			table.insert(opts.routes, 1, {
 				filter = {
 					cond = function()
@@ -55,8 +53,6 @@ return {
 					end)
 				end,
 			})
-
-			opts = { presets = { lsp_doc = true } }
 		end,
 	},
 	{
@@ -65,11 +61,10 @@ return {
 		opts = {
 			timeout = 5000,
 		},
-		config = function()
-			local theme = require("config.theme")
-			require("notify").setup({
-				background_colour = theme.current_theme.bg_notify,
-			})
+		config = function(_, opts)
+			-- Resolved once at setup(); config.theme.switcher re-applies it on ColorScheme.
+			opts.background_colour = require("config.theme").current_theme.bg_notify
+			require("notify").setup(opts)
 		end,
 	},
 }
