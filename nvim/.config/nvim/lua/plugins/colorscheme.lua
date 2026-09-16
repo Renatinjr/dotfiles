@@ -525,12 +525,12 @@ return {
 					hl.CurSearch = { fg = c.bg, bg = c.const, bold = true }
 					hl.IncSearch = { link = "CurSearch" }
 					hl.MatchParen = { fg = c.special, bg = c.line, bold = true }
-				-- koda aims CursorLineNr and Identifier at `special`. That key is now a
-				-- bright NEUTRAL (it was pure white), which is right for MatchParen but
-				-- leaves the cursor line number unaccented and renders plain identifiers
-				-- brighter than body text in non-treesitter buffers. Split them out.
-				hl.CursorLineNr = { fg = c.highlight, bold = true }
-				hl.Identifier = { fg = c.fg }
+					-- koda aims CursorLineNr and Identifier at `special`. That key is now a
+					-- bright NEUTRAL (it was pure white), which is right for MatchParen but
+					-- leaves the cursor line number unaccented and renders plain identifiers
+					-- brighter than body text in non-treesitter buffers. Split them out.
+					hl.CursorLineNr = { fg = c.highlight, bold = true }
+					hl.Identifier = { fg = c.fg }
 
 					-- ── Syntax ─────────────────────────────────────────────────
 					hl["@property"] = { fg = muted }
@@ -582,8 +582,8 @@ return {
 
 					hl.IblIndent = { fg = c.line, nocombine = true }
 					-- border, not dim: a scope guide is a meaningful UI line, so it wants
-				-- the 3:1 floor (border 3.55:1) rather than dim's 2.98:1.
-				hl.IblScope = { fg = c.border, nocombine = true }
+					-- the 3:1 floor (border 3.55:1) rather than dim's 2.98:1.
+					hl.IblScope = { fg = c.border, nocombine = true }
 
 					hl.NoiceCmdlinePopupBorder = { fg = c.border }
 					hl.NoiceCmdlineIcon = { fg = c.highlight }
