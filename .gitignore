@@ -1,12 +1,20 @@
 # --- Secrets: never commit these ---
-**/.ssh/id_*
-**/.ssh/*.pem
-**/.ssh/known_hosts*
-**/.config/gh/hosts.yml          # gh CLI auth token lives here
+# NOTE: gitignore has no inline comments -- a trailing "# ..." becomes part of
+# the pattern and silently matches nothing. Keep comments on their own line.
+
+# SSH: whitelist, not blacklist. Only `config` is tracked, so no key or
+# host-state file can slip in under a name the patterns did not anticipate.
+ssh/.ssh/*
+!ssh/.ssh/config
+
+# gh CLI auth token lives here
+**/.config/gh/hosts.yml
+
+**/.netrc
 **/*token*
 **/*secret*
 **/*.key
-**/.netrc
+**/*.pem
 
 # --- IDE / app caches & state (machine/version specific) ---
 JetBrains/
@@ -16,7 +24,8 @@ DataGripProjects/
 
 # --- Editor / tooling junk ---
 **/.claude/
-**/.DS_Store          # macOS Finder metadata
+# macOS Finder metadata
+**/.DS_Store
 **/.cache/
 **/*.swp
 **/*.bak
