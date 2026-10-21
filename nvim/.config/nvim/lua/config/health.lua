@@ -22,6 +22,8 @@ local function check_external_tools()
 		{ cmd = "python3", name = "Python 3" },
 		{ cmd = "cargo", name = "Cargo (Rust)" },
 		{ cmd = "go", name = "Go" },
+		{ cmd = "php", name = "PHP" },
+		{ cmd = "composer", name = "Composer" },
 	}
 	for _, tool in ipairs(tools) do
 		if vim.fn.executable(tool.cmd) == 1 then
@@ -42,6 +44,8 @@ local function check_formatters()
 		{ cmd = "gofumpt", name = "gofumpt" },
 		{ cmd = "goimports", name = "goimports" },
 		{ cmd = "kulala-fmt", name = "kulala-fmt" },
+		{ cmd = "pint", name = "Laravel Pint" },
+		{ cmd = "blade-formatter", name = "blade-formatter" },
 	}
 	for _, fmt in ipairs(formatters) do
 		if vim.fn.executable(fmt.cmd) == 1 then
@@ -93,6 +97,7 @@ local function check_lsp_servers()
 		{ cmd = "tailwindcss-language-server", name = "tailwindcss" },
 		{ cmd = "vscode-eslint-language-server", name = "eslint" },
 		{ cmd = "kotlin-lsp", name = "kotlin_lsp" },
+		{ cmd = "intelephense", name = "intelephense" },
 		{ cmd = "elixir-ls", name = "elixirls" },
 		{ cmd = "vscode-json-language-server", name = "jsonls" },
 		{ cmd = "yaml-language-server", name = "yamlls" },
@@ -107,6 +112,40 @@ local function check_lsp_servers()
 	end
 end
 
+-- PHP debugging has three separate moving parts, and a missing one fails
+-- quietly (dap just never stops), so check them individually.
+local function check_php_debug()
+	health.start("PHP Debugging (Xdebug)")
+
+	if vim.fn.executable("php") == 0 then
+		health.warn("php not found -- skipping Xdebug checks")
+		return
+	end
+
+	local modules = vim.fn.system({ "php", "-m" })
+	if not modules:lower():find("xdebug") then
+		health.warn("Xdebug extension not installed (`pecl install xdebug`)")
+		return
+	end
+	health.ok("Xdebug extension loaded")
+
+	local mode = vim.trim(vim.fn.system({ "php", "-r", "echo ini_get('xdebug.mode');" }))
+	if mode:find("debug") then
+		health.ok("xdebug.mode = " .. mode)
+	else
+		health.warn(("xdebug.mode = %q -- step debugging needs `debug` in the list"):format(mode))
+	end
+
+	local trigger = vim.trim(vim.fn.system({ "php", "-r", "echo ini_get('xdebug.start_with_request');" }))
+	health.info("xdebug.start_with_request = " .. trigger .. " (use XDEBUG_TRIGGER=1 when it is `trigger`)")
+
+	if vim.fn.executable("php-debug-adapter") == 1 then
+		health.ok("php-debug-adapter found")
+	else
+		health.warn("php-debug-adapter not found (:MasonInstall php-debug-adapter)")
+	end
+end
+
 M.check = function()
 	check_version()
 	check_external_tools()
@@ -114,6 +153,7 @@ M.check = function()
 	check_lazy()
 	check_mason()
 	check_lsp_servers()
+	check_php_debug()
 end
 
 return M

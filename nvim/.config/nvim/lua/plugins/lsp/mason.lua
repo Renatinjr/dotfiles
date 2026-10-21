@@ -39,6 +39,13 @@ return {
 				"basedpyright",
 				"black",
 				"isort",
+				-- PHP: intelephense (LSP), pint (formatter, also picked up from a
+				-- project's vendor/bin), blade-formatter (Laravel views),
+				-- php-debug-adapter (Xdebug, see plugins/tools/dap.lua).
+				"intelephense",
+				"pint",
+				"blade-formatter",
+				"php-debug-adapter",
 				-- Servers enabled below that mason must provide.
 				"elixir-ls",
 				"json-lsp",

@@ -23,6 +23,10 @@ return {
 				markdown = { "prettier" },
 				graphql = { "prettier" },
 				lua = { "stylua" },
+				-- pint resolves to the project's vendor/bin/pint when there is one
+				-- (so pint.json and the project's pint version win), else Mason's.
+				php = { "pint" },
+				blade = { "blade-formatter" },
 				python = { "isort", "black" },
 				http = { "kulala_fmt" },
 				rest = { "kulala_fmt" },

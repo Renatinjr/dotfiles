@@ -21,10 +21,18 @@ return {
 			}),
 		})
 
-		for _, name in ipairs({ "lua_ls", "tailwindcss", "yamlls", "gopls", "basedpyright", "elixirls" }) do
+		for _, name in ipairs({
+			"lua_ls",
+			"tailwindcss",
+			"yamlls",
+			"gopls",
+			"basedpyright",
+			"elixirls",
+			"intelephense",
+			"html",
+		}) do
 			vim.lsp.config(name, require("lsp.servers." .. name))
 		end
-		vim.lsp.config("html", {})
 
 		-- Must run here rather than from a spec `init`: it reads the config
 		-- nvim-lspconfig ships for eslint before overriding it, which only
@@ -42,6 +50,7 @@ return {
 			"basedpyright",
 			"elixirls",
 			"jsonls",
+			"intelephense",
 		})
 	end,
 }

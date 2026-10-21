@@ -35,6 +35,7 @@ lua/plugins/                 every file is a lazy.nvim spec (or a list of specs)
   coding/    blink.cmp, conform, treesitter
   lsp/       mason, nvim-lspconfig
   lang/      rustaceanvim, crates, kotlin, android, tsc (TypeScript 7), vtsls
+             (PHP needs no plugin — see Language servers below)
   tools/     tmux navigator, claudecode, kulala (REST), dap, image, agrolens
 
 lua/utils/                   notify/resize/tmux helpers, :YaziIconsExport
@@ -104,6 +105,30 @@ Servers are enabled in `plugins/lsp/lspconfig.lua`; per-server tables live in
 `lua/lsp/servers/`. Mason installs the binaries (`plugins/lsp/mason.lua`).
 TypeScript uses the native TS 7 server by default; set `vim.g.ts_lsp = "vtsls"` in
 `options.lua` to switch. `vim.g.tsc_memory_limit` caps the TS server heap.
+
+### PHP / Laravel
+
+- **LSP**: intelephense on `php`. A licence key dropped at
+  `~/intelephense/licence.txt` is picked up automatically; without one the free
+  tier still covers completion, hover, diagnostics and goto.
+  `:IntelephenseIndex` (buffer-local) re-indexes after a `composer install`.
+- **Blade**: intelephense stays off `.blade.php` on purpose — it reads
+  `@extends(...)` as a call to an undefined function and cannot see inside
+  `{{ ... }}`, so it would only add noise. Views are served by the treesitter
+  `blade` parser (which injects `php_only` and `html`) plus html-ls for tag and
+  attribute completion, and blade-formatter on save.
+- **Formatting**: `pint` for php, `blade-formatter` for blade, both through
+  conform. Pint prefers the project's `vendor/bin/pint`, so `pint.json` and the
+  project's own version win; Mason's copy is the fallback.
+- **Debugging**: `<leader>dc` → "Listen for Xdebug (:9003)", then trigger the
+  request. `php.ini` sets `xdebug.start_with_request=trigger`, so ordinary runs
+  are not slowed down and a debug run needs the trigger:
+  `XDEBUG_TRIGGER=1 php artisan ...` or `?XDEBUG_TRIGGER=1` on a URL. The other
+  two configurations ("Debug current script", "Debug artisan command") set the
+  trigger themselves. Xdebug settings live in
+  `/opt/homebrew/etc/php/8.5/conf.d/20-xdebug-debug.ini`, outside this repo.
+  For Sail/DDEV add a `pathMappings` entry — see the comment in
+  `plugins/tools/dap.lua`.
 
 ## Tooling
 

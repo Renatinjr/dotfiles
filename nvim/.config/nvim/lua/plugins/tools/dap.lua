@@ -185,6 +185,56 @@ return {
 				},
 			}
 
+			-- PHP adapter (Xdebug via vscode-php-debug from Mason).
+			--
+			-- php-debug-adapter is a node: wrapper in Mason's bin dir, which
+			-- config/options.lua has already prepended to PATH.
+			dap.adapters.php = {
+				type = "executable",
+				command = "php-debug-adapter",
+			}
+
+			dap.configurations.php = {
+				{
+					-- The usual one: start this, then hit a route or run a command
+					-- with the Xdebug trigger set and the request stops here.
+					--   XDEBUG_TRIGGER=1 php artisan queue:work
+					--   curl 'localhost:8000/?XDEBUG_TRIGGER=1'
+					-- The trigger is required because php.ini sets
+					-- xdebug.start_with_request=trigger, so ordinary runs never
+					-- pay the connection cost.
+					type = "php",
+					request = "launch",
+					name = "Listen for Xdebug (:9003)",
+					port = 9003,
+					-- Only needed when php runs somewhere else than this filesystem
+					-- (Sail/DDEV/a remote host). For Laravel Sail that is:
+					--   pathMappings = { ["/var/www/html"] = "${workspaceFolder}" },
+				},
+				{
+					-- No trigger needed: Xdebug is told to connect for this one run.
+					type = "php",
+					request = "launch",
+					name = "Debug current script",
+					program = "${file}",
+					cwd = "${fileDirname}",
+					port = 0, -- let the adapter pick a free port and pass it on
+					runtimeArgs = { "-dxdebug.start_with_request=yes" },
+				},
+				{
+					type = "php",
+					request = "launch",
+					name = "Debug artisan command",
+					program = "${workspaceFolder}/artisan",
+					cwd = "${workspaceFolder}",
+					port = 0,
+					runtimeArgs = { "-dxdebug.start_with_request=yes" },
+					args = function()
+						return vim.split(vim.fn.input("artisan "), " ", { trimempty = true })
+					end,
+				},
+			}
+
 			-- Rust: handled by rustaceanvim (codelldb adapter)
 
 			-- Virtual text

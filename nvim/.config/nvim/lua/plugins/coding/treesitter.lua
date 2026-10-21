@@ -20,6 +20,12 @@ local parsers = {
 	"luap",
 	"markdown",
 	"markdown_inline",
+	-- php pulls in php_only as a dependency; blade's injections reference
+	-- php_only and html directly, so both have to be present for Laravel views.
+	"php",
+	"php_only",
+	"phpdoc",
+	"blade",
 	"python",
 	"query",
 	"regex",
