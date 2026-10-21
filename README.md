@@ -6,6 +6,7 @@ Each top-level directory is a **stow package** whose contents mirror `$HOME`.
 ```
 zsh/.zshrc                -> ~/.zshrc
 kitty/.config/kitty/...   -> ~/.config/kitty/...
+ghostty/.config/ghostty/. -> ~/.config/ghostty/...
 git/.gitconfig            -> ~/.gitconfig
 ```
 
@@ -16,7 +17,8 @@ git/.gitconfig            -> ~/.gitconfig
 | `zsh`      | `~/.zshrc`             | OS-aware (macOS + Linux) |
 | `bash`     | `~/.bashrc`            | |
 | `git`      | `~/.gitconfig`         | |
-| `kitty`    | `~/.config/kitty`      | Terminal |
+| `kitty`    | `~/.config/kitty`      | Terminal (legacy) |
+| `ghostty`  | `~/.config/ghostty`    | Terminal (active); `config` includes `config.ghostty` |
 | `starship` | `~/.config/starship.toml` | Prompt |
 | `nvim`     | `~/.config/nvim`       | Plugins pinned via `lazy-lock.json` |
 | `tmux`     | `~/.tmux.conf`         | Active tmux config |

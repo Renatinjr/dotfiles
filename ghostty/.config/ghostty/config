@@ -1,0 +1,35 @@
+# Ghostty reads this file ("config"), not "config.ghostty" — the theme/font
+# settings live in that file and are pulled in here.
+config-file = config.ghostty
+
+# ================ CMD (⌘) KEYS -> TMUX ================
+# tmux has no Super/Cmd modifier, so each Cmd chord is sent as a private
+# escape sequence that ~/.tmux.conf binds via user-keys[0..12].
+# csi:X sends ESC [ X. Keep these numbers in sync with .tmux.conf.
+
+keybind = cmd+t=csi:5;30000~
+keybind = cmd+w=csi:5;30001~
+keybind = cmd+d=csi:5;30002~
+keybind = cmd+shift+d=csi:5;30003~
+keybind = cmd+one=csi:5;30004~
+keybind = cmd+two=csi:5;30005~
+keybind = cmd+three=csi:5;30006~
+keybind = cmd+four=csi:5;30007~
+keybind = cmd+five=csi:5;30008~
+keybind = cmd+six=csi:5;30009~
+keybind = cmd+seven=csi:5;30010~
+keybind = cmd+eight=csi:5;30011~
+keybind = cmd+nine=csi:5;30012~
+
+# Ghostty's built-in goto_tab bindings are registered on the *physical* digit
+# keys (digit_1..digit_9), which are looked up separately from the logical
+# `one`..`nine` above. Bind both forms so cmd+N can't fall through to tabs.
+keybind = cmd+digit_1=csi:5;30004~
+keybind = cmd+digit_2=csi:5;30005~
+keybind = cmd+digit_3=csi:5;30006~
+keybind = cmd+digit_4=csi:5;30007~
+keybind = cmd+digit_5=csi:5;30008~
+keybind = cmd+digit_6=csi:5;30009~
+keybind = cmd+digit_7=csi:5;30010~
+keybind = cmd+digit_8=csi:5;30011~
+keybind = cmd+digit_9=csi:5;30012~

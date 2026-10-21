@@ -1,0 +1,45 @@
+font-family-bold = JetBrains Mono
+font-family-italic = JetBrains Mono
+font-family-bold-italic = JetBrains Mono
+font-size = 16
+
+# Theme name: kanagawa-dragon-ish (based on your Kitty config)
+background-opacity = 0.90
+background-blur = true
+
+
+background = 0e1415
+foreground = DCD7BA
+
+cursor-color = C5C9C7
+cursor-text = 090E13
+
+selection-background = 393B44
+selection-foreground = C5C9C7
+
+# Ghostty doesn't have a dedicated "url-color" key in themes,
+# but it's included as a comment for reference: #72A7BC
+
+# normal colors
+palette = 0=#0d0c0c
+palette = 1=#c4746e
+palette = 2=#8a9a7b
+palette = 3=#c4b28a
+palette = 4=#8ba4b0
+palette = 5=#a292a3
+palette = 6=#8ea4a2
+palette = 7=#C8C093
+
+# bright colors
+palette = 8=#A4A7A4
+palette = 9=#E46876
+palette = 10=#87a987
+palette = 11=#E6C384
+palette = 12=#7FB4CA
+palette = 13=#938AA9
+palette = 14=#7AA89F
+palette = 15=#C5C9C7
+
+# extended colors (16 and 17)
+palette = 16=#b6927b
+palette = 17=#b98d7b
