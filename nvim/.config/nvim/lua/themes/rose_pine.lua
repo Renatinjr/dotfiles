@@ -87,7 +87,9 @@ function M.palette(variant)
 		fzf = {
 			setup_colors = function()
 				local highlights = {
-					FzfLuaNormal = { bg = p.base, fg = p.text },
+					-- bg "NONE" rather than the palette's background: the
+					-- picker is a float over a transparent editor.
+					FzfLuaNormal = { bg = "NONE", fg = p.text },
 					FzfLuaBorder = { fg = p.highlight_high },
 					FzfLuaCursorLine = { bg = p.overlay, fg = p.iris },
 					FzfLuaTitle = { fg = p.rose, bold = true },
@@ -128,6 +130,7 @@ function M.palette(variant)
 		},
 
 		nvim_tree = lib.make_nvim_tree({
+			transparent = true, -- rose-pine runs `styles.transparency`; see M.spec
 			bg = p.base,
 			fg = p.text,
 			comment = p.muted,
@@ -222,7 +225,6 @@ M.spec = {
 	config = function()
 		require("rose-pine").setup({
 			variant = "auto", -- the colors/rose-pine-*.lua files pick the variant
-			transparent = true,
 			dark_variant = "main", -- plain `:colorscheme rose-pine` on a dark background
 			dim_inactive_windows = false,
 			extend_background_behind_borders = true,
@@ -230,7 +232,11 @@ M.spec = {
 			styles = {
 				bold = true,
 				italic = true,
-				transparency = false,
+				-- rose-pine reads transparency from HERE. A top-level
+				-- `transparent = true` is not one of its options, so it was
+				-- silently ignored while this said false -- the theme never
+				-- actually ran transparent.
+				transparency = true,
 			},
 
 			palette = {},
@@ -242,19 +248,24 @@ M.spec = {
 				["@string.special.url"] = { fg = "iris", underline = true },
 
 				-- UI
-				Normal = { bg = "base" },
-				NormalFloat = { bg = "surface" },
-				NormalNC = { bg = "base" },
-				SignColumn = { bg = "base" },
-				LineNr = { bg = "base", fg = "muted" },
-				CursorLineNr = { bg = "base", fg = "text", bold = true },
-				FoldColumn = { bg = "base" },
-				WinSeparator = { fg = "overlay", bg = "base" },
+				--
+				-- bg "NONE" throughout, not the palette's `base`: `styles.transparency`
+				-- above only stops rose-pine from painting its OWN backgrounds, and
+				-- naming one here puts it straight back -- which is what kept the
+				-- editor, the gutter and every float opaque.
+				Normal = { bg = "NONE" },
+				NormalFloat = { bg = "NONE" },
+				NormalNC = { bg = "NONE" },
+				SignColumn = { bg = "NONE" },
+				LineNr = { bg = "NONE", fg = "muted" },
+				CursorLineNr = { bg = "NONE", fg = "text", bold = true },
+				FoldColumn = { bg = "NONE" },
+				WinSeparator = { fg = "overlay", bg = "NONE" },
 				StatusLine = { bg = "overlay", fg = "text" },
 				StatusLineNC = { bg = "surface", fg = "muted" },
 
 				-- Pmenu / Completion
-				Pmenu = { bg = "surface", fg = "text" },
+				Pmenu = { bg = "NONE", fg = "text" },
 				PmenuSel = { bg = "overlay", fg = "rose", bold = true },
 				CmpItemAbbr = { fg = "text" },
 				CmpItemAbbrMatch = { fg = "rose", bold = true },

@@ -8,14 +8,24 @@ local M = {}
 -- status-icon groups; we set both so colors land regardless of which the
 -- renderer reaches for.
 function M.make_nvim_tree(c)
+	-- `c.transparent` is set by the themes that run their colorscheme with
+	-- transparency on (koda, kanso, rose-pine, black-metal). Without it the tree
+	-- painted its own opaque background while `Normal` was left unset, so the
+	-- sidebar stayed a solid block over a see-through editor.
+	--
+	-- `c.bg` is still the real color: two groups below need it as a FOREGROUND
+	-- (hiding the `~` filler, and the window-picker label), where "NONE" would
+	-- mean "no color" instead of "the background color".
+	local win_bg = c.transparent and "NONE" or c.bg
+
 	return {
 		-- Window / chrome
-		NvimTreeNormal = { fg = c.fg, bg = c.bg },
-		NvimTreeNormalFloat = { fg = c.fg, bg = c.bg },
-		NvimTreeNormalNC = { fg = c.fg, bg = c.bg },
-		NvimTreeEndOfBuffer = { fg = c.bg, bg = c.bg },
-		NvimTreeNormalFloatBorder = { fg = c.border, bg = c.bg },
-		NvimTreeWinSeparator = { fg = c.border, bg = c.bg },
+		NvimTreeNormal = { fg = c.fg, bg = win_bg },
+		NvimTreeNormalFloat = { fg = c.fg, bg = win_bg },
+		NvimTreeNormalNC = { fg = c.fg, bg = win_bg },
+		NvimTreeEndOfBuffer = { fg = c.bg, bg = win_bg },
+		NvimTreeNormalFloatBorder = { fg = c.border, bg = win_bg },
+		NvimTreeWinSeparator = { fg = c.border, bg = win_bg },
 		NvimTreeCursorLine = { bg = c.sel_bg },
 		NvimTreeLiveFilterPrefix = { fg = c.accent, bold = true },
 		NvimTreeLiveFilterValue = { fg = c.fg },

@@ -164,8 +164,10 @@ function M.palette(variant)
 		fzf = {
 			setup_colors = function()
 				local highlights = {
-					FzfLuaNormal = { bg = p.bg, fg = p.fg },
-					FzfLuaBorder = { fg = p.border, bg = p.bg },
+					-- bg "NONE" rather than the palette's background: the
+					-- picker is a float over a transparent editor.
+					FzfLuaNormal = { bg = "NONE", fg = p.fg },
+					FzfLuaBorder = { fg = p.border, bg = "NONE" },
 					FzfLuaCursorLine = { bg = p.line, fg = p.highlight },
 					FzfLuaTitle = { fg = p.info, bold = true },
 					FzfLuaPrompt = { fg = p.highlight, bold = true },
@@ -232,6 +234,7 @@ function M.palette(variant)
 		},
 
 		nvim_tree = lib.make_nvim_tree({
+			transparent = true, -- koda runs `transparent = true`; see M.spec
 			bg = p.bg,
 			fg = p.fg,
 			comment = p.comment,

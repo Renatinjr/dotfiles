@@ -51,7 +51,9 @@ function M.palette(variant)
 				}
 
 				local highlights = {
-					FzfLuaNormal = { bg = fzf_colors.bg, fg = fzf_colors.fg },
+					-- bg "NONE" rather than the palette's background: the
+					-- picker is a float over a transparent editor.
+					FzfLuaNormal = { bg = "NONE", fg = fzf_colors.fg },
 					FzfLuaBorder = { fg = "#a4a7a4" },
 					FzfLuaCursorLine = { bg = fzf_colors.cursor_line_bg, fg = fzf_colors.purple },
 					FzfLuaTitle = { fg = fzf_colors.blue, bold = true },
@@ -92,6 +94,7 @@ function M.palette(variant)
 		},
 
 		nvim_tree = lib.make_nvim_tree({
+			transparent = true, -- kanso runs `transparent = true`; see M.spec
 			bg = theme.ui.bg,
 			fg = theme.ui.fg,
 			comment = theme.syn.comment,
@@ -193,7 +196,10 @@ M.spec = {
 			statementStyle = {},
 			typeStyle = {},
 			transparent = true,
-			dimInactive = true,
+			-- Off: dimming an inactive window means painting it an opaque
+			-- background, which with `transparent = true` leaves split windows
+			-- as solid blocks over a see-through editor.
+			dimInactive = false,
 			terminalColors = true,
 			background = { dark = "zen", light = "pearl" },
 			overrides = function(colors)
@@ -216,14 +222,18 @@ M.spec = {
 					-- ══════════════════════════════════════════════
 					-- EDITOR UI — deep dark, minimal chrome
 					-- ══════════════════════════════════════════════
-					Normal = { bg = bg, fg = fg },
-					NormalFloat = { bg = bg, fg = fg },
-					NormalNC = { bg = bg, fg = p.gray2 },
-					SignColumn = { bg = bg },
-					LineNr = { bg = bg, fg = p.gray5 },
-					CursorLineNr = { bg = bg, fg = fg2, bold = true },
+					-- No backgrounds on the window/gutter groups: kanso is set up
+					-- with `transparent = true` (see M.spec), and naming one here is
+					-- what used to cancel it -- the editor, the gutter and every
+					-- float all came out opaque.
+					Normal = { fg = fg },
+					NormalFloat = { fg = fg },
+					NormalNC = { fg = p.gray2 },
+					SignColumn = {},
+					LineNr = { fg = p.gray5 },
+					CursorLineNr = { fg = fg2, bold = true },
 					CursorLine = { bg = bg1 },
-					FoldColumn = { bg = bg, fg = p.gray5 },
+					FoldColumn = { fg = p.gray5 },
 					Folded = { bg = bg1, fg = p.gray4 },
 					WinSeparator = { fg = bg, bg = bg },
 					StatusLine = { bg = bg1, fg = p.gray2 },
@@ -257,11 +267,13 @@ M.spec = {
 					TabLineFill = { bg = bg },
 
 					-- Floating windows
-					FloatBorder = { fg = bg2, bg = bg },
+					FloatBorder = { fg = bg2 },
 					FloatTitle = { fg = p.blue3, bg = bg, bold = true },
 
 					-- Pmenu / Completion
-					Pmenu = { bg = bg1, fg = fg },
+					-- Transparent like the floats above; PmenuSel keeps a solid
+					-- background so the selected row still reads.
+					Pmenu = { bg = "NONE", fg = fg },
 					PmenuSel = { bg = bg3, fg = t.syn.fun, bold = true },
 					PmenuSbar = { bg = bg1 },
 					PmenuThumb = { bg = bg3 },
