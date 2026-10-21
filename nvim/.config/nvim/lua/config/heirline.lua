@@ -271,7 +271,7 @@ local Mode = {
 		provider = right_slant,
 		hl = function(self)
 			local mode_hl = GetModeHighlight(self.mode)
-			return { fg = mode_hl.bg, bg = colors.dark_bg }
+			return { fg = mode_hl.bg, bg = colors.normal_bg3 }
 		end,
 	},
 }
