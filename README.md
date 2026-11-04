@@ -26,6 +26,7 @@ git/.gitconfig            -> ~/.gitconfig
 | `asdf`     | `~/.tool-versions`     | Runtime versions |
 | `ssh`      | `~/.ssh/config`        | Host aliases only — **keys are not in this repo** |
 | `gh`       | `~/.config/gh/config.yml` | gh CLI prefs (auth `hosts.yml` is gitignored) |
+| `omniwm`   | `~/.config/omniwm/settings.toml` | OmniWM tiling WM (macOS 26+); i3-style Option+hjkl keys, Dwindle layout. Strict schema — edit values in place |
 
 ## Fresh setup on macOS (Apple Silicon / M3)
 
@@ -44,7 +45,7 @@ git clone https://github.com/Renatinjr/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
 # 4. Stow the packages you want (NOT .tmux)
-stow zsh git kitty starship nvim tmux yazi asdf ssh gh
+stow zsh git kitty starship nvim tmux yazi asdf ssh gh omniwm
 
 # 5. Runtimes via asdf (versions come from ~/.tool-versions)
 for p in nodejs rust golang python java; do asdf plugin add $p; done
