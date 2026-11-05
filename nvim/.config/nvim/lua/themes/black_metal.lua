@@ -1,7 +1,7 @@
 -- Theme module contract (see config/theme/init.lua for the registry):
 --   M.palette(variant)  -> consumer palette table (bg, bg_sec, bg_notify, text,
 --                          text_sec, inlay_hint_*, fzf.setup_colors, alpha,
---                          nvim_tree, incline, bufferline; optional indent, blink).
+--                          nvim_tree, incline, bufferline, tags; optional indent, blink).
 --                          Returns {} if the plugin it reads from is not loaded.
 --   M.background()      -> "dark" | "light" (only when it depends on runtime state)
 --   M.spec              -> the lazy.nvim spec for the colorscheme plugin
@@ -80,6 +80,43 @@ local GREY = {
 	context = "#0E0E0E", -- treesitter-context, a fraction of `visual`
 }
 
+-- Hue/lightness distance between two hex colors, used to tell whether a band's
+-- two accents are actually different enough to carry different meanings.
+local function far_apart(a, b)
+	local function hsl(hex)
+		local r, g, bl = hex:match("#?(%x%x)(%x%x)(%x%x)")
+		if not r then
+			return nil
+		end
+		r, g, bl = tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(bl, 16) / 255
+		local mx, mn = math.max(r, g, bl), math.min(r, g, bl)
+		local hue = 0
+		if mx ~= mn then
+			local d = mx - mn
+			if mx == r then
+				hue = ((g - bl) / d) % 6
+			elseif mx == g then
+				hue = (bl - r) / d + 2
+			else
+				hue = (r - g) / d + 4
+			end
+			hue = hue * 60
+		end
+		return hue, (mx + mn) / 2 * 100
+	end
+
+	local ha, la = hsl(a)
+	local hb, lb = hsl(b)
+	if not ha or not hb then
+		return false
+	end
+	local hd = math.abs(ha - hb)
+	if hd > 180 then
+		hd = 360 - hd
+	end
+	return hd >= 40 or math.abs(la - lb) >= 12
+end
+
 -- Tinted wash behind diagnostic virtual text, at the same 0.12 the other themes
 -- in this config use (lua/themes/material.lua, kanagawa.lua).
 local function wash(color)
@@ -154,6 +191,24 @@ function M.palette(band)
 					help_border = "FzfLuaBorder",
 				}
 			end,
+		},
+
+		-- JSX/HTML tag colors (applied by config/theme/switcher.lua). The two
+		-- per-band accents split the work: builtin elements take the lighter
+		-- one, your own components the loud one, so <div> and <Tag> stop
+		-- looking identical. Delimiters stay dim because rainbow-delimiters
+		-- colors the brackets by nesting depth on top of this.
+		tags = {
+			-- Components keep the loud accent; elements take the lighter one.
+			-- Three bands (darkthrone, taake, thyrfing) own two accents that are
+			-- nearly the same color -- darkthrone's are both #FFFFFF -- which
+			-- would leave <div> and <Component> indistinguishable, so there the
+			-- element color falls back to the palette's violet-grey, which every
+			-- band carries and no band's accent resembles.
+			builtin = far_apart(accent, accent2) and accent or p.operator,
+			component = accent2,
+			attribute = p.property,
+			delimiter = GREY.dim,
 		},
 
 		alpha = {
@@ -541,6 +596,9 @@ M.spec = {
 				RainbowDelimiterOrange = { fg = "$constant" },
 				RainbowDelimiterGreen = { fg = "$keyword" },
 				RainbowDelimiterViolet = { fg = "$operator" },
+				-- plugins/editor/rainbow.lua cycles seven groups; this one was missing,
+				-- so brackets at that depth fell back to no color at all.
+				RainbowDelimiterCyan = { fg = "$property" },
 			},
 		}
 

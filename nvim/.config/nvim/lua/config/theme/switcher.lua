@@ -94,6 +94,37 @@ function M.refresh()
 		end)
 	end
 
+	-- JSX/HTML tags. Most of these colorschemes paint @tag and @tag.builtin the
+	-- same color, so a <div> and a <Component> are indistinguishable -- and the
+	-- distinction is the useful one in a React file. Each palette names four
+	-- colors (see any lua/themes/<name>.lua) and they are applied here, after
+	-- the colorscheme has had its say.
+	--
+	-- Only `fg` is set, so a theme's bold/italic on these groups survives.
+	-- rainbow-delimiters colors the angle BRACKETS by nesting depth on top of
+	-- this (see plugins/editor/rainbow.lua); the names stay semantic.
+	if type(current.tags) == "table" then
+		for group, fg in pairs({
+			-- JSX: `@tag.builtin` is a <div>, `@tag` is one of your components.
+			["@tag"] = current.tags.component,
+			["@tag.builtin"] = current.tags.builtin,
+			-- Plain HTML has no components, and its grammar captures every tag
+			-- as `@tag` -- which would hand them the component color. Neovim
+			-- resolves `@tag.<lang>` before `@tag`, so this scopes them back to
+			-- the element color without touching JSX. Covers blade too, which
+			-- injects html.
+			["@tag.html"] = current.tags.builtin,
+			["@tag.attribute"] = current.tags.attribute,
+			["@tag.delimiter"] = current.tags.delimiter,
+		}) do
+			if fg then
+				local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+				hl.fg = fg
+				pcall(vim.api.nvim_set_hl, 0, group, hl)
+			end
+		end
+	end
+
 	-- Mirrors config/options.lua, which sets this at startup off the palette.
 	pcall(vim.api.nvim_set_hl, 0, "LspInlayHint", {
 		bg = current.inlay_hint_bg,

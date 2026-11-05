@@ -30,3 +30,7 @@ require("config.lazy")
 require("config.options")
 require("config.autocmds")
 require("config.keymaps")
+
+-- Per-tag-name colors for HTML/JSX. Registers autocmds only; the work happens
+-- when a buffer with tags is shown.
+require("config.tagcolors").setup()

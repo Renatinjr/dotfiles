@@ -1,7 +1,7 @@
 -- Theme module contract (see config/theme/init.lua for the registry):
 --   M.palette(variant)  -> consumer palette table (bg, bg_sec, bg_notify, text,
 --                          text_sec, inlay_hint_*, fzf.setup_colors, alpha,
---                          nvim_tree, incline, bufferline; optional indent, blink).
+--                          nvim_tree, incline, bufferline, tags; optional indent, blink).
 --                          Returns {} if the plugin it reads from is not loaded.
 --   M.background()      -> "dark" | "light" (only when it depends on runtime state)
 --   M.spec              -> the lazy.nvim spec for the colorscheme plugin
@@ -156,6 +156,13 @@ function M.palette()
 					help_border = "FzfLuaBorder",
 				}
 			end,
+		},
+
+		tags = {
+			builtin = p.skye,
+			component = syn.type,
+			attribute = p.blue,
+			delimiter = p.surface1,
 		},
 
 		alpha = {

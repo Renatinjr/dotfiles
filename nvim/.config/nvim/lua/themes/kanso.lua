@@ -1,7 +1,7 @@
 -- Theme module contract (see config/theme/init.lua for the registry):
 --   M.palette(variant)  -> consumer palette table (bg, bg_sec, bg_notify, text,
 --                          text_sec, inlay_hint_*, fzf.setup_colors, alpha,
---                          nvim_tree, incline, bufferline; optional indent, blink).
+--                          nvim_tree, incline, bufferline, tags; optional indent, blink).
 --                          Returns {} if the plugin it reads from is not loaded.
 --   M.background()      -> "dark" | "light" (only when it depends on runtime state)
 --   M.spec              -> the lazy.nvim spec for the colorscheme plugin
@@ -85,6 +85,16 @@ function M.palette(variant)
 					help_border = "FzfLuaBorder",
 				}
 			end,
+		},
+
+		tags = {
+			-- `fun` is the palette's blue and `special1` its gold: `constant`
+			-- and `special1` are both warm tans, only 18 degrees of hue apart,
+			-- which left a <div> and a <Component> looking the same.
+			builtin = theme.syn.fun,
+			component = theme.syn.special1,
+			attribute = theme.syn.number,
+			delimiter = theme.syn.punct,
 		},
 
 		alpha = {

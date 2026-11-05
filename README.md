@@ -21,7 +21,7 @@ git/.gitconfig            -> ~/.gitconfig
 | `ghostty`  | `~/.config/ghostty`    | Terminal (active); `config` includes `config.ghostty` |
 | `starship` | `~/.config/starship.toml` | Prompt |
 | `nvim`     | `~/.config/nvim`       | Plugins pinned via `lazy-lock.json` |
-| `tmux`     | `~/.tmux.conf`         | Active tmux config |
+| `tmux`     | `~/.tmux.conf`, `~/.config/tmux` | Active tmux config and status bar script |
 | `yazi`     | `~/.config/yazi`       | File manager |
 | `asdf`     | `~/.tool-versions`     | Runtime versions |
 | `ssh`      | `~/.ssh/config`        | Host aliases only — **keys are not in this repo** |
@@ -62,6 +62,37 @@ gh auth login
 > The nvim config pins plugins via `lazy-lock.json`; first `nvim` launch will
 > bootstrap lazy.nvim and restore them. A local `node_modules/typescript` is
 > required per-project for TS LSP diagnostics.
+
+## Fresh setup on Arch Linux
+
+Needs `yay` already installed. Run it as your normal user, not root:
+
+```sh
+git clone https://github.com/Renatinjr/dotfiles.git ~/dotfiles
+~/dotfiles/install-arch.sh
+```
+
+The script is safe to re-run. It:
+
+1. Upgrades the system (`yay -Syu`), then installs the repo and AUR packages.
+   Any package name it can't find is skipped with a warning.
+2. Stows every package except `omniwm` (macOS only) and `bash`. Files that would
+   conflict are moved to `~/.dotfiles-backup/<timestamp>/`.
+3. Clones the zsh plugins into `~/.zsh` and tpm into `~/.tmux/plugins/tpm`.
+4. Sets zsh as the login shell (`chsh` asks for your password).
+5. Installs the runtimes from `~/.tool-versions` with asdf. This step runs last
+   and takes the longest, because Python compiles from source.
+
+Then log out and back in, and finish by hand:
+
+```sh
+gh auth login        # git uses gh for GitHub credentials
+tmux                 # then press: prefix + I  to install plugins
+nvim                 # then run: :MasonToolsInstall
+```
+
+> The `cmd+…` keybinds in Ghostty and kitty become `Super+…` on Linux, so your
+> compositor may catch them before they reach tmux.
 
 ## Migration gotchas (from the Arch → Mac move)
 
